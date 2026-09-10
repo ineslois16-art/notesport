@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Suivi sportif",
-    "slug": "suivi-sportif",
-    "scheme": "suivisportif",
+    "name": "Notesport",
+    "slug": "notesport",
+    "scheme": "notesport",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,19 +12,19 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.val.suivisportif",
+      "bundleIdentifier": "com.val.notesport",
       "buildNumber": "1",
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "CFBundleDisplayName": "Suivi sportif",
+        "CFBundleDisplayName": "Notesport",
         "CFBundleLocalizations": ["fr"],
         "CFBundleDevelopmentRegion": "fr"
       }
     },
     "android": {
-      "package": "com.val.suivisportif",
+      "package": "com.val.notesport",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#e7f4ec",

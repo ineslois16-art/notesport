@@ -16,6 +16,8 @@ import {
   type Settings,
 } from '../domain/program';
 
+// Nom de fichier historique : le renommer ferait repartir l'application
+// d'une base vide et perdrait les journées déjà saisies.
 const DATABASE_NAME = 'suivi-sportif.db';
 const SCHEMA_VERSION = 2;
 

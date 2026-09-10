@@ -36,7 +36,7 @@ async function shareText(fileName: string, contents: string, mimeType: string, u
   file.write(contents);
 
   if (await Sharing.isAvailableAsync()) {
-    await Sharing.shareAsync(file.uri, { mimeType, dialogTitle: 'Sauvegarde du suivi sportif', UTI: uti });
+    await Sharing.shareAsync(file.uri, { mimeType, dialogTitle: 'Sauvegarde Notesport', UTI: uti });
   }
   return file.uri;
 }
@@ -44,7 +44,7 @@ async function shareText(fileName: string, contents: string, mimeType: string, u
 export async function exportJson(days: DayRecord[], settings: Settings): Promise<string> {
   const payload = buildPayload(days, settings);
   return shareText(
-    `suivi-sportif-${stamp()}.json`,
+    `notesport-${stamp()}.json`,
     JSON.stringify(payload, null, 2),
     'application/json',
     'public.json',
@@ -52,5 +52,5 @@ export async function exportJson(days: DayRecord[], settings: Settings): Promise
 }
 
 export async function exportCsv(days: DayRecord[], settings: Settings): Promise<string> {
-  return shareText(`suivi-sportif-${stamp()}.csv`, buildCsv(days, settings), 'text/csv', 'public.comma-separated-values-text');
+  return shareText(`notesport-${stamp()}.csv`, buildCsv(days, settings), 'text/csv', 'public.comma-separated-values-text');
 }

@@ -1,10 +1,10 @@
-# Politique de confidentialité — Suivi sportif
+# Politique de confidentialité — Notesport
 
 _Dernière mise à jour : 10 septembre 2026_
 
 ## En une phrase
 
-L'application « Suivi sportif » ne collecte, ne transmet et ne partage aucune
+L'application « Notesport » ne collecte, ne transmet et ne partage aucune
 donnée personnelle. Tout ce que vous saisissez reste sur votre téléphone.
 
 ## Données enregistrées

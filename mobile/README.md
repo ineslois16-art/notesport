@@ -1,4 +1,4 @@
-# Suivi sportif — application iOS / Android
+# Notesport — application iOS / Android
 
 Application mobile hors ligne pour le programme corde à sauter · pompes · squats.
 Écrite avec Expo (React Native + TypeScript), base de données **SQLite locale**,
@@ -39,7 +39,9 @@ effacement complet.
 
 ## Données
 
-Tout vit dans une base SQLite sur le téléphone (`suivi-sportif.db`) : aucun
+Tout vit dans une base SQLite sur le téléphone (`suivi-sportif.db`, nom de
+fichier conservé de la version précédente pour ne pas perdre les données déjà
+saisies) : aucun
 compte, aucun serveur, aucune connexion réseau. Le schéma est versionné via
 `PRAGMA user_version`.
 
@@ -50,7 +52,7 @@ compte, aucun serveur, aucune connexion réseau. Le schéma est versionné via
 | `block_entries` | un bloc d'une journée : coché, heure réelle, répétitions |
 
 L'import accepte **deux formats** : les sauvegardes de l'application, et le
-fichier JSON exporté par la page web « Suivi sportif de Val » (`web/index.html`
+fichier JSON exporté par la page web Notesport (`web/index.html`
 dans ce dépôt) — l'historique existant n'est donc pas perdu.
 
 ## Développement

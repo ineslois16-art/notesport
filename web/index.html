@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Suivi sportif de Val</title>
+<title>Notesport</title>
 <meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
 <meta name="theme-color" content="#167a50">
 <link rel="manifest" href="manifest.webmanifest">
@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Suivi sportif">
+<meta name="apple-mobile-web-app-title" content="Notesport">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
@@ -44,7 +44,7 @@
 <header class="hero">
 <div class="brand">
 <svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Logo"><rect width="1024" height="1024" rx="230" fill="#167a50"/><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#eaf7ef" stroke-width="48" stroke-linecap="round"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#fff"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#fff"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#fff"/></svg>
-<div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Suivi sportif de Val</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div>
+<div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Notesport</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div>
 </div>
 <label class="date-box" id="dateBox"><b>Jour suivi</b><br><input id="date" type="date"></label></header>
 <nav class="tabs" role="tablist" aria-label="Sections">
@@ -672,7 +672,7 @@ function parseBackup(text) {
     return {days, settings: raw.settings && typeof raw.settings === 'object' ? Object.assign({}, DEFAULTS, raw.settings) : null, source: 'cette page'};
   }
 
-  throw new Error('Format non reconnu : ce fichier ne vient pas d’un suivi sportif.');
+  throw new Error('Format non reconnu : ce fichier ne vient pas de Notesport.');
 }
 
 let pendingImport = null;
@@ -783,7 +783,7 @@ $('export').onclick = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'sauvegarde-suivi-sportif-val.json';
+  a.download = 'notesport-' + todayISO() + '.json';
   document.body.appendChild(a);
   a.click();
   a.remove();

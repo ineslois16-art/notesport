@@ -1,4 +1,4 @@
-# Mettre « Suivi sportif » sur ton iPhone, puis sur l'App Store
+# Mettre Notesport sur ton iPhone, puis sur l'App Store
 
 Le code de l'application est prêt et compile (`mobile/`). Ce qui suit ne peut
 pas être fait à ta place : **publier sur l'App Store passe obligatoirement par
@@ -120,8 +120,8 @@ faut un **compte Apple Developer** (99 $/an, https://developer.apple.com/program
 
 1. Choisis un identifiant unique et remplace-le dans `mobile/app.json`
    (`ios.bundleIdentifier` et `android.package`). Aujourd'hui :
-   `com.val.suivisportif`. La convention est ton nom de domaine à l'envers, par
-   exemple `fr.valerie.suivisportif`.
+   `com.val.notesport`. La convention est ton nom de domaine à l'envers, par
+   exemple `fr.valerie.notesport`.
 2. Crée un compte Expo (gratuit) puis :
    ```bash
    npm install -g eas-cli
@@ -167,7 +167,7 @@ App Store Connect, remplis la fiche. Voici de quoi la remplir.
 
 ### Fiche produit (prête à copier)
 
-**Nom** (30 car. max) : `Suivi sportif`
+**Nom** (30 car. max) : `Notesport`
 **Sous-titre** (30 car. max) : `Corde, pompes, squats`
 
 **Description**

@@ -4,7 +4,7 @@
  *
  * Deux formats sont acceptés à l'import :
  *  - l'export de cette application (`days` = tableau) ;
- *  - l'export de la page web « Suivi sportif de Val » (`days` = objet indexé
+ *  - l'export de la page web Notesport (`days` = objet indexé
  *    par date, blocs sous la clé `rows`), pour ne pas perdre l'historique.
  */
 
@@ -32,7 +32,7 @@ type ExportedBlock = {
 };
 
 export type ExportPayload = {
-  app: 'suivi-sportif';
+  app: 'notesport';
   version: number;
   exportedAt: string;
   settings: Settings;
@@ -53,7 +53,7 @@ const toInt = (value: unknown, fallback = 0) => {
 
 export function buildPayload(days: DayRecord[], settings: Settings): ExportPayload {
   return {
-    app: 'suivi-sportif',
+    app: 'notesport',
     version: EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
     settings,
@@ -176,7 +176,7 @@ export function parseBackup(text: string): ParsedBackup {
     return { days, settings, source: 'page web' };
   }
 
-  throw new Error("Format non reconnu : ce fichier ne vient pas d'un suivi sportif.");
+  throw new Error("Format non reconnu : ce fichier ne vient pas de Notesport.");
 }
 
 const csvCell = (value: string | number) => {

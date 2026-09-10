@@ -1,4 +1,6 @@
-# Suivi sportif
+# Notesport
+
+Suivi d’entraînement corde à sauter · pompes · squats, hors ligne.
 
 Deux choses dans ce dépôt :
 

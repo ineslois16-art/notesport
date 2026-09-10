@@ -255,7 +255,7 @@ export function SettingsScreen() {
         <View style={{ height: spacing.sm }} />
         <Button label="Importer une sauvegarde" busy={busy === 'import'} onPress={handleImport} />
         <Muted style={{ marginTop: spacing.sm }}>
-          Accepte aussi le fichier exporté par la page web « Suivi sportif de Val ».
+          Accepte aussi le fichier exporté par la page web Notesport.
         </Muted>
         <Divider />
         <Button label="Tout effacer" variant="danger" busy={busy === 'erase'} onPress={handleErase} />
@@ -263,7 +263,7 @@ export function SettingsScreen() {
 
       <View style={{ height: spacing.lg }} />
       <Card>
-        <Text style={[typography.strong, { color: theme.ink }]}>Suivi sportif · version {appVersion}</Text>
+        <Text style={[typography.strong, { color: theme.ink }]}>Notesport · version {appVersion}</Text>
         <Muted>
           Application hors ligne : aucune donnée n’est collectée, aucun compte n’est nécessaire, aucune connexion
           n’est utilisée. Les calories affichées sont des estimations (MET) et ne remplacent pas un avis médical.
