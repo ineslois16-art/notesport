@@ -14,8 +14,10 @@ import {
   computeTotals,
   DEFAULT_SETTINGS,
   emptyDay,
+  clockToMinutes,
   entryFor,
   normalizeSettings,
+  nowClock,
   type BlockEntry,
   type DayRecord,
   type DayTotals,
@@ -41,6 +43,7 @@ type StoreValue = {
   setDate: (date: ISODate) => void;
   toggleBlock: (blockId: string) => Promise<void>;
   setBlockEffort: (blockId: string, patch: Partial<Effort>) => Promise<void>;
+  setBlockTime: (blockId: string, time: string | null) => Promise<void>;
   resetBlock: (blockId: string) => Promise<void>;
   setDayMeta: (patch: { weight?: number | null; notes?: string }) => void;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
@@ -142,7 +145,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const block = blockById(blockId);
       if (!block) return;
       const entry = entryFor(day, block);
-      await writeEntry({ ...entry, done: !entry.done, touched: true });
+      const done = !entry.done;
+      // Cocher un bloc du jour l'horodate à la minute, sauf heure déjà saisie.
+      const time = done && !entry.time && date === todayISO() ? nowClock() : entry.time;
+      await writeEntry({ ...entry, done, touched: true, time });
+    },
+    [blockById, date, day, writeEntry],
+  );
+
+  const setBlockTime = useCallback(
+    async (blockId: string, time: string | null) => {
+      const block = blockById(blockId);
+      if (!block) return;
+      const entry = entryFor(day, block);
+      await writeEntry({
+        ...entry,
+        touched: true,
+        time: time && clockToMinutes(time) !== null ? time : null,
+      });
     },
     [blockById, day, writeEntry],
   );
@@ -172,6 +192,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         blockId,
         done: false,
         touched: false,
+        time: null,
         jumps: block.jumps,
         pushups: block.pushups,
         squats: block.squats,
@@ -235,6 +256,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setDate,
       toggleBlock,
       setBlockEffort,
+      setBlockTime,
       resetBlock,
       setDayMeta,
       updateSettings,
@@ -252,6 +274,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setDate,
       toggleBlock,
       setBlockEffort,
+      setBlockTime,
       resetBlock,
       setDayMeta,
       updateSettings,

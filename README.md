@@ -12,9 +12,9 @@ Deux choses dans ce dépôt :
 
 ## 1. La page web corrigée
 
-`web/suivi-sportif.html` — un seul fichier, à ouvrir directement dans un
-navigateur. Même apparence et mêmes calculs qu'avant, mais les bugs sont
-réparés.
+`web/index.html` — un seul fichier, à ouvrir directement dans un navigateur.
+Même apparence et mêmes calculs qu'avant, mais les bugs sont réparés — et la
+page s'installe maintenant sur l'écran d'accueil de l'iPhone (voir plus bas).
 
 ### Le bug bloquant
 
@@ -46,6 +46,17 @@ Le correctif cible uniquement les cases (`input.check`), la classe de ligne est
 renommée `row-done`, et les événements passent par délégation sur `<tbody>`
 plutôt que par des attributs `onchange` inline.
 
+### Ce qui a changé ensuite
+
+- **Seuls les blocs cochés « Fait » comptent.** Le résultat du jour et
+  l'historique ignorent désormais les répétitions saisies sans avoir coché la
+  case : une valeur tapée reste une intention, pas une séance réalisée.
+- **Heure de chaque bloc modifiable à la minute.** Les horaires du programme
+  (08:00, 10:00, …) deviennent de simples repères, affichés sous le champ.
+  Cocher un bloc du jour l'horodate automatiquement à la minute ; l'heure reste
+  modifiable ensuite. La grille de repère elle-même accepte une minute de
+  départ (08:35 aussi bien que 08:00).
+
 ### Les autres corrections
 
 - **Dates en heure locale.** `toISOString()` renvoie une date UTC : le suivi
@@ -76,7 +87,7 @@ SVG. Quatre onglets : Aujourd'hui, Progression, Historique, Réglages.
 cd mobile
 npm install
 npm start       # puis scanner le QR code avec Expo Go sur l'iPhone
-npm test        # 15 tests du cœur métier, sans téléphone
+npm test        # 18 tests du cœur métier, sans téléphone
 ```
 
 Détail des fonctionnalités et de l'architecture : [`mobile/README.md`](mobile/README.md).
@@ -84,14 +95,29 @@ Détail des fonctionnalités et de l'architecture : [`mobile/README.md`](mobile/
 L'application **importe le fichier JSON exporté par la page web**, donc
 l'historique déjà accumulé n'est pas perdu.
 
-### Pour l'avoir sur le téléphone
+---
 
-- tout de suite, gratuitement, via Expo Go ;
-- comme une vraie application installée, via TestFlight ;
-- publiée sur l'App Store.
+## 3. Avoir l'application sur le téléphone
 
-Les trois procédures, avec les commandes et la fiche App Store prête à copier :
-[`docs/publication-app-store.md`](docs/publication-app-store.md).
+Quatre chemins, détaillés dans
+[`docs/publication-app-store.md`](docs/publication-app-store.md) :
+
+| | Coût | Icône | Hors ligne | Notifications |
+|---|---|---|---|---|
+| **PWA** — la page web installée depuis Safari | **0 €** | oui | oui | non |
+| Expo Go — l'app native servie par l'ordinateur | 0 € | non | oui | non |
+| TestFlight — l'app native installée | 99 $/an | oui | oui | oui |
+| App Store — publiée | 99 $/an | oui | oui | oui |
+
+**Sans compte Apple Developer, la PWA fait le travail** : activer GitHub Pages
+sur ce dépôt, ouvrir `https://<compte>.github.io/notesport/web/` dans Safari,
+puis *Partager → Sur l'écran d'accueil*. Icône, plein écran, fonctionne en
+avion. Les rappels de bloc sont la seule chose qui manque.
 
 > La mise en ligne sur l'App Store demande **ton** compte Apple Developer
 > (99 $/an) : cette étape-là ne peut pas être faite à ta place.
+
+Et non, se passer de l'App Store n'oblige pas à passer par Supabase ou
+Firebase : distribuer l'application et stocker les données sont deux choses
+distinctes, et les données restent très bien sur le téléphone dans les deux
+cas. Le raisonnement complet est dans le même document.

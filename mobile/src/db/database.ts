@@ -17,7 +17,7 @@ import {
 } from '../domain/program';
 
 const DATABASE_NAME = 'suivi-sportif.db';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 let handle: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -53,6 +53,14 @@ async function migrate(db: SQLite.SQLiteDatabase) {
 
       CREATE INDEX IF NOT EXISTS idx_block_entries_date ON block_entries(date);
     `);
+  }
+
+  if (version < 2) {
+    // Heure réelle du bloc, à la minute. NULL = l'heure de repère s'applique.
+    const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(block_entries)');
+    if (!columns.some((column) => column.name === 'time')) {
+      await db.execAsync('ALTER TABLE block_entries ADD COLUMN time TEXT');
+    }
   }
 
   if (version !== SCHEMA_VERSION) {
@@ -112,6 +120,7 @@ type BlockRow = {
   block_id: string;
   done: number;
   touched: number;
+  time: string | null;
   jumps: number;
   pushups: number;
   squats: number;
@@ -122,6 +131,7 @@ function toEntry(row: BlockRow): BlockEntry {
     blockId: row.block_id,
     done: row.done === 1,
     touched: row.touched === 1,
+    time: row.time ?? null,
     jumps: row.jumps,
     pushups: row.pushups,
     squats: row.squats,
@@ -201,12 +211,21 @@ export async function saveBlockEntry(date: ISODate, entry: BlockEntry): Promise<
   const db = await getDatabase();
   await ensureDayRow(db, date);
   await db.runAsync(
-    `INSERT INTO block_entries (date, block_id, done, touched, jumps, pushups, squats)
-     VALUES (?, ?, ?, ?, ?, ?, ?)
+    `INSERT INTO block_entries (date, block_id, done, touched, time, jumps, pushups, squats)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(date, block_id) DO UPDATE SET
-       done = excluded.done, touched = excluded.touched,
+       done = excluded.done, touched = excluded.touched, time = excluded.time,
        jumps = excluded.jumps, pushups = excluded.pushups, squats = excluded.squats`,
-    [date, entry.blockId, entry.done ? 1 : 0, entry.touched ? 1 : 0, entry.jumps, entry.pushups, entry.squats],
+    [
+      date,
+      entry.blockId,
+      entry.done ? 1 : 0,
+      entry.touched ? 1 : 0,
+      entry.time,
+      entry.jumps,
+      entry.pushups,
+      entry.squats,
+    ],
   );
   await db.runAsync('UPDATE days SET updated_at = ? WHERE date = ?', [new Date().toISOString(), date]);
 }
@@ -243,9 +262,18 @@ export async function replaceAll(days: DayRecord[], settings: Settings): Promise
       ]);
       for (const entry of Object.values(day.blocks)) {
         await db.runAsync(
-          `INSERT INTO block_entries (date, block_id, done, touched, jumps, pushups, squats)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [day.date, entry.blockId, entry.done ? 1 : 0, entry.touched ? 1 : 0, entry.jumps, entry.pushups, entry.squats],
+          `INSERT INTO block_entries (date, block_id, done, touched, time, jumps, pushups, squats)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            day.date,
+            entry.blockId,
+            entry.done ? 1 : 0,
+            entry.touched ? 1 : 0,
+            entry.time,
+            entry.jumps,
+            entry.pushups,
+            entry.squats,
+          ],
         );
       }
     }
@@ -268,9 +296,18 @@ export async function mergeDays(days: DayRecord[]): Promise<number> {
       await db.runAsync('DELETE FROM block_entries WHERE date = ?', [day.date]);
       for (const entry of Object.values(day.blocks)) {
         await db.runAsync(
-          `INSERT INTO block_entries (date, block_id, done, touched, jumps, pushups, squats)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [day.date, entry.blockId, entry.done ? 1 : 0, entry.touched ? 1 : 0, entry.jumps, entry.pushups, entry.squats],
+          `INSERT INTO block_entries (date, block_id, done, touched, time, jumps, pushups, squats)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            day.date,
+            entry.blockId,
+            entry.done ? 1 : 0,
+            entry.touched ? 1 : 0,
+            entry.time,
+            entry.jumps,
+            entry.pushups,
+            entry.squats,
+          ],
         );
       }
       imported += 1;

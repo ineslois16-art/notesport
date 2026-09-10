@@ -1,10 +1,20 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Suivi sportif de Val</title>
+<meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
+<meta name="theme-color" content="#167a50">
+<link rel="manifest" href="manifest.webmanifest">
+<!-- Installation sur l'écran d'accueil iOS : Safari ignore encore le manifeste. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Suivi sportif">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-box input{margin-top:5px;border:1px solid var(--line);background:white;border-radius:10px;padding:.65rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}.plan{width:100%;border-collapse:collapse;min-width:1020px}.plan th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 9px}.plan td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:middle}.plan tfoot td{background:var(--green2);font-weight:800;border-top:2px solid #98cdb1}.plan th:nth-child(4),.plan td:nth-child(4){width:355px;white-space:nowrap}.plan tr.row-done{background:#f3fbf6}.exercise{font-weight:750;white-space:nowrap}.check{width:20px;height:20px;accent-color:var(--green);vertical-align:middle;margin-right:7px}.rep{width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}@media(max-width:760px){.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-box input{margin-top:5px;border:1px solid var(--line);background:white;border-radius:10px;padding:.65rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}.plan{width:100%;border-collapse:collapse;min-width:1020px}.plan th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 9px}.plan td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:middle}.plan tfoot td{background:var(--green2);font-weight:800;border-top:2px solid #98cdb1}.plan th:nth-child(4),.plan td:nth-child(4){width:355px;white-space:nowrap}.plan tr.row-done{background:#f3fbf6}.exercise{font-weight:750;white-space:nowrap}.check{width:20px;height:20px;accent-color:var(--green);vertical-align:middle;margin-right:7px}.time{border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-weight:750;background:white;color:inherit}.plan tr.row-done .time{border-color:#a9d5bd}.planned{margin-top:3px;font-size:.72rem}.rep{width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}@media(max-width:760px){.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body><main class="wrap">
@@ -13,12 +23,12 @@
 <section class="card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="table-wrap"><table class="plan"><thead><tr><th>Heure</th><th>Exercices</th><th>Réalisé</th><th>Répétitions réelles</th><th>Durée active</th><th>Dépense approx.</th></tr></thead><tbody id="rows"></tbody><tfoot id="dayResult"></tfoot></table></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
 <section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div class="table-wrap"><table class="history"><thead><tr><th>Date</th><th>Blocs</th><th>Sauts</th><th>kcal</th><th>Poids</th></tr></thead><tbody id="history"></tbody></table></div></section></section>
 </main>
-<dialog id="dialog"><form method="dialog" class="modal"><h2>Personnaliser le programme</h2><p class="note">Modèle initial : 7 blocs de 08:00 à 20:00, toutes les 2 heures. Six blocs à 150 sauts et le dernier à 100, pour atteindre 1 000 sauts exactement.</p><div class="form-grid"><label>Sauts par bloc<input id="cfgJumps" type="number" min="0" max="1000"></label><label>Objectif sauts / jour<input id="cfgTarget" type="number" min="0" max="10000"></label><label>Pompes par bloc prévu<input id="cfgPushups" type="number" min="0" max="500"></label><label>Squats par bloc prévu<input id="cfgSquats" type="number" min="0" max="500"></label><label>Début (heure)<input id="cfgStart" type="number" min="0" max="23"></label><label>Intervalle (heures)<input id="cfgInterval" type="number" min="1" max="12"></label><label>Nombre de blocs<input id="cfgBlocks" type="number" min="1" max="24"></label><label>Cadence corde (sauts/min)<input id="cfgCadence" type="number" min="30" max="250"></label></div><div class="actions"><button class="primary" value="save" id="saveSettings">Appliquer</button><button class="secondary" value="cancel">Annuler</button><button class="danger" type="button" id="reset">Réinitialiser le modèle</button></div></form></dialog>
+<dialog id="dialog"><form method="dialog" class="modal"><h2>Personnaliser le programme</h2><p class="note">Modèle initial : 7 blocs de 08:00 à 20:00, toutes les 2 heures. Six blocs à 150 sauts et le dernier à 100, pour atteindre 1 000 sauts exactement. Ces horaires ne sont que des repères : l’heure de chaque bloc se modifie à la minute directement dans le tableau.</p><div class="form-grid"><label>Sauts par bloc<input id="cfgJumps" type="number" min="0" max="1000"></label><label>Objectif sauts / jour<input id="cfgTarget" type="number" min="0" max="10000"></label><label>Pompes par bloc prévu<input id="cfgPushups" type="number" min="0" max="500"></label><label>Squats par bloc prévu<input id="cfgSquats" type="number" min="0" max="500"></label><label>Début (heure)<input id="cfgStart" type="number" min="0" max="23"></label><label>Début (minutes)<input id="cfgStartMinute" type="number" min="0" max="59"></label><label>Intervalle (heures)<input id="cfgInterval" type="number" min="1" max="12"></label><label>Nombre de blocs<input id="cfgBlocks" type="number" min="1" max="24"></label><label>Cadence corde (sauts/min)<input id="cfgCadence" type="number" min="30" max="250"></label></div><div class="actions"><button class="primary" value="save" id="saveSettings">Appliquer</button><button class="secondary" value="cancel">Annuler</button><button class="danger" type="button" id="reset">Réinitialiser le modèle</button></div></form></dialog>
 <script>
 'use strict';
 
 const KEY = 'val-sport-tracker-v1';
-const DEFAULTS = {jumps:150, dailyJumpTarget:1000, pushups:20, squats:20, start:8, interval:2, blocks:7, cadence:105};
+const DEFAULTS = {jumps:150, dailyJumpTarget:1000, pushups:20, squats:20, start:8, startMinute:0, interval:2, blocks:7, cadence:105};
 const DEFAULT_WEIGHT = 97;
 
 /* ---------- stockage ---------- */
@@ -90,12 +100,16 @@ function schedule() {
   const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
   let remaining = target;
   return Array.from({length: s.blocks}, (_, i) => {
-    const hour = (s.start + i * s.interval) % 24;
+    // Grille de repère : heure de départ (à la minute) + intervalle.
+    const total = ((s.start * 60 + (Number(s.startMinute) || 0)) + i * s.interval * 60) % 1440;
     const jumps = Math.min(s.jumps, Math.max(0, remaining));
     remaining -= jumps;
-    return {id: String(i), hour: pad(hour) + ':00', jumps, pushups: s.pushups, squats: s.squats};
+    return {id: String(i), time: pad(Math.floor(total / 60)) + ':' + pad(total % 60), jumps, pushups: s.pushups, squats: s.squats};
   });
 }
+function nowHM() { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+/** Heure réellement enregistrée pour un bloc, sinon l'heure prévue. */
+function blockTime(x, r) { return (x && x.time) || r.time; }
 function movementSeconds(r) { return r.jumps / (data.settings.cadence || 105) * 60 + r.pushups * 2 + r.squats * 2; }
 function duration(r) {
   const exerciseCount = [r.jumps, r.pushups, r.squats].filter(n => n > 0).length;
@@ -130,8 +144,10 @@ function dayTotals(d) {
   let done = 0, jumps = 0, pushups = 0, squats = 0, kcal = 0, seconds = 0;
   rows.forEach(r => {
     const x = (d.rows || {})[r.id] || {};
-    if (x.done) done++;
-    if (!x.done && !x.entered) return;
+    // Seuls les blocs cochés « Fait » comptent : une case remplie mais non
+    // cochée reste une intention, pas une séance réalisée.
+    if (!x.done) return;
+    done++;
     const actual = recordedActual(x, r);
     if (!actual.jumps && !actual.pushups && !actual.squats) return;
     jumps += actual.jumps; pushups += actual.pushups; squats += actual.squats;
@@ -147,8 +163,9 @@ function renderTargetInfo(weight) {
   const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
   const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
   const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
-  $('targetInfo').textContent = 'Modèle actif : ' + s.blocks + ' blocs toutes les ' + s.interval + ' h, à partir de ' +
-    pad(s.start) + ':00. Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) + ' et ~' + plannedKcal + ' kcal.';
+  $('targetInfo').textContent = 'Repères : ' + s.blocks + ' blocs toutes les ' + s.interval + ' h, de ' +
+    planned[0].time + ' à ' + planned[planned.length - 1].time + ' — l’heure de chaque bloc reste modifiable à la minute. ' +
+    'Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) + ' et ~' + plannedKcal + ' kcal.';
 }
 
 function renderRows() {
@@ -162,7 +179,7 @@ function renderRows() {
     const s = x.squats !== undefined ? x.squats : r.squats;
     const actual = {jumps: Number(j) || 0, pushups: Number(p) || 0, squats: Number(s) || 0};
     return `<tr class="${x.done ? 'row-done' : ''}">
-      <td><b>${r.hour}</b></td>
+      <td><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} aria-label="Heure du bloc de ${r.time}" value="${blockTime(x, r)}"><div class="small planned">repère ${r.time}</div></td>
       <td class="exercise">${labels(r)}</td>
       <td><label><input class="check" data-id="${r.id}" type="checkbox" ${x.done ? 'checked' : ''}>Fait</label></td>
       <td><label class="small">C <input aria-label="Sauts de corde réels" class="rep actual-jumps" data-id="${r.id}" type="number" min="0" value="${j}"></label>
@@ -209,6 +226,10 @@ function readRows(changedId) {
     const row = d.rows[id] || (d.rows[id] = {});
     row.done = box.checked;
     if (box.checked || id === String(changedId)) row.entered = true;
+    // `data-set` distingue une heure réellement saisie de l'heure repère
+    // affichée par défaut : sans ça, tout bloc paraîtrait déjà horodaté.
+    const timeField = document.querySelector('.time[data-id="' + id + '"]');
+    row.time = timeField && timeField.dataset.set && timeField.value ? timeField.value : null;
     row.jumps = fieldValue('actual-jumps', id);
     row.pushups = fieldValue('actual-pushups', id);
     row.squats = fieldValue('actual-squats', id);
@@ -275,7 +296,7 @@ function flash(id, message, back) {
 function setSettingsInputs() {
   const s = data.settings;
   [['cfgJumps','jumps'],['cfgTarget','dailyJumpTarget'],['cfgPushups','pushups'],['cfgSquats','squats'],
-   ['cfgStart','start'],['cfgInterval','interval'],['cfgBlocks','blocks'],['cfgCadence','cadence']]
+   ['cfgStart','start'],['cfgStartMinute','startMinute'],['cfgInterval','interval'],['cfgBlocks','blocks'],['cfgCadence','cadence']]
     .forEach(([id, k]) => { $(id).value = s[k]; });
 }
 
@@ -289,8 +310,20 @@ $('date').addEventListener('change', loadDay);
 $('weight').addEventListener('input', () => { readRows(); renderTargetInfo(Number($('weight').value) || DEFAULT_WEIGHT); });
 $('notes').addEventListener('change', () => readRows());
 // Délégation : les lignes sont recréées à chaque rendu, un écouteur global suffit.
-$('rows').addEventListener('change', e => { if (e.target.matches('input.check')) readRows(e.target.dataset.id); });
-$('rows').addEventListener('input', e => { if (e.target.matches('.rep')) readRows(e.target.dataset.id); });
+$('rows').addEventListener('change', e => {
+  if (!e.target.matches('input.check')) return;
+  const id = e.target.dataset.id, timeField = document.querySelector('.time[data-id="' + id + '"]');
+  // Cocher un bloc aujourd'hui l'horodate à la minute, sauf heure déjà saisie.
+  if (e.target.checked && timeField && !timeField.dataset.set && dayKey() === todayISO()) {
+    timeField.value = nowHM();
+    timeField.dataset.set = '1';
+  }
+  readRows(id);
+});
+$('rows').addEventListener('input', e => {
+  if (e.target.matches('.time')) e.target.dataset.set = '1';
+  if (e.target.matches('.rep') || e.target.matches('.time')) readRows(e.target.dataset.id);
+});
 $('save').onclick = saveDay;
 $('recalculate').onclick = () => { readRows(); saveData(); flash('recalculate', 'Calcul actualisé ✓', 'Recalculer maintenant'); };
 $('settings').onclick = () => { setSettingsInputs(); $('dialog').showModal(); };
@@ -303,6 +336,7 @@ $('saveSettings').onclick = e => {
     pushups: num('cfgPushups', DEFAULTS.pushups, 0),
     squats: num('cfgSquats', DEFAULTS.squats, 0),
     start: num('cfgStart', DEFAULTS.start, 0),
+    startMinute: num('cfgStartMinute', DEFAULTS.startMinute, 0),
     interval: num('cfgInterval', DEFAULTS.interval, 1),
     blocks: num('cfgBlocks', DEFAULTS.blocks, 1),
     cadence: num('cfgCadence', DEFAULTS.cadence, 30)
@@ -325,4 +359,15 @@ $('export').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 };
 loadDay();
+
+// Installée sur l'écran d'accueil, l'application doit fonctionner sans réseau.
+// Ignoré quand la page est ouverte en fichier local (file://), où il n'y a de
+// toute façon rien à mettre en cache.
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      /* pas de mode hors ligne : l'application reste pleinement utilisable */
+    });
+  });
+}
 </script></body></html>

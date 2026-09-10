@@ -1,12 +1,16 @@
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import {
   blockCalories,
   blockSeconds,
+  clockToMinutes,
   describeEffort,
+  displayTime,
+  formatClock,
   formatDuration,
   type BlockEntry,
   type Effort,
@@ -30,6 +34,14 @@ function CheckMark({ color }: { color: string }) {
   );
 }
 
+/** « HH:MM » → objet Date du jour, seul format accepté par le sélecteur natif. */
+function clockToDate(clock: string): Date {
+  const minutes = clockToMinutes(clock) ?? 0;
+  const date = new Date();
+  date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+  return date;
+}
+
 type Props = {
   block: PlannedBlock;
   entry: BlockEntry;
@@ -39,6 +51,7 @@ type Props = {
   onToggleDone: () => void;
   onToggleExpanded: () => void;
   onChange: (patch: Partial<Effort>) => void;
+  onChangeTime: (time: string | null) => void;
   onReset: () => void;
 };
 
@@ -51,13 +64,17 @@ export function BlockRow({
   onToggleDone,
   onToggleExpanded,
   onChange,
+  onChangeTime,
   onReset,
 }: Props) {
   const theme = useTheme();
+  const [picking, setPicking] = useState(false);
   const seconds = blockSeconds(entry, cadence);
   const kcal = blockCalories(entry, weight, cadence);
   const adjusted =
     entry.jumps !== block.jumps || entry.pushups !== block.pushups || entry.squats !== block.squats;
+  const time = displayTime(entry, block);
+  const movedFromPlan = entry.time !== null && entry.time !== block.label;
 
   const handleToggle = () => {
     if (Platform.OS !== 'web') {
@@ -68,13 +85,20 @@ export function BlockRow({
     onToggleDone();
   };
 
+  const handlePicked = (event: DateTimePickerEvent, value?: Date) => {
+    // Android : le sélecteur est une boîte de dialogue, elle se referme seule.
+    if (Platform.OS === 'android') setPicking(false);
+    if (event.type === 'dismissed' || !value) return;
+    onChangeTime(formatClock(value.getHours(), value.getMinutes()));
+  };
+
   return (
     <View style={[styles.wrapper, { backgroundColor: entry.done ? theme.brandSoft : 'transparent' }]}>
       <View style={styles.main}>
         <Pressable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: entry.done }}
-          accessibilityLabel={`Bloc de ${block.label}, ${describeEffort(entry)}`}
+          accessibilityLabel={`Bloc de ${time}, ${describeEffort(entry)}`}
           onPress={handleToggle}
           hitSlop={6}
           style={styles.checkTap}>
@@ -92,11 +116,14 @@ export function BlockRow({
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={expanded ? 'Masquer le détail du bloc' : 'Ajuster les répétitions'}
+          accessibilityLabel={expanded ? 'Masquer le détail du bloc' : "Ajuster l'heure et les répétitions"}
           onPress={onToggleExpanded}
           style={styles.body}>
           <View style={styles.titleLine}>
-            <Text style={[typography.strong, { color: theme.ink }]}>{block.label}</Text>
+            <Text style={[typography.strong, { color: theme.ink }]}>{time}</Text>
+            {movedFromPlan ? (
+              <Text style={[typography.tiny, { color: theme.inkMuted }]}>repère {block.label}</Text>
+            ) : null}
             {adjusted ? (
               <View style={[styles.badge, { backgroundColor: theme.surfaceAlt }]}>
                 <Text style={[typography.tiny, { color: theme.inkMuted }]}>ajusté</Text>
@@ -117,6 +144,42 @@ export function BlockRow({
       {expanded ? (
         <View style={[styles.detail, { borderTopColor: theme.line }]}>
           <View style={styles.detailRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[typography.small, { color: theme.inkSoft }]}>Heure réelle</Text>
+              <Text style={[typography.tiny, { color: theme.inkMuted }]}>repère {block.label}</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Modifier l'heure du bloc, actuellement ${time}`}
+              onPress={() => setPicking((value) => !value)}
+              style={({ pressed }) => [
+                styles.timeChip,
+                { backgroundColor: theme.surfaceAlt, opacity: pressed ? 0.7 : 1 },
+              ]}>
+              <Text style={[typography.strong, { color: theme.ink }]}>{time}</Text>
+            </Pressable>
+          </View>
+
+          {picking ? (
+            <View style={styles.picker}>
+              <DateTimePicker
+                value={clockToDate(time)}
+                mode="time"
+                is24Hour
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={handlePicked}
+              />
+              {Platform.OS === 'ios' ? (
+                <Pressable accessibilityRole="button" onPress={() => setPicking(false)} hitSlop={6}>
+                  <Text style={[typography.small, { color: theme.brand, fontWeight: '700', textAlign: 'center' }]}>
+                    Terminé
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+
+          <View style={styles.detailRow}>
             <Text style={[typography.small, { color: theme.inkSoft, flex: 1 }]}>Sauts de corde</Text>
             <Stepper value={entry.jumps} step={10} max={5000} onChange={(jumps) => onChange({ jumps })} />
           </View>
@@ -128,9 +191,17 @@ export function BlockRow({
             <Text style={[typography.small, { color: theme.inkSoft, flex: 1 }]}>Squats</Text>
             <Stepper value={entry.squats} step={5} max={1000} onChange={(squats) => onChange({ squats })} />
           </View>
-          <Pressable accessibilityRole="button" onPress={onReset} style={styles.resetTap} hitSlop={6}>
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              setPicking(false);
+              onReset();
+            }}
+            style={styles.resetTap}
+            hitSlop={6}>
             <Text style={[typography.small, { color: theme.inkMuted, textDecorationLine: 'underline' }]}>
-              Revenir aux valeurs prévues
+              Revenir à l’heure et aux valeurs prévues
             </Text>
           </Pressable>
         </View>
@@ -163,5 +234,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   detailRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  timeChip: {
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    height: 42,
+    minWidth: 96,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  picker: { gap: spacing.xs },
   resetTap: { alignSelf: 'flex-start', paddingVertical: 6 },
 });

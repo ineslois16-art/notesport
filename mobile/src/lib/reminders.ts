@@ -71,7 +71,7 @@ export async function syncReminders(settings: Settings): Promise<boolean> {
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: block.hour,
-          minute: 0,
+          minute: block.minute,
           channelId: 'blocs',
         },
       });

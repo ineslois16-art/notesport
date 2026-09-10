@@ -23,7 +23,8 @@ type Field = {
 
 const FIELDS: Field[] = [
   { key: 'blockCount', label: 'Nombre de blocs', step: 1, min: 1, max: 24 },
-  { key: 'startHour', label: 'Premier bloc', hint: 'heure de démarrage', step: 1, min: 0, max: 23, suffix: 'h' },
+  { key: 'startHour', label: 'Premier bloc', hint: 'heure de repère', step: 1, min: 0, max: 23, suffix: 'h' },
+  { key: 'startMinute', label: 'Premier bloc', hint: 'minutes', step: 5, min: 0, max: 59, suffix: 'min' },
   { key: 'intervalHours', label: 'Intervalle', hint: 'entre deux blocs', step: 1, min: 1, max: 12, suffix: 'h' },
   { key: 'jumpsPerBlock', label: 'Sauts par bloc', step: 10, min: 0, max: 2000 },
   { key: 'dailyJumpTarget', label: 'Objectif quotidien', hint: 'sauts par jour', step: 50, min: 0, max: 20000 },
@@ -170,6 +171,9 @@ export function SettingsScreen() {
       <Card>
         <Text style={[typography.strong, { color: theme.ink, marginBottom: spacing.xs }]}>Journée type obtenue</Text>
         <Muted>
+          Ces horaires sont des repères : l’heure de chaque bloc se modifie à la minute dans l’onglet Aujourd’hui.
+        </Muted>
+        <Muted>
           {preview.schedule.length} blocs de {preview.schedule[0]?.label ?? '—'} à{' '}
           {preview.schedule[preview.schedule.length - 1]?.label ?? '—'} · {formatNumber(preview.jumps)} sauts ·{' '}
           {formatDuration(preview.seconds)} · ~{formatNumber(preview.kcal)} kcal
@@ -192,6 +196,7 @@ export function SettingsScreen() {
               pushupsPerBlock: 20,
               squatsPerBlock: 20,
               startHour: 8,
+              startMinute: 0,
               intervalHours: 2,
               blockCount: 7,
               cadence: 105,

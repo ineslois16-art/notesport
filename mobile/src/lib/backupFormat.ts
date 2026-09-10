@@ -8,7 +8,15 @@
  *    par date, blocs sous la clé `rows`), pour ne pas perdre l'historique.
  */
 
-import { computeTotals, formatDuration, normalizeSettings, type DayRecord, type Settings } from '../domain/program';
+import {
+  buildSchedule,
+  computeTotals,
+  displayTime,
+  formatDuration,
+  normalizeSettings,
+  type DayRecord,
+  type Settings,
+} from '../domain/program';
 import type { ISODate } from './dates';
 
 export const EXPORT_VERSION = 1;
@@ -17,6 +25,7 @@ type ExportedBlock = {
   blockId: string;
   done: boolean;
   touched: boolean;
+  time: string | null;
   jumps: number;
   pushups: number;
   squats: number;
@@ -32,6 +41,10 @@ export type ExportPayload = {
 
 const isISODate = (value: unknown): value is ISODate =>
   typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+/** N'accepte qu'une heure « HH:MM » ; tout le reste devient `null`. */
+const toClock = (value: unknown): string | null =>
+  typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : null;
 
 const toInt = (value: unknown, fallback = 0) => {
   const n = Math.round(Number(value));
@@ -52,6 +65,7 @@ export function buildPayload(days: DayRecord[], settings: Settings): ExportPaylo
         blockId: entry.blockId,
         done: entry.done,
         touched: entry.touched,
+        time: entry.time,
         jumps: entry.jumps,
         pushups: entry.pushups,
         squats: entry.squats,
@@ -78,6 +92,7 @@ function parseAppFormat(raw: any): DayRecord[] {
         blockId: id,
         done: Boolean(block.done),
         touched: Boolean(block.touched ?? block.done),
+        time: toClock(block.time),
         jumps: toInt(block.jumps),
         pushups: toInt(block.pushups),
         squats: toInt(block.squats),
@@ -102,6 +117,7 @@ function parseWebFormat(raw: any): { days: DayRecord[]; settings: Settings } {
     pushupsPerBlock: toInt(legacy.pushups, 20),
     squatsPerBlock: toInt(legacy.squats, 20),
     startHour: toInt(legacy.start, 8),
+    startMinute: toInt(legacy.startMinute, 0),
     intervalHours: toInt(legacy.interval, 2),
     blockCount: toInt(legacy.blocks, 7),
     cadence: toInt(legacy.cadence, 105),
@@ -121,6 +137,7 @@ function parseWebFormat(raw: any): { days: DayRecord[]; settings: Settings } {
         blockId,
         done,
         touched: Boolean(row?.entered) || done,
+        time: toClock(row?.time),
         jumps: toInt(row?.jumps, legacyReps ? settings.jumpsPerBlock : 0),
         pushups: toInt(row?.pushups, legacyReps ? settings.pushupsPerBlock : 0),
         squats: toInt(row?.squats, legacyReps ? settings.squatsPerBlock : 0),
@@ -167,9 +184,21 @@ const csvCell = (value: string | number) => {
   return /[";\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
+/** Heures des blocs cochés, dans l'ordre, pour la colonne du tableur. */
+function doneTimes(day: DayRecord, settings: Settings): string {
+  return buildSchedule(settings)
+    .map((block) => {
+      const entry = day.blocks[block.id];
+      return entry?.done ? displayTime(entry, block) : null;
+    })
+    .filter(Boolean)
+    .join(' ');
+}
+
 export function buildCsv(days: DayRecord[], settings: Settings): string {
   const header = [
     'Date',
+    'Heures des blocs faits',
     'Blocs faits',
     'Blocs prévus',
     'Sauts',
@@ -187,6 +216,7 @@ export function buildCsv(days: DayRecord[], settings: Settings): string {
     lines.push(
       [
         day.date,
+        doneTimes(day, settings),
         totals.doneBlocks,
         totals.blockCount,
         totals.jumps,

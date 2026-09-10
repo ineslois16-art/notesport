@@ -10,11 +10,15 @@ import test from 'node:test';
 
 import {
   buildSchedule,
+  clockToMinutes,
   computeTotals,
   DEFAULT_SETTINGS,
+  displayTime,
   emptyDay,
+  formatClock,
   formatDuration,
   normalizeSettings,
+  nowClock,
   type DayRecord,
 } from '../domain/program';
 import { allTimeRecords, buildDayPoints, currentStreak, longestStreak, summarize } from '../domain/stats';
@@ -31,6 +35,7 @@ function dayWith(date: string, doneBlockIds: string[], weight: number | null = n
       blockId: block.id,
       done: true,
       touched: true,
+      time: null,
       jumps: block.jumps,
       pushups: block.pushups,
       squats: block.squats,
@@ -70,7 +75,7 @@ test('un objectif nul reste nul au lieu de repartir aux valeurs par défaut', ()
   );
 });
 
-test('les totaux ne comptent que les blocs cochés ou modifiés', () => {
+test('les totaux ne comptent que les blocs cochés', () => {
   const day = dayWith('2026-09-10', ['0', '1'], 95);
   const totals = computeTotals(day, settings);
   assert.equal(totals.doneBlocks, 2);
@@ -86,13 +91,58 @@ test('les totaux ne comptent que les blocs cochés ou modifiés', () => {
   assert.equal(untouched.kcal, 0);
 });
 
-test('un bloc modifié mais non coché compte dans le volume, pas dans les blocs faits', () => {
+test('un bloc modifié mais non coché ne compte nulle part', () => {
   const day = emptyDay('2026-09-10');
-  day.blocks['0'] = { blockId: '0', done: false, touched: true, jumps: 80, pushups: 10, squats: 0 };
+  day.blocks['0'] = { blockId: '0', done: false, touched: true, time: null, jumps: 80, pushups: 10, squats: 0 };
   const totals = computeTotals(day, settings);
   assert.equal(totals.doneBlocks, 0);
-  assert.equal(totals.jumps, 80);
-  assert.equal(totals.pushups, 10);
+  assert.equal(totals.jumps, 0, 'des répétitions saisies sans cocher restent une intention');
+  assert.equal(totals.pushups, 0);
+  assert.equal(totals.kcal, 0);
+
+  // Une fois coché, le même bloc compte avec ses valeurs ajustées.
+  day.blocks['0'].done = true;
+  const after = computeTotals(day, settings);
+  assert.equal(after.doneBlocks, 1);
+  assert.equal(after.jumps, 80);
+  assert.equal(after.pushups, 10);
+});
+
+test('la grille de repère accepte une minute de départ', () => {
+  const schedule = buildSchedule(normalizeSettings({ ...settings, startHour: 8, startMinute: 35, blockCount: 3 }));
+  assert.deepEqual(
+    schedule.map((block) => block.label),
+    ['08:35', '10:35', '12:35'],
+  );
+  assert.deepEqual(
+    schedule.map((block) => [block.hour, block.minute]),
+    [
+      [8, 35],
+      [10, 35],
+      [12, 35],
+    ],
+  );
+});
+
+test('l’heure saisie remplace le repère, sans l’effacer', () => {
+  const [block] = buildSchedule(settings);
+  assert.equal(block.label, '08:00');
+  assert.equal(displayTime(null, block), '08:00', 'sans saisie, le repère s’affiche');
+
+  const entry = { blockId: '0', done: true, touched: true, time: '07:42', jumps: 150, pushups: 20, squats: 20 };
+  assert.equal(displayTime(entry, block), '07:42');
+  assert.equal(block.label, '08:00', 'le repère du programme reste inchangé');
+});
+
+test('les heures se convertissent dans les deux sens', () => {
+  assert.equal(formatClock(7, 5), '07:05');
+  assert.equal(clockToMinutes('07:42'), 462);
+  assert.equal(clockToMinutes('00:00'), 0);
+  assert.equal(clockToMinutes('23:59'), 1439);
+  assert.equal(clockToMinutes('24:00'), null);
+  assert.equal(clockToMinutes('7h42'), null);
+  assert.equal(clockToMinutes(null), null);
+  assert.equal(nowClock(new Date(2026, 8, 10, 20, 24)), '20:24');
 });
 
 test('un poids plus élevé augmente la dépense estimée', () => {
@@ -160,8 +210,8 @@ test('relit une sauvegarde de la page web, bloc fantôme compris', () => {
         weight: 96.4,
         notes: 'Bonne énergie',
         rows: {
-          '0': { done: true, entered: true, jumps: 150, pushups: 20, squats: 20 },
-          '1': { done: false, entered: true, jumps: 60, pushups: 0, squats: 0 },
+          '0': { done: true, entered: true, time: '07:42', jumps: 150, pushups: 20, squats: 20 },
+          '1': { done: false, entered: true, time: '9h05', jumps: 60, pushups: 0, squats: 0 },
           undefined: { done: true, jumps: 0 },
         },
       },
@@ -179,7 +229,10 @@ test('relit une sauvegarde de la page web, bloc fantôme compris', () => {
   assert.equal(first.date, '2026-09-09');
   assert.equal(first.weight, 96.4);
   assert.equal(Object.keys(first.blocks).length, 2, 'la ligne "undefined" du bug doit être ignorée');
-  assert.equal(computeTotals(first, settings).jumps, 210);
+  // Seul le bloc coché compte : 150, pas 210.
+  assert.equal(computeTotals(first, settings).jumps, 150);
+  assert.equal(first.blocks['0'].time, '07:42', 'l’heure saisie sur la page web est reprise');
+  assert.equal(first.blocks['1'].time, null, 'une heure absente ou invalide devient null');
 
   // Ancien format « reps » : le bloc reprend les valeurs prévues.
   assert.equal(parsed.days[1].blocks['0'].jumps, 150);
@@ -187,10 +240,12 @@ test('relit une sauvegarde de la page web, bloc fantôme compris', () => {
 
 test('un aller-retour export/import de l’application conserve les journées', () => {
   const days = [dayWith('2026-09-09', ['0', '1'], 96), dayWith('2026-09-10', ['0'], 95.5)];
+  days[0].blocks['0'].time = '07:42';
   const parsed = parseBackup(JSON.stringify(buildPayload(days, settings)));
   assert.equal(parsed.source, 'application');
   assert.equal(parsed.days.length, 2);
   assert.deepEqual(computeTotals(parsed.days[0], settings), computeTotals(days[0], settings));
+  assert.equal(parsed.days[0].blocks['0'].time, '07:42', 'l’heure réelle survit à l’aller-retour');
   assert.equal(parsed.settings?.cadence, settings.cadence);
 });
 
@@ -203,9 +258,10 @@ test('un fichier illisible est refusé avec un message clair', () => {
 test('le CSV échappe les notes contenant des points-virgules', () => {
   const day = dayWith('2026-09-10', ['0'], 96);
   day.notes = 'Genou sensible; repos demain';
+  day.blocks['0'].time = '07:42';
   const csv = buildCsv([day], settings);
   const lines = csv.split('\n');
-  assert.match(lines[0], /^﻿Date;/);
+  assert.match(lines[0], /^﻿Date;Heures des blocs faits;/);
   assert.match(lines[1], /"Genou sensible; repos demain"$/);
-  assert.match(lines[1], /^2026-09-10;1;7;150;20;20;/);
+  assert.match(lines[1], /^2026-09-10;07:42;1;7;150;20;20;/);
 });

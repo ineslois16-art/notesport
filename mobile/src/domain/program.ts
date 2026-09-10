@@ -15,6 +15,8 @@ export type Settings = {
   pushupsPerBlock: number;
   squatsPerBlock: number;
   startHour: number;
+  /** Minute de départ de la grille de repère (08:30 aussi bien que 08:00). */
+  startMinute: number;
   intervalHours: number;
   blockCount: number;
   /** Cadence à la corde, en sauts par minute. */
@@ -29,6 +31,7 @@ export const DEFAULT_SETTINGS: Settings = {
   pushupsPerBlock: 20,
   squatsPerBlock: 20,
   startHour: 8,
+  startMinute: 0,
   intervalHours: 2,
   blockCount: 7,
   cadence: 105,
@@ -39,6 +42,8 @@ export const DEFAULT_SETTINGS: Settings = {
 export type PlannedBlock = {
   id: string;
   hour: number;
+  minute: number;
+  /** Heure de repère « HH:MM » — l'heure réelle se saisit sur chaque journée. */
   label: string;
   jumps: number;
   pushups: number;
@@ -54,8 +59,10 @@ export type Effort = {
 export type BlockEntry = Effort & {
   blockId: string;
   done: boolean;
-  /** Vrai dès que la ligne a été touchée : évite de compter un bloc jamais ouvert. */
+  /** Vrai dès que la ligne a été touchée : distingue une valeur saisie du modèle. */
   touched: boolean;
+  /** Heure réelle « HH:MM », `null` tant que rien n'a été saisi ni horodaté. */
+  time: string | null;
 };
 
 export type DayRecord = {
@@ -89,12 +96,37 @@ export function normalizeSettings(input: Partial<Settings> | null | undefined): 
     pushupsPerBlock: clampInt(s.pushupsPerBlock, 0, 1000),
     squatsPerBlock: clampInt(s.squatsPerBlock, 0, 1000),
     startHour: clampInt(s.startHour, 0, 23),
+    startMinute: clampInt(s.startMinute, 0, 59),
     intervalHours: clampInt(s.intervalHours, 1, 12),
     blockCount: clampInt(s.blockCount, 1, 24),
     cadence: clampInt(s.cadence, 30, 250),
     defaultWeight: Math.min(300, Math.max(20, Number(s.defaultWeight) || DEFAULT_SETTINGS.defaultWeight)),
     remindersEnabled: Boolean(s.remindersEnabled),
   };
+}
+
+export function formatClock(hour: number, minute: number): string {
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+export function nowClock(date = new Date()): string {
+  return formatClock(date.getHours(), date.getMinutes());
+}
+
+/** Heure affichée pour un bloc : celle qui a été saisie, sinon le repère. */
+export function displayTime(entry: BlockEntry | null | undefined, block: PlannedBlock): string {
+  return entry?.time ?? block.label;
+}
+
+/** « HH:MM » → minutes depuis minuit ; `null` si la chaîne n'est pas une heure. */
+export function clockToMinutes(clock: string | null | undefined): number | null {
+  if (!clock) return null;
+  const match = /^(\d{1,2}):(\d{2})$/.exec(clock);
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hour > 23 || minute > 59) return null;
+  return hour * 60 + minute;
 }
 
 /**
@@ -104,13 +136,17 @@ export function normalizeSettings(input: Partial<Settings> | null | undefined): 
 export function buildSchedule(settings: Settings): PlannedBlock[] {
   let remaining = settings.dailyJumpTarget;
   return Array.from({ length: settings.blockCount }, (_, index) => {
-    const hour = (settings.startHour + index * settings.intervalHours) % 24;
+    const total =
+      (settings.startHour * 60 + settings.startMinute + index * settings.intervalHours * 60) % 1440;
+    const hour = Math.floor(total / 60);
+    const minute = total % 60;
     const jumps = Math.min(settings.jumpsPerBlock, Math.max(0, remaining));
     remaining -= jumps;
     return {
       id: String(index),
       hour,
-      label: `${String(hour).padStart(2, '0')}:00`,
+      minute,
+      label: formatClock(hour, minute),
       jumps,
       pushups: settings.pushupsPerBlock,
       squats: settings.squatsPerBlock,
@@ -155,6 +191,7 @@ export function makeEntry(block: PlannedBlock): BlockEntry {
     blockId: block.id,
     done: false,
     touched: false,
+    time: null,
     jumps: block.jumps,
     pushups: block.pushups,
     squats: block.squats,
@@ -170,10 +207,9 @@ export function emptyDay(date: ISODate, weight: number | null = null): DayRecord
 }
 
 /**
- * Totaux d'une journée. Un bloc compte s'il est coché ou s'il a été modifié à
- * la main — c'est la seule source de vérité, utilisée aussi bien par l'écran du
- * jour que par l'historique et les courbes (les deux divergeaient dans la
- * version web).
+ * Totaux d'une journée. **Seuls les blocs cochés « Fait » comptent** : des
+ * répétitions saisies sans avoir coché restent une intention, pas une séance.
+ * Source de vérité unique de l'écran du jour, de l'historique et des courbes.
  */
 export function computeTotals(day: DayRecord | null, settings: Settings): DayTotals {
   const schedule = buildSchedule(settings);
@@ -187,8 +223,8 @@ export function computeTotals(day: DayRecord | null, settings: Settings): DayTot
 
   for (const block of schedule) {
     const entry = entryFor(day, block);
-    if (entry.done) doneBlocks += 1;
-    if (!entry.done && !entry.touched) continue;
+    if (!entry.done) continue;
+    doneBlocks += 1;
     if (!entry.jumps && !entry.pushups && !entry.squats) continue;
     jumps += entry.jumps;
     pushups += entry.pushups;

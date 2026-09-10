@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { BlockRow } from '../components/BlockRow';
 import { Button, Card, Metric, Muted, ProgressBar, Row, SectionTitle } from '../components/ui';
-import { describeEffort, entryFor, formatDuration, formatNumber } from '../domain/program';
+import { clockToMinutes, describeEffort, displayTime, entryFor, formatDuration, formatNumber } from '../domain/program';
 import { addDays, formatDayTitle, formatShort, isFuture, isToday, todayISO } from '../lib/dates';
 import { useStore } from '../state/store';
 import { radius, spacing, type as typography, useTheme } from '../theme';
@@ -26,8 +26,19 @@ function Chevron({ direction, color }: { direction: 'left' | 'right'; color: str
 
 export function TodayScreen() {
   const theme = useTheme();
-  const { date, setDate, day, schedule, settings, totals, toggleBlock, setBlockEffort, resetBlock, setDayMeta } =
-    useStore();
+  const {
+    date,
+    setDate,
+    day,
+    schedule,
+    settings,
+    totals,
+    toggleBlock,
+    setBlockEffort,
+    setBlockTime,
+    resetBlock,
+    setDayMeta,
+  } = useStore();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [weightText, setWeightText] = useState('');
 
@@ -42,9 +53,11 @@ export function TodayScreen() {
 
   const nextBlock = useMemo(() => {
     if (!isToday(date)) return null;
-    const hour = new Date().getHours();
+    const now = new Date().getHours() * 60 + new Date().getMinutes();
+    const minutesOf = (block: (typeof schedule)[number]) =>
+      clockToMinutes(displayTime(entryFor(day, block), block)) ?? block.hour * 60 + block.minute;
     return (
-      schedule.find((block) => !entryFor(day, block).done && block.hour >= hour) ??
+      schedule.find((block) => !entryFor(day, block).done && minutesOf(block) >= now) ??
       schedule.find((block) => !entryFor(day, block).done) ??
       null
     );
@@ -139,7 +152,7 @@ export function TodayScreen() {
         {nextBlock ? (
           <View style={[styles.nextHint, { backgroundColor: theme.brandSoft }]}>
             <Text style={[typography.small, { color: theme.brand, fontWeight: '700' }]}>
-              Prochain bloc · {nextBlock.label}
+              Prochain bloc · {displayTime(entryFor(day, nextBlock), nextBlock)}
             </Text>
             <Text style={[typography.small, { color: theme.inkSoft }]}>{describeEffort(nextBlock)}</Text>
           </View>
@@ -163,6 +176,7 @@ export function TodayScreen() {
               onToggleDone={() => void toggleBlock(block.id)}
               onToggleExpanded={() => setExpanded((value) => (value === block.id ? null : block.id))}
               onChange={(patch) => void setBlockEffort(block.id, patch)}
+              onChangeTime={(time) => void setBlockTime(block.id, time)}
               onReset={() => void resetBlock(block.id)}
             />
           );
