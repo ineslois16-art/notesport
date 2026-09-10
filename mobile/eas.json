@@ -1,0 +1,30 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "REMPLACER-PAR-VOTRE-IDENTIFIANT-APPLE",
+        "ascAppId": "REMPLACER-PAR-L-ID-APP-STORE-CONNECT",
+        "appleTeamId": "REMPLACER-PAR-VOTRE-TEAM-ID"
+      }
+    }
+  }
+}

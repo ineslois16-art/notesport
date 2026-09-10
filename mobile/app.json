@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "Suivi sportif",
+    "slug": "suivi-sportif",
+    "scheme": "suivisportif",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "primaryColor": "#167a50",
+    "backgroundColor": "#f4f6f1",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.val.suivisportif",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleDisplayName": "Suivi sportif",
+        "CFBundleLocalizations": ["fr"],
+        "CFBundleDevelopmentRegion": "fr"
+      }
+    },
+    "android": {
+      "package": "com.val.suivisportif",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#e7f4ec",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#f4f6f1",
+          "dark": {
+            "backgroundColor": "#101210"
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#167a50",
+          "defaultChannel": "blocs"
+        }
+      ]
+    ]
+  }
+}

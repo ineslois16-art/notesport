@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Suivi sportif de Val</title>
+<style>
+:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-box input{margin-top:5px;border:1px solid var(--line);background:white;border-radius:10px;padding:.65rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}.plan{width:100%;border-collapse:collapse;min-width:1020px}.plan th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 9px}.plan td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:middle}.plan tfoot td{background:var(--green2);font-weight:800;border-top:2px solid #98cdb1}.plan th:nth-child(4),.plan td:nth-child(4){width:355px;white-space:nowrap}.plan tr.row-done{background:#f3fbf6}.exercise{font-weight:750;white-space:nowrap}.check{width:20px;height:20px;accent-color:var(--green);vertical-align:middle;margin-right:7px}.rep{width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}@media(max-width:760px){.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="hero"><div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Suivi sportif de Val</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div><label class="date-box"><b>Jour suivi</b><br><input id="date" type="date"></label></header>
+<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="summary"><div class="metric"><b id="doneBlocks">0/7</b><span>blocs terminés</span></div><div class="metric"><b id="jumpTotal">0</b><span>sauts</span></div><div class="metric"><b id="strengthTotal">0</b><span>pompes + squats</span></div><div class="metric"><b id="kcalTotal">0</b><span>kcal approx.</span></div></div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div><div class="actions"><button class="primary" id="save">Enregistrer la journée</button><button class="secondary" id="recalculate">Recalculer maintenant</button><button class="secondary" id="settings">Modifier le programme</button><button class="secondary" id="export">Exporter mes données</button></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
+<section class="card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="table-wrap"><table class="plan"><thead><tr><th>Heure</th><th>Exercices</th><th>Réalisé</th><th>Répétitions réelles</th><th>Durée active</th><th>Dépense approx.</th></tr></thead><tbody id="rows"></tbody><tfoot id="dayResult"></tfoot></table></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div class="table-wrap"><table class="history"><thead><tr><th>Date</th><th>Blocs</th><th>Sauts</th><th>kcal</th><th>Poids</th></tr></thead><tbody id="history"></tbody></table></div></section></section>
+</main>
+<dialog id="dialog"><form method="dialog" class="modal"><h2>Personnaliser le programme</h2><p class="note">Modèle initial : 7 blocs de 08:00 à 20:00, toutes les 2 heures. Six blocs à 150 sauts et le dernier à 100, pour atteindre 1 000 sauts exactement.</p><div class="form-grid"><label>Sauts par bloc<input id="cfgJumps" type="number" min="0" max="1000"></label><label>Objectif sauts / jour<input id="cfgTarget" type="number" min="0" max="10000"></label><label>Pompes par bloc prévu<input id="cfgPushups" type="number" min="0" max="500"></label><label>Squats par bloc prévu<input id="cfgSquats" type="number" min="0" max="500"></label><label>Début (heure)<input id="cfgStart" type="number" min="0" max="23"></label><label>Intervalle (heures)<input id="cfgInterval" type="number" min="1" max="12"></label><label>Nombre de blocs<input id="cfgBlocks" type="number" min="1" max="24"></label><label>Cadence corde (sauts/min)<input id="cfgCadence" type="number" min="30" max="250"></label></div><div class="actions"><button class="primary" value="save" id="saveSettings">Appliquer</button><button class="secondary" value="cancel">Annuler</button><button class="danger" type="button" id="reset">Réinitialiser le modèle</button></div></form></dialog>
+<script>
+'use strict';
+
+const KEY = 'val-sport-tracker-v1';
+const DEFAULTS = {jumps:150, dailyJumpTarget:1000, pushups:20, squats:20, start:8, interval:2, blocks:7, cadence:105};
+const DEFAULT_WEIGHT = 97;
+
+/* ---------- stockage ---------- */
+const memoryStore = {};
+let persistentStorage = true;
+const store = (() => {
+  try {
+    const probe = '__val_sport_probe__';
+    localStorage.setItem(probe, '1');
+    localStorage.removeItem(probe);
+    return localStorage;
+  } catch (e) {
+    persistentStorage = false;
+    return {
+      getItem: k => (k in memoryStore ? memoryStore[k] : null),
+      setItem: (k, v) => { memoryStore[k] = String(v); },
+      removeItem: k => { delete memoryStore[k]; }
+    };
+  }
+})();
+
+function loadData() {
+  let raw;
+  try { raw = JSON.parse(store.getItem(KEY) || '{}'); } catch (e) { raw = null; }
+  if (!raw || typeof raw !== 'object') raw = {};
+  if (!raw.days || typeof raw.days !== 'object') raw.days = {};
+  const s = raw.settings;
+  // On ne repart des valeurs par défaut que si la configuration est inutilisable.
+  // (Auparavant un objectif de 0 saut suffisait à effacer tout le programme.)
+  raw.settings = (s && Number(s.interval) > 0 && Number(s.blocks) > 0) ? {...DEFAULTS, ...s} : {...DEFAULTS};
+  return raw;
+}
+
+let data = loadData();
+function saveData() { store.setItem(KEY, JSON.stringify(data)); }
+
+/* ---------- dates (heure locale, jamais UTC) ---------- */
+const pad = n => String(n).padStart(2, '0');
+function toISODate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function todayISO() { return toISODate(new Date()); }
+function fromISODate(v) { const [y, m, d] = String(v).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); }
+function formatDate(v) { return fromISODate(v).toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}); }
+
+const $ = id => document.getElementById(id);
+const dayKey = () => $('date').value;
+
+/* ---------- journée courante ---------- */
+function lastKnownWeight(beforeKey) {
+  const keys = Object.keys(data.days).sort();
+  for (let i = keys.length - 1; i >= 0; i--) {
+    if (beforeKey && keys[i] > beforeKey) continue;
+    const w = Number(data.days[keys[i]].weight);
+    if (w > 0) return w;
+  }
+  return DEFAULT_WEIGHT;
+}
+function freshDay(key) { return {weight: lastKnownWeight(key), notes: '', rows: {}}; }
+function current() {
+  const key = dayKey();
+  const day = data.days[key];
+  if (!day) return freshDay(key);
+  if (!day.rows || typeof day.rows !== 'object') day.rows = {};
+  return day;
+}
+
+/* ---------- programme ---------- */
+function schedule() {
+  const s = data.settings;
+  const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+  let remaining = target;
+  return Array.from({length: s.blocks}, (_, i) => {
+    const hour = (s.start + i * s.interval) % 24;
+    const jumps = Math.min(s.jumps, Math.max(0, remaining));
+    remaining -= jumps;
+    return {id: String(i), hour: pad(hour) + ':00', jumps, pushups: s.pushups, squats: s.squats};
+  });
+}
+function movementSeconds(r) { return r.jumps / (data.settings.cadence || 105) * 60 + r.pushups * 2 + r.squats * 2; }
+function duration(r) {
+  const exerciseCount = [r.jumps, r.pushups, r.squats].filter(n => n > 0).length;
+  return movementSeconds(r) + Math.max(0, exerciseCount - 1) * 60;
+}
+function durationLabel(seconds) {
+  const min = Math.floor(seconds / 60), sec = Math.round(seconds % 60);
+  return '~' + min + ' min ' + pad(sec) + ' s';
+}
+function calories(r, weight) {
+  const jumpH = r.jumps / (data.settings.cadence || 105) / 60;
+  const restH = Math.max(0, duration(r) - movementSeconds(r)) / 3600;
+  return Math.round((11.8 * weight * jumpH) + (3.8 * weight * (r.pushups * 2 / 3600)) + (5 * weight * (r.squats * 2 / 3600)) + (1.5 * weight * restH));
+}
+function labels(r) {
+  return [r.jumps && r.jumps + ' sauts', r.pushups && r.pushups + ' pompes', r.squats && r.squats + ' squats'].filter(Boolean).join(' · ');
+}
+function recordedActual(x, r) {
+  // `reps` : ancien format (une seule case) conservé pour ne pas perdre l'historique.
+  const legacy = x.reps !== undefined;
+  return {
+    jumps: Number(x.jumps !== undefined ? x.jumps : (legacy ? r.jumps : 0)) || 0,
+    pushups: Number(x.pushups !== undefined ? x.pushups : (legacy ? r.pushups : 0)) || 0,
+    squats: Number(x.squats !== undefined ? x.squats : (legacy ? r.squats : 0)) || 0
+  };
+}
+
+/* ---------- totaux : une seule source de vérité ---------- */
+function dayTotals(d) {
+  const rows = schedule();
+  const weight = Number(d.weight) || DEFAULT_WEIGHT;
+  let done = 0, jumps = 0, pushups = 0, squats = 0, kcal = 0, seconds = 0;
+  rows.forEach(r => {
+    const x = (d.rows || {})[r.id] || {};
+    if (x.done) done++;
+    if (!x.done && !x.entered) return;
+    const actual = recordedActual(x, r);
+    if (!actual.jumps && !actual.pushups && !actual.squats) return;
+    jumps += actual.jumps; pushups += actual.pushups; squats += actual.squats;
+    seconds += duration(actual);
+    kcal += calories(actual, weight);
+  });
+  return {done, blocks: rows.length, jumps, pushups, squats, kcal: Math.round(kcal), seconds};
+}
+
+/* ---------- rendu ---------- */
+function renderTargetInfo(weight) {
+  const s = data.settings, planned = schedule();
+  const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
+  const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
+  const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+  $('targetInfo').textContent = 'Modèle actif : ' + s.blocks + ' blocs toutes les ' + s.interval + ' h, à partir de ' +
+    pad(s.start) + ':00. Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) + ' et ~' + plannedKcal + ' kcal.';
+}
+
+function renderRows() {
+  const d = current();
+  const w = Number(d.weight) || DEFAULT_WEIGHT;
+  renderTargetInfo(w);
+  $('rows').innerHTML = schedule().map(r => {
+    const x = d.rows[r.id] || {};
+    const j = x.jumps !== undefined ? x.jumps : r.jumps;
+    const p = x.pushups !== undefined ? x.pushups : r.pushups;
+    const s = x.squats !== undefined ? x.squats : r.squats;
+    const actual = {jumps: Number(j) || 0, pushups: Number(p) || 0, squats: Number(s) || 0};
+    return `<tr class="${x.done ? 'row-done' : ''}">
+      <td><b>${r.hour}</b></td>
+      <td class="exercise">${labels(r)}</td>
+      <td><label><input class="check" data-id="${r.id}" type="checkbox" ${x.done ? 'checked' : ''}>Fait</label></td>
+      <td><label class="small">C <input aria-label="Sauts de corde réels" class="rep actual-jumps" data-id="${r.id}" type="number" min="0" value="${j}"></label>
+          <label class="small">P <input aria-label="Pompes réelles" class="rep actual-pushups" data-id="${r.id}" type="number" min="0" value="${p}"></label>
+          <label class="small">S <input aria-label="Squats réels" class="rep actual-squats" data-id="${r.id}" type="number" min="0" value="${s}"></label></td>
+      <td id="duration-${r.id}">${durationLabel(duration(actual))}</td>
+      <td id="calories-${r.id}">~${calories(actual, w)} kcal</td>
+    </tr>`;
+  }).join('');
+  renderTotals(d);
+}
+
+function renderTotals(d) {
+  const t = dayTotals(d);
+  $('doneBlocks').textContent = t.done + '/' + t.blocks;
+  $('jumpTotal').textContent = t.jumps;
+  $('strengthTotal').textContent = t.pushups + t.squats;
+  $('kcalTotal').textContent = t.kcal;
+  $('dayResult').innerHTML = `<tr><td colspan="2">Résultat du jour</td><td>${t.done}/${t.blocks} blocs</td>` +
+    `<td>C ${t.jumps} · P ${t.pushups} · S ${t.squats}</td><td>${durationLabel(t.seconds)}</td><td>~${t.kcal} kcal</td></tr>`;
+  const pct = t.blocks ? Math.round(t.done / t.blocks * 100) : 0;
+  $('bar').style.width = pct + '%';
+  $('completion').textContent = pct + ' % des blocs terminés';
+}
+
+/* ---------- lecture du formulaire ---------- */
+function fieldValue(cls, id) {
+  const el = document.querySelector('.' + cls + '[data-id="' + id + '"]');
+  if (!el) return 0;
+  return Math.max(0, Number(el.value) || 0);
+}
+
+function readRows(changedId) {
+  const key = dayKey();
+  if (!key) return;
+  const d = data.days[key] || freshDay(key);
+  if (!d.rows || typeof d.rows !== 'object') d.rows = {};
+  const w = Number($('weight').value) || lastKnownWeight(key);
+  // CORRECTIF : on ne cible que les cases à cocher. `.done` attrapait aussi
+  // les <tr class="done">, qui n'ont pas de data-id -> plantage sur null.value.
+  document.querySelectorAll('input.check').forEach(box => {
+    const id = box.dataset.id;
+    if (id === undefined) return;
+    const row = d.rows[id] || (d.rows[id] = {});
+    row.done = box.checked;
+    if (box.checked || id === String(changedId)) row.entered = true;
+    row.jumps = fieldValue('actual-jumps', id);
+    row.pushups = fieldValue('actual-pushups', id);
+    row.squats = fieldValue('actual-squats', id);
+    delete row.reps;
+    const tr = box.closest('tr');
+    if (tr) tr.classList.toggle('row-done', box.checked);
+    const actual = {jumps: row.jumps, pushups: row.pushups, squats: row.squats};
+    const durationCell = $('duration-' + id), caloriesCell = $('calories-' + id);
+    if (durationCell) durationCell.textContent = durationLabel(duration(actual));
+    if (caloriesCell) caloriesCell.textContent = '~' + calories(actual, w) + ' kcal';
+  });
+  d.weight = w;
+  d.notes = $('notes').value;
+  data.days[key] = d;
+  renderTotals(d);
+}
+
+/* ---------- historique ---------- */
+function renderHistory() {
+  const entries = Object.entries(data.days).sort((a, b) => b[0].localeCompare(a[0]));
+  $('history').innerHTML = entries.slice(0, 12).map(([k, d]) => {
+    const t = dayTotals(d);
+    return `<tr><td>${formatDate(k)}</td><td>${t.done}/${t.blocks}</td><td>${t.jumps}</td><td>${t.kcal}</td><td>${d.weight || '—'} kg</td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="small">Aucune séance enregistrée.</td></tr>';
+
+  const today = fromISODate(dayKey() || todayISO());
+  const cells = [];
+  let totalKcal = 0, totalBlocks = 0;
+  for (let i = 6; i >= 0; i--) {
+    const x = new Date(today);
+    x.setDate(today.getDate() - i);
+    const k = toISODate(x);
+    const day = data.days[k];
+    const t = day ? dayTotals(day) : null;
+    if (t) { totalKcal += t.kcal; totalBlocks += t.done; }
+    cells.push(`<div class="day ${t ? 'active' : ''}">${x.toLocaleDateString('fr-FR', {weekday:'short'}).slice(0, 3)}<b>${t ? t.done : '—'}</b></div>`);
+  }
+  $('week').innerHTML = cells.join('');
+  $('weekSummary').textContent = totalBlocks + ' bloc(s) réalisés sur les 7 derniers jours · ~' + totalKcal + ' kcal.';
+}
+
+function loadDay() {
+  const d = current();
+  $('weight').value = d.weight != null ? d.weight : lastKnownWeight(dayKey());
+  $('notes').value = d.notes || '';
+  renderRows();
+  renderHistory();
+}
+
+function saveDay() {
+  readRows();
+  saveData();
+  renderHistory();
+  flash('save', 'Journée enregistrée ✓', 'Enregistrer la journée');
+}
+
+function flash(id, message, back) {
+  const btn = $(id);
+  btn.textContent = message;
+  clearTimeout(btn._t);
+  btn._t = setTimeout(() => { btn.textContent = back; }, 1500);
+}
+
+function setSettingsInputs() {
+  const s = data.settings;
+  [['cfgJumps','jumps'],['cfgTarget','dailyJumpTarget'],['cfgPushups','pushups'],['cfgSquats','squats'],
+   ['cfgStart','start'],['cfgInterval','interval'],['cfgBlocks','blocks'],['cfgCadence','cadence']]
+    .forEach(([id, k]) => { $(id).value = s[k]; });
+}
+
+/* ---------- branchements ---------- */
+$('date').value = todayISO();
+if (!persistentStorage) {
+  $('storageNotice').hidden = false;
+  $('storageNotice').textContent = 'Les calculs fonctionnent, mais ce navigateur ne peut pas mémoriser les données pour ce fichier. Utilise Exporter mes données pour les conserver.';
+}
+$('date').addEventListener('change', loadDay);
+$('weight').addEventListener('input', () => { readRows(); renderTargetInfo(Number($('weight').value) || DEFAULT_WEIGHT); });
+$('notes').addEventListener('change', () => readRows());
+// Délégation : les lignes sont recréées à chaque rendu, un écouteur global suffit.
+$('rows').addEventListener('change', e => { if (e.target.matches('input.check')) readRows(e.target.dataset.id); });
+$('rows').addEventListener('input', e => { if (e.target.matches('.rep')) readRows(e.target.dataset.id); });
+$('save').onclick = saveDay;
+$('recalculate').onclick = () => { readRows(); saveData(); flash('recalculate', 'Calcul actualisé ✓', 'Recalculer maintenant'); };
+$('settings').onclick = () => { setSettingsInputs(); $('dialog').showModal(); };
+$('saveSettings').onclick = e => {
+  e.preventDefault();
+  const num = (id, fallback, min) => { const v = Number($(id).value); return Number.isFinite(v) && v >= min ? v : fallback; };
+  data.settings = {
+    jumps: num('cfgJumps', DEFAULTS.jumps, 0),
+    dailyJumpTarget: num('cfgTarget', DEFAULTS.dailyJumpTarget, 0),
+    pushups: num('cfgPushups', DEFAULTS.pushups, 0),
+    squats: num('cfgSquats', DEFAULTS.squats, 0),
+    start: num('cfgStart', DEFAULTS.start, 0),
+    interval: num('cfgInterval', DEFAULTS.interval, 1),
+    blocks: num('cfgBlocks', DEFAULTS.blocks, 1),
+    cadence: num('cfgCadence', DEFAULTS.cadence, 30)
+  };
+  saveData();
+  $('dialog').close();
+  loadDay();
+};
+$('reset').onclick = () => { data.settings = {...DEFAULTS}; setSettingsInputs(); saveData(); loadDay(); };
+$('export').onclick = () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sauvegarde-suivi-sportif-val.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Révoquer immédiatement annulait le téléchargement sur certains navigateurs.
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+};
+loadDay();
+</script></body></html>

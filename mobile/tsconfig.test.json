@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022"
+    ],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "build-tests",
+    "rootDir": "src",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/domain/**/*.ts",
+    "src/lib/dates.ts",
+    "src/lib/backupFormat.ts",
+    "src/components/charts/chartUtils.ts",
+    "src/__tests__/**/*.ts"
+  ]
+}
