@@ -14,16 +14,77 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-box input{margin-top:5px;border:1px solid var(--line);background:white;border-radius:10px;padding:.65rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}.plan{width:100%;border-collapse:collapse;min-width:1020px}.plan th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 9px}.plan td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:middle}.plan tfoot td{background:var(--green2);font-weight:800;border-top:2px solid #98cdb1}.plan th:nth-child(4),.plan td:nth-child(4){width:355px;white-space:nowrap}.plan tr.row-done{background:#f3fbf6}.exercise{font-weight:750;white-space:nowrap}.check{width:20px;height:20px;accent-color:var(--green);vertical-align:middle;margin-right:7px}.time{border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-weight:750;background:white;color:inherit}.plan tr.row-done .time{border-color:#a9d5bd}.planned{margin-top:3px;font-size:.72rem}.rep{width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}@media(max-width:760px){.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-box input{margin-top:5px;border:1px solid var(--line);background:white;border-radius:10px;padding:.65rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}.plan{width:100%;border-collapse:collapse;min-width:1020px}.plan th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 9px}.plan td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:middle}.plan tfoot td{background:var(--green2);font-weight:800;border-top:2px solid #98cdb1}.plan th:nth-child(4),.plan td:nth-child(4){width:355px;white-space:nowrap}.plan tr.row-done{background:#f3fbf6}.exercise{font-weight:750;white-space:nowrap}.check{width:20px;height:20px;accent-color:var(--green);vertical-align:middle;margin-right:7px}.time{border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-weight:750;background:white;color:inherit}.plan tr.row-done .time{border-color:#a9d5bd}.planned{margin-top:3px;font-size:.72rem}.rep{width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
+/* --- identité : logo repris de l'icône de l'application --- */
+.brand{display:flex;align-items:center;gap:14px}.logo{width:52px;height:52px;flex:0 0 auto;border-radius:14px}
+/* --- onglets --- */
+.tabs{display:flex;gap:6px;margin:0 18px 18px;background:#e8ece8;padding:5px;border-radius:14px;width:fit-content}
+.tab{background:transparent;color:var(--muted);padding:.55rem 1.2rem;border-radius:10px}
+.tab[aria-selected="true"]{background:white;color:var(--ink);box-shadow:0 2px 8px #23412b14}
+/* --- graphiques (palette validée clair : bleu, aqua, violet, orange) --- */
+:root{--s-jumps:#2a78d6;--s-blocks:#1baf7a;--s-weight:#4a3aa7;--s-kcal:#eb6834;--grid:#e9ede9}
+.chart{position:relative;touch-action:pan-y}
+.chart svg{display:block;width:100%;height:auto}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.chart-head h2{margin:0}.chart-read{text-align:right;line-height:1.15}
+.chart-read b{font-size:1.35rem;letter-spacing:-.02em;display:block}
+.chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;padding:0 20px;text-align:center}
+.ranges{display:flex;gap:6px;flex-wrap:wrap}
+.range{background:#eef1ed;color:var(--muted);padding:.4rem .9rem;border-radius:999px;font-size:.85rem}
+.range[aria-pressed="true"]{background:var(--green);color:white}
+.hero-num{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:2px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.records td{padding:9px 3px;border-top:1px solid var(--line)}.records td:last-child{text-align:right;font-weight:750}
+@media(max-width:900px){.charts{grid-template-columns:1fr}}
+@media(max-width:760px){.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body><main class="wrap">
-<header class="hero"><div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Suivi sportif de Val</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div><label class="date-box"><b>Jour suivi</b><br><input id="date" type="date"></label></header>
-<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="summary"><div class="metric"><b id="doneBlocks">0/7</b><span>blocs terminés</span></div><div class="metric"><b id="jumpTotal">0</b><span>sauts</span></div><div class="metric"><b id="strengthTotal">0</b><span>pompes + squats</span></div><div class="metric"><b id="kcalTotal">0</b><span>kcal approx.</span></div></div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div><div class="actions"><button class="primary" id="save">Enregistrer la journée</button><button class="secondary" id="recalculate">Recalculer maintenant</button><button class="secondary" id="settings">Modifier le programme</button><button class="secondary" id="export">Exporter mes données</button></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
-<section class="card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="table-wrap"><table class="plan"><thead><tr><th>Heure</th><th>Exercices</th><th>Réalisé</th><th>Répétitions réelles</th><th>Durée active</th><th>Dépense approx.</th></tr></thead><tbody id="rows"></tbody><tfoot id="dayResult"></tfoot></table></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<header class="hero">
+<div class="brand">
+<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Logo"><rect width="1024" height="1024" rx="230" fill="#167a50"/><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#eaf7ef" stroke-width="48" stroke-linecap="round"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#fff"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#fff"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#fff"/></svg>
+<div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Suivi sportif de Val</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div>
+</div>
+<label class="date-box" id="dateBox"><b>Jour suivi</b><br><input id="date" type="date"></label></header>
+<nav class="tabs" role="tablist" aria-label="Sections">
+<button class="tab" id="tab-today" role="tab" aria-selected="true" aria-controls="view-today">Aujourd’hui</button>
+<button class="tab" id="tab-progress" role="tab" aria-selected="false" aria-controls="view-progress">Progression</button>
+</nav>
+<div id="view-today" role="tabpanel" aria-labelledby="tab-today">
+<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="summary"><div class="metric"><b id="doneBlocks">0/7</b><span>blocs terminés</span></div><div class="metric"><b id="jumpTotal">0</b><span>sauts</span></div><div class="metric"><b id="strengthTotal">0</b><span>pompes + squats</span></div><div class="metric"><b id="kcalTotal">0</b><span>kcal approx.</span></div></div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div><div class="actions"><button class="primary" id="save">Enregistrer la journée</button><button class="secondary" id="settings">Modifier le programme</button><button class="secondary" id="export">Exporter mes données</button><button class="secondary" id="import">Importer un fichier</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
+<section class="card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="table-wrap" id="planWrap"><table class="plan"><thead><tr><th>Heure</th><th>Exercices</th><th>Réalisé</th><th>Répétitions réelles</th><th>Durée active</th><th>Dépense approx.</th></tr></thead><tbody id="rows"></tbody><tfoot id="dayResult"></tfoot></table></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
 <section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div class="table-wrap"><table class="history"><thead><tr><th>Date</th><th>Blocs</th><th>Sauts</th><th>kcal</th><th>Poids</th></tr></thead><tbody id="history"></tbody></table></div></section></section>
+</div>
+
+<div id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
+<section class="card">
+<div class="ranges" id="ranges"></div>
+<p class="small" style="margin:16px 0 0">Sauts sur la période</p>
+<div class="hero-num" id="pTotalJumps">0</div>
+<p class="small" id="pDelta"></p>
+<div class="stats">
+<div class="metric"><b id="pStreak">0 j</b><span>série en cours</span></div>
+<div class="metric"><b id="pConsistency">0 %</b><span>régularité</span></div>
+<div class="metric"><b id="pAverage">0</b><span>sauts / jour</span></div>
+<div class="metric"><b id="pKcal">0</b><span>kcal cumulées</span></div>
+<div class="metric"><b id="pTime">0 min</b><span>temps actif</span></div>
+<div class="metric"><b id="pTargets">0</b><span>objectifs atteints</span></div>
+</div>
+</section>
+
+<div class="charts">
+<section class="card"><div class="chart-head"><h2>Sauts par jour</h2><div class="chart-read"><b id="readJumps">—</b><span class="small" id="readJumpsDate"></span></div></div><div class="chart" id="chartJumps"></div></section>
+<section class="card"><div class="chart-head"><h2>Blocs terminés</h2><div class="chart-read"><b id="readBlocks">—</b><span class="small" id="readBlocksDate"></span></div></div><div class="chart" id="chartBlocks"></div></section>
+<section class="card"><div class="chart-head"><h2>Poids</h2><div class="chart-read"><b id="readWeight">—</b><span class="small" id="readWeightDate"></span></div></div><div class="chart" id="chartWeight"></div><p class="small" id="weightDelta"></p></section>
+<section class="card"><div class="chart-head"><h2>Dépense estimée</h2><div class="chart-read"><b id="readKcal">—</b><span class="small" id="readKcalDate"></span></div></div><div class="chart" id="chartKcal"></div></section>
+</div>
+
+<section class="card" style="margin-top:18px"><h2>Records personnels</h2><table class="records" style="width:100%;border-collapse:collapse"><tbody id="records"></tbody></table></section>
+</div>
 </main>
 <dialog id="dialog"><form method="dialog" class="modal"><h2>Personnaliser le programme</h2><p class="note">Modèle initial : 7 blocs de 08:00 à 20:00, toutes les 2 heures. Six blocs à 150 sauts et le dernier à 100, pour atteindre 1 000 sauts exactement. Ces horaires ne sont que des repères : l’heure de chaque bloc se modifie à la minute directement dans le tableau.</p><div class="form-grid"><label>Sauts par bloc<input id="cfgJumps" type="number" min="0" max="1000"></label><label>Objectif sauts / jour<input id="cfgTarget" type="number" min="0" max="10000"></label><label>Pompes par bloc prévu<input id="cfgPushups" type="number" min="0" max="500"></label><label>Squats par bloc prévu<input id="cfgSquats" type="number" min="0" max="500"></label><label>Début (heure)<input id="cfgStart" type="number" min="0" max="23"></label><label>Début (minutes)<input id="cfgStartMinute" type="number" min="0" max="59"></label><label>Intervalle (heures)<input id="cfgInterval" type="number" min="1" max="12"></label><label>Nombre de blocs<input id="cfgBlocks" type="number" min="1" max="24"></label><label>Cadence corde (sauts/min)<input id="cfgCadence" type="number" min="30" max="250"></label></div><div class="actions"><button class="primary" value="save" id="saveSettings">Appliquer</button><button class="secondary" value="cancel">Annuler</button><button class="danger" type="button" id="reset">Réinitialiser le modèle</button></div></form></dialog>
+<dialog id="importDialog"><form method="dialog" class="modal"><h2>Importer une sauvegarde</h2><p class="small" id="importSummary"></p><p class="note">« Fusionner » garde tes journées actuelles et n’écrase que celles aux mêmes dates. « Remplacer » efface tout avant d’importer.</p><div class="actions"><button class="primary" value="merge">Fusionner</button><button class="secondary" value="cancel">Annuler</button><button class="danger" value="replace">Remplacer tout</button></div></form></dialog>
 <script>
 'use strict';
 
@@ -119,6 +180,13 @@ function durationLabel(seconds) {
   const min = Math.floor(seconds / 60), sec = Math.round(seconds % 60);
   return '~' + min + ' min ' + pad(sec) + ' s';
 }
+/** Cumuls sur une période : « 169 min » ne se lit pas, « 2 h 49 » si. */
+function longDuration(seconds) {
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return minutes + ' min';
+  const hours = Math.floor(minutes / 60), rest = minutes % 60;
+  return rest ? hours + ' h ' + pad(rest) : hours + ' h';
+}
 function calories(r, weight) {
   const jumpH = r.jumps / (data.settings.cadence || 105) / 60;
   const restH = Math.max(0, duration(r) - movementSeconds(r)) / 3600;
@@ -154,7 +222,9 @@ function dayTotals(d) {
     seconds += duration(actual);
     kcal += calories(actual, weight);
   });
-  return {done, blocks: rows.length, jumps, pushups, squats, kcal: Math.round(kcal), seconds};
+  const s = data.settings;
+  const targetJumps = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+  return {done, blocks: rows.length, jumps, pushups, squats, kcal: Math.round(kcal), seconds, targetJumps};
 }
 
 /* ---------- rendu ---------- */
@@ -163,9 +233,8 @@ function renderTargetInfo(weight) {
   const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
   const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
   const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
-  $('targetInfo').textContent = 'Repères : ' + s.blocks + ' blocs toutes les ' + s.interval + ' h, de ' +
-    planned[0].time + ' à ' + planned[planned.length - 1].time + ' — l’heure de chaque bloc reste modifiable à la minute. ' +
-    'Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) + ' et ~' + plannedKcal + ' kcal.';
+  $('targetInfo').textContent = 'Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) +
+    ' et ~' + plannedKcal + ' kcal.';
 }
 
 function renderRows() {
@@ -293,6 +362,337 @@ function flash(id, message, back) {
   btn._t = setTimeout(() => { btn.textContent = back; }, 1500);
 }
 
+/* ================= Progression : agrégats ================= */
+
+/** Totaux jour par jour sur une période continue ; un jour sans séance vaut zéro. */
+function dayPoints(from, to) {
+  const out = [];
+  for (let key = from; key <= to; key = shiftDate(key, 1)) {
+    const day = data.days[key];
+    out.push({date: key, label: formatDate(key), totals: dayTotals(day || {rows: {}}), weight: day && Number(day.weight) > 0 ? Number(day.weight) : null});
+  }
+  return out;
+}
+function shiftDate(key, delta) { const d = fromISODate(key); d.setDate(d.getDate() + delta); return toISODate(d); }
+
+function summarize(points) {
+  const sum = {jumps: 0, kcal: 0, seconds: 0, blocks: 0, possible: 0, active: 0, targets: 0};
+  points.forEach(p => {
+    sum.jumps += p.totals.jumps; sum.kcal += p.totals.kcal; sum.seconds += p.totals.seconds;
+    sum.blocks += p.totals.done; sum.possible += p.totals.blocks;
+    if (p.totals.done > 0) sum.active++;
+    if (p.totals.targetJumps > 0 && p.totals.jumps >= p.totals.targetJumps) sum.targets++;
+  });
+  sum.average = points.length ? Math.round(sum.jumps / points.length) : 0;
+  sum.consistency = sum.possible ? Math.round(sum.blocks / sum.possible * 100) : 0;
+  return sum;
+}
+
+/** Jours consécutifs avec au moins un bloc fait ; aujourd'hui encore vide ne casse rien. */
+function currentStreak() {
+  const active = new Set(Object.keys(data.days).filter(k => dayTotals(data.days[k]).done > 0));
+  if (!active.size) return 0;
+  let cursor = active.has(todayISO()) ? todayISO() : shiftDate(todayISO(), -1);
+  let streak = 0;
+  while (active.has(cursor)) { streak++; cursor = shiftDate(cursor, -1); }
+  return streak;
+}
+
+/* ================= Progression : graphiques SVG ================= */
+
+const PAD = {left: 44, right: 14, top: 16, bottom: 24};
+
+function niceBounds(min, max, count) {
+  if (min === max) { const p = Math.abs(min) > 1 ? Math.abs(min) * 0.1 : 1; min -= p; max += p; }
+  const raw = (max - min) / Math.max(1, count);
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const n = raw / magnitude;
+  const step = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * magnitude;
+  const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.round(v * 1e6) / 1e6);
+  return {min: lo, max: hi, ticks};
+}
+
+function buildScale(values, width, height, opts) {
+  const filled = values.filter(v => v !== null && isFinite(v));
+  let lo = filled.length ? Math.min(...filled) : 0, hi = filled.length ? Math.max(...filled) : 1;
+  if (opts.fromZero) lo = Math.min(0, lo);
+  if (opts.minimumTop !== undefined) hi = Math.max(hi, opts.minimumTop);
+  // Sur une courbe de poids, partir de zéro écraserait toute la variation.
+  if (!opts.fromZero && filled.length) { const m = (hi - lo) * 0.15 || 1; lo -= m; hi += m; }
+  const b = opts.snapMax !== undefined
+    ? {min: 0, max: Math.max(opts.snapMax, hi), ticks: [0, opts.snapMax]}
+    : niceBounds(lo, hi, opts.ticks || 3);
+  const w = Math.max(1, width - PAD.left - PAD.right), h = Math.max(1, height - PAD.top - PAD.bottom);
+  const span = b.max - b.min || 1, n = values.length;
+  return {w, h, ticks: b.ticks, min: b.min, max: b.max,
+    x: i => (n <= 1 ? PAD.left + w / 2 : PAD.left + (i / (n - 1)) * w),
+    y: v => PAD.top + h - ((v - b.min) / span) * h};
+}
+
+function compact(v) {
+  const abs = Math.abs(v);
+  if (abs >= 10000) return Math.round(v / 1000) + 'k';
+  if (abs >= 1000) return (v / 1000).toFixed(1).replace('.0', '').replace('.', ',') + 'k';
+  return String(Math.round(v * 10) / 10).replace('.', ',');
+}
+
+/** Début, milieu(x) et fin — jamais une étiquette par jour. */
+function labelIndices(count, max) {
+  if (count <= 1) return count ? [0] : [];
+  if (count <= max) return Array.from({length: count}, (_, i) => i);
+  const step = (count - 1) / (max - 1), set = new Set();
+  for (let i = 0; i < max; i++) set.add(Math.round(i * step));
+  return [...set].sort((a, b) => a - b);
+}
+
+function axisSVG(scale, points, height) {
+  const grid = scale.ticks.map(t =>
+    `<line x1="${PAD.left}" y1="${scale.y(t)}" x2="${PAD.left + scale.w}" y2="${scale.y(t)}" stroke="var(--grid)"/>` +
+    `<text x="${PAD.left - 8}" y="${scale.y(t) + 4}" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="end">${compact(t)}</text>`).join('');
+  const last = points.length - 1;
+  const labels = labelIndices(points.length, 4).map(i => {
+    const anchor = i === 0 ? 'start' : i === last ? 'end' : 'middle';
+    const x = i === 0 ? PAD.left : i === last ? PAD.left + scale.w : scale.x(i);
+    return `<text x="${x}" y="${height - 6}" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="${anchor}">${points[i].label}</text>`;
+  }).join('');
+  return grid + labels;
+}
+
+function lineSVG(points, width, height, opts) {
+  const values = points.map(p => p.value);
+  const scale = buildScale(values, width, height, opts);
+  const filled = [];
+  values.forEach((v, i) => { if (v !== null && isFinite(v)) filled.push({i, v}); });
+  const path = filled.map((p, k) => `${k ? 'L' : 'M'}${scale.x(p.i).toFixed(1)},${scale.y(p.v).toFixed(1)}`).join(' ');
+  const base = PAD.top + scale.h;
+  // L'aire n'a de sens que si la base est le zéro ; sous une courbe de poids
+  // tronquée, elle suggérerait un volume qui n'existe pas.
+  const area = opts.fromZero && filled.length > 1
+    ? `<path d="${path} L${scale.x(filled[filled.length - 1].i).toFixed(1)},${base} L${scale.x(filled[0].i).toFixed(1)},${base} Z" fill="${opts.color}" opacity=".14"/>` : '';
+  const dots = (opts.dots && filled.length <= 45 ? filled : filled.slice(-1))
+    .map(p => `<circle cx="${scale.x(p.i)}" cy="${scale.y(p.v)}" r="3.5" fill="${opts.color}" stroke="white" stroke-width="1.5"/>`).join('');
+  const ref = opts.reference > 0 ? `<line x1="${PAD.left}" y1="${scale.y(opts.reference)}" x2="${PAD.left + scale.w}" y2="${scale.y(opts.reference)}" stroke="var(--muted)" stroke-dasharray="4 4" opacity=".7"/>` +
+    `<text x="${PAD.left + scale.w}" y="${scale.y(opts.reference) - 5}" fill="var(--muted)" font-size="10" font-weight="700" text-anchor="end">objectif ${compact(opts.reference)}</text>` : '';
+  return {scale, svg: `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${axisSVG(scale, points, height)}${ref}${area}` +
+    `<path d="${path}" fill="none" stroke="${opts.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}` +
+    `<g class="cursor" style="display:none"><line y1="${PAD.top}" y2="${base}" stroke="var(--muted)"/><circle r="5" fill="${opts.color}" stroke="white" stroke-width="2"/></g></svg>`};
+}
+
+function barSVG(points, width, height, opts) {
+  const values = points.map(p => p.value);
+  const scale = buildScale(values, width, height, Object.assign({fromZero: true}, opts));
+  const slot = scale.w / Math.max(1, points.length);
+  const barWidth = Math.max(2, Math.min(22, slot - 2)); // 2 px de fond entre deux barres
+  const base = PAD.top + scale.h;
+  const bar = (x, top, w) => {
+    const r = Math.max(0, Math.min(4, w / 2, base - top));
+    return `M${x},${base} L${x},${top + r} Q${x},${top} ${x + r},${top} L${x + w - r},${top} Q${x + w},${top} ${x + w},${top + r} L${x + w},${base} Z`;
+  };
+  const bars = points.map((p, i) => {
+    const x = PAD.left + i * slot + (slot - barWidth) / 2;
+    const track = `<path d="${bar(x, scale.y(opts.snapMax), barWidth)}" fill="#e8ece8" opacity=".7"/>`;
+    return track + (p.value > 0 ? `<path d="${bar(x, scale.y(p.value), barWidth)}" fill="${opts.color}"/>` : '');
+  }).join('');
+  return {scale, slot, svg: `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${axisSVG(scale, points, height)}${bars}` +
+    `<line x1="${PAD.left}" y1="${base}" x2="${PAD.left + scale.w}" y2="${base}" stroke="var(--line)"/>` +
+    `<g class="cursor" style="display:none"><line y1="${PAD.top}" y2="${base}" stroke="var(--muted)"/><circle r="5" fill="${opts.color}" stroke="white" stroke-width="2"/></g></svg>`};
+}
+
+/**
+ * Dessine un graphique et branche le survol : sur une page web, une courbe sans
+ * lecture au pointeur oblige à deviner les valeurs.
+ */
+function drawChart(id, readId, dateId, points, opts) {
+  const host = $(id);
+  const width = Math.max(260, host.clientWidth || 320), height = opts.height || 200;
+  const built = opts.type === 'bar' ? barSVG(points, width, height, opts) : lineSVG(points, width, height, opts);
+  const hasData = points.some(p => p.value !== null && p.value > 0);
+  host.innerHTML = built.svg + (hasData ? '' : `<div class="chart-empty">${opts.empty || 'Pas encore de données sur cette période.'}</div>`);
+
+  const lastFilled = points.reduce((acc, p, i) => (p.value !== null ? i : acc), -1);
+  const cursor = host.querySelector('.cursor');
+  const show = index => {
+    const p = points[index];
+    $(readId).textContent = p && p.value !== null ? opts.format(p.value) : '—';
+    $(dateId).textContent = p ? p.label : '';
+    if (!cursor || !p || p.value === null || !hasData) { if (cursor) cursor.style.display = 'none'; return; }
+    const x = opts.type === 'bar' ? PAD.left + index * built.slot + built.slot / 2 : built.scale.x(index);
+    cursor.style.display = '';
+    cursor.querySelector('line').setAttribute('x1', x);
+    cursor.querySelector('line').setAttribute('x2', x);
+    cursor.querySelector('circle').setAttribute('cx', x);
+    cursor.querySelector('circle').setAttribute('cy', built.scale.y(p.value));
+  };
+  const reset = () => { show(lastFilled >= 0 ? lastFilled : points.length - 1); if (cursor) cursor.style.display = 'none'; };
+
+  host.onpointermove = event => {
+    const rect = host.getBoundingClientRect();
+    const ratio = (event.clientX - rect.left) / rect.width * width;
+    const index = opts.type === 'bar'
+      ? Math.floor((ratio - PAD.left) / built.slot)
+      : Math.round((ratio - PAD.left) / built.scale.w * (points.length - 1));
+    show(Math.max(0, Math.min(points.length - 1, index)));
+  };
+  host.onpointerleave = reset;
+  reset();
+}
+
+/* ================= Progression : rendu ================= */
+
+let progressRange = 30;
+
+function renderProgress() {
+  const to = todayISO(), from = shiftDate(to, -(progressRange - 1));
+  const points = dayPoints(from, to);
+  const previous = summarize(dayPoints(shiftDate(from, -progressRange), shiftDate(from, -1)));
+  const sum = summarize(points);
+
+  $('ranges').innerHTML = [[7, '7 j'], [30, '30 j'], [90, '90 j'], [365, '1 an']]
+    .map(([days, label]) => `<button class="range" data-days="${days}" aria-pressed="${days === progressRange}">${label}</button>`).join('');
+
+  $('pTotalJumps').textContent = sum.jumps.toLocaleString('fr-FR');
+  const delta = sum.jumps - previous.jumps;
+  $('pDelta').textContent = previous.jumps > 0
+    ? (delta >= 0 ? '+' : '−') + Math.abs(delta).toLocaleString('fr-FR') + ' par rapport à la période précédente'
+    : 'Première période enregistrée';
+  const streak = currentStreak();
+  $('pStreak').textContent = streak + ' j';
+  $('pConsistency').textContent = sum.consistency + ' %';
+  $('pAverage').textContent = sum.average.toLocaleString('fr-FR');
+  $('pKcal').textContent = sum.kcal.toLocaleString('fr-FR');
+  $('pTime').textContent = longDuration(sum.seconds);
+  $('pTargets').textContent = sum.targets;
+
+  const blockCount = data.settings.blocks;
+  drawChart('chartJumps', 'readJumps', 'readJumpsDate',
+    points.map(p => ({label: p.label, value: p.totals.jumps})),
+    {color: 'var(--s-jumps)', fromZero: true, reference: data.settings.dailyJumpTarget,
+     minimumTop: data.settings.dailyJumpTarget, format: v => v.toLocaleString('fr-FR') + ' sauts'});
+
+  drawChart('chartBlocks', 'readBlocks', 'readBlocksDate',
+    points.map(p => ({label: p.label, value: p.totals.done})),
+    {type: 'bar', color: 'var(--s-blocks)', snapMax: blockCount, height: 180, format: v => v + '/' + blockCount + ' blocs'});
+
+  drawChart('chartWeight', 'readWeight', 'readWeightDate',
+    points.map(p => ({label: p.label, value: p.weight})),
+    {color: 'var(--s-weight)', fromZero: false, dots: true, format: v => v.toFixed(1).replace('.', ',') + ' kg',
+     empty: 'Renseigne ton poids dans l’onglet Aujourd’hui pour voir la courbe.'});
+
+  const weights = points.map(p => p.weight).filter(v => v !== null);
+  $('weightDelta').textContent = weights.length >= 2
+    ? `${weights[0].toFixed(1).replace('.', ',')} kg → ${weights[weights.length - 1].toFixed(1).replace('.', ',')} kg ` +
+      `(${weights[weights.length - 1] - weights[0] > 0 ? '+' : '−'}${Math.abs(weights[weights.length - 1] - weights[0]).toFixed(1).replace('.', ',')} kg)`
+    : '';
+
+  drawChart('chartKcal', 'readKcal', 'readKcalDate',
+    points.map(p => ({label: p.label, value: p.totals.kcal})),
+    {color: 'var(--s-kcal)', fromZero: true, format: v => v.toLocaleString('fr-FR') + ' kcal'});
+
+  let bestJumps = null, bestKcal = null, totalEver = 0, activeEver = 0;
+  Object.keys(data.days).forEach(key => {
+    const t = dayTotals(data.days[key]);
+    totalEver += t.jumps;
+    if (t.done > 0) activeEver++;
+    if (t.jumps > 0 && (!bestJumps || t.jumps > bestJumps.value)) bestJumps = {key, value: t.jumps};
+    if (t.kcal > 0 && (!bestKcal || t.kcal > bestKcal.value)) bestKcal = {key, value: t.kcal};
+  });
+  $('records').innerHTML = [
+    ['Meilleure journée', bestJumps ? bestJumps.value.toLocaleString('fr-FR') + ' sauts · ' + formatDate(bestJumps.key) : '—'],
+    ['Plus grosse dépense', bestKcal ? bestKcal.value.toLocaleString('fr-FR') + ' kcal · ' + formatDate(bestKcal.key) : '—'],
+    ['Total depuis le début', totalEver.toLocaleString('fr-FR') + ' sauts'],
+    ['Journées actives', activeEver + ' jour(s)'],
+    ['Série en cours', streak + ' jour(s)']
+  ].map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('');
+}
+
+/* ================= Onglets ================= */
+
+let currentView = 'today';
+function showView(view) {
+  currentView = view;
+  ['today', 'progress'].forEach(name => {
+    $('view-' + name).hidden = name !== view;
+    $('tab-' + name).setAttribute('aria-selected', String(name === view));
+  });
+  $('dateBox').style.display = view === 'today' ? '' : 'none';
+  if (view === 'progress') renderProgress();
+}
+
+/* ================= Import ================= */
+
+const isDateKey = k => /^\d{4}-\d{2}-\d{2}$/.test(k);
+const toCount = v => { const n = Math.round(Number(v)); return isFinite(n) && n >= 0 ? n : 0; };
+const toClock = v => (typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null);
+
+/** Accepte le format de cette page comme celui de l'application mobile. */
+function parseBackup(text) {
+  let raw;
+  try { raw = JSON.parse(text); } catch (e) { throw new Error('Ce fichier n’est pas un JSON valide.'); }
+  if (!raw || typeof raw !== 'object') throw new Error('Fichier de sauvegarde vide ou illisible.');
+
+  if (Array.isArray(raw.days)) {          // export de l'application mobile
+    const s = raw.settings || {};
+    const days = {};
+    raw.days.forEach(item => {
+      if (!isDateKey(item && item.date)) return;
+      const rows = {};
+      (item.blocks || []).forEach(b => {
+        const id = String(b && b.blockId);
+        if (!/^\d+$/.test(id)) return;
+        rows[id] = {done: !!b.done, entered: !!(b.touched || b.done), time: toClock(b.time),
+                    jumps: toCount(b.jumps), pushups: toCount(b.pushups), squats: toCount(b.squats)};
+      });
+      days[item.date] = {weight: Number(item.weight) > 0 ? Number(item.weight) : null, notes: typeof item.notes === 'string' ? item.notes : '', rows};
+    });
+    if (!Object.keys(days).length) throw new Error('Aucune journée trouvée dans ce fichier.');
+    return {days, settings: {
+      jumps: toCount(s.jumpsPerBlock) || DEFAULTS.jumps, dailyJumpTarget: toCount(s.dailyJumpTarget),
+      pushups: toCount(s.pushupsPerBlock), squats: toCount(s.squatsPerBlock),
+      start: toCount(s.startHour), startMinute: toCount(s.startMinute),
+      interval: toCount(s.intervalHours) || DEFAULTS.interval, blocks: toCount(s.blockCount) || DEFAULTS.blocks,
+      cadence: toCount(s.cadence) || DEFAULTS.cadence}, source: 'l’application mobile'};
+  }
+
+  if (raw.days && typeof raw.days === 'object') {   // export de cette page
+    const days = {};
+    Object.keys(raw.days).forEach(key => {
+      if (!isDateKey(key)) return;
+      const value = raw.days[key] || {}, rows = {};
+      Object.keys(value.rows || {}).forEach(id => {
+        if (!/^\d+$/.test(id)) return;              // écarte la ligne « undefined » de l'ancien bug
+        const row = value.rows[id] || {};
+        rows[id] = {done: !!row.done, entered: !!row.entered, time: toClock(row.time),
+                    jumps: toCount(row.jumps), pushups: toCount(row.pushups), squats: toCount(row.squats)};
+      });
+      days[key] = {weight: Number(value.weight) > 0 ? Number(value.weight) : null, notes: typeof value.notes === 'string' ? value.notes : '', rows};
+    });
+    if (!Object.keys(days).length) throw new Error('Aucune journée trouvée dans ce fichier.');
+    return {days, settings: raw.settings && typeof raw.settings === 'object' ? Object.assign({}, DEFAULTS, raw.settings) : null, source: 'cette page'};
+  }
+
+  throw new Error('Format non reconnu : ce fichier ne vient pas d’un suivi sportif.');
+}
+
+let pendingImport = null;
+
+function applyImport(mode) {
+  if (!pendingImport) return;
+  const count = Object.keys(pendingImport.days).length;
+  if (mode === 'replace') {
+    data.days = pendingImport.days;
+    if (pendingImport.settings) data.settings = pendingImport.settings;
+  } else {
+    Object.assign(data.days, pendingImport.days);
+  }
+  pendingImport = null;
+  saveData();
+  loadDay();
+  if (currentView === 'progress') renderProgress();
+  alert(count + ' journée(s) importée(s).');
+}
+
 function setSettingsInputs() {
   const s = data.settings;
   [['cfgJumps','jumps'],['cfgTarget','dailyJumpTarget'],['cfgPushups','pushups'],['cfgSquats','squats'],
@@ -325,8 +725,40 @@ $('rows').addEventListener('input', e => {
   if (e.target.matches('.rep') || e.target.matches('.time')) readRows(e.target.dataset.id);
 });
 $('save').onclick = saveDay;
-$('recalculate').onclick = () => { readRows(); saveData(); flash('recalculate', 'Calcul actualisé ✓', 'Recalculer maintenant'); };
 $('settings').onclick = () => { setSettingsInputs(); $('dialog').showModal(); };
+$('tab-today').onclick = () => showView('today');
+$('tab-progress').onclick = () => showView('progress');
+$('ranges').addEventListener('click', e => {
+  const button = e.target.closest('.range');
+  if (!button) return;
+  progressRange = Number(button.dataset.days);
+  renderProgress();
+});
+// Les graphiques sont dessinés à la largeur réelle de leur carte : il faut les
+// redessiner quand la fenêtre change (rotation du téléphone comprise).
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  if (currentView !== 'progress') return;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderProgress, 150);
+});
+$('import').onclick = () => $('importFile').click();
+$('importFile').onchange = e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';               // permet de réimporter le même fichier
+  if (!file) return;
+  file.text().then(text => {
+    pendingImport = parseBackup(text);
+    const count = Object.keys(pendingImport.days).length;
+    $('importSummary').textContent = count + ' journée(s) trouvée(s) dans ce fichier (format : ' + pendingImport.source + ').';
+    $('importDialog').showModal();
+  }).catch(error => alert(error.message || 'Import impossible.'));
+};
+$('importDialog').addEventListener('close', () => {
+  const choice = $('importDialog').returnValue;
+  if (choice === 'merge' || choice === 'replace') applyImport(choice);
+  else pendingImport = null;
+});
 $('saveSettings').onclick = e => {
   e.preventDefault();
   const num = (id, fallback, min) => { const v = Number($(id).value); return Number.isFinite(v) && v >= min ? v : fallback; };

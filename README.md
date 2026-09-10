@@ -48,6 +48,15 @@ plutôt que par des attributs `onchange` inline.
 
 ### Ce qui a changé ensuite
 
+- **Deux onglets.** « Aujourd'hui » (la saisie) et « Progression » (les courbes
+  de l'application, portées sur la page : sauts par jour avec ligne d'objectif,
+  blocs terminés, poids, dépense, séries et records). Le logo est en tête des
+  deux.
+- **Bouton « Importer un fichier »**, qui relit aussi bien une sauvegarde de
+  cette page qu'un export de l'application mobile, au choix en fusion ou en
+  remplacement.
+- Bouton « Recalculer maintenant » retiré : tout se recalcule à la frappe.
+
 - **Seuls les blocs cochés « Fait » comptent.** Le résultat du jour et
   l'historique ignorent désormais les répétitions saisies sans avoir coché la
   case : une valeur tapée reste une intention, pas une séance réalisée.
