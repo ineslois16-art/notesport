@@ -14,7 +14,54 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-box input{margin-top:5px;border:1px solid var(--line);background:white;border-radius:10px;padding:.65rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}.plan{width:100%;border-collapse:collapse;min-width:1020px}.plan th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 9px}.plan td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:middle}.plan tfoot td{background:var(--green2);font-weight:800;border-top:2px solid #98cdb1}.plan th:nth-child(4),.plan td:nth-child(4){width:355px;white-space:nowrap}.plan tr.row-done{background:#f3fbf6}.exercise{font-weight:750;white-space:nowrap}.check{width:20px;height:20px;accent-color:var(--green);vertical-align:middle;margin-right:7px}.time{border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-weight:750;background:white;color:inherit}.plan tr.row-done .time{border-color:#a9d5bd}.planned{margin-top:3px;font-size:.72rem}.rep{width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
+:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
+/* --- blocs : une seule structure, empilée sur téléphone, en colonnes au-delà --- */
+.plan-head{display:none}
+.blocks{list-style:none;margin:14px 0 0;padding:0}
+.block{display:grid;align-items:center;gap:2px 10px;padding:10px 8px;border-radius:12px;
+  grid-template-columns:46px minmax(0,1fr) auto;
+  grid-template-areas:"check time stats" "check effort effort" "reps reps reps"}
+.block+.block{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 12px 12px}
+.block.row-done{background:#f3fbf6}
+.block-check{grid-area:check;display:flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer}
+.check{width:24px;height:24px;margin:0;accent-color:var(--green)}
+.block-time{grid-area:time;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.time{border:1px solid var(--line);border-radius:8px;padding:5px 6px;font-weight:750;background:white;color:inherit}
+.block.row-done .time{border-color:#a9d5bd}
+.planned{font-size:.72rem}
+.block-effort{grid-area:effort;font-weight:650;font-size:.9rem}
+.block-stats{grid-area:stats;text-align:right;display:flex;flex-direction:column;justify-content:center}
+.block-duration{font-size:.88rem;font-weight:750}
+.block-kcal{color:var(--muted);font-size:.76rem}
+.block-reps{grid-area:reps;display:flex;gap:8px;margin-top:8px}
+.block-reps label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.block-reps span{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.rep{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;background:white}
+.day-result{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;background:var(--green2);
+  border-radius:12px;padding:12px;margin-top:10px;font-weight:800}
+.day-result span{font-weight:600;color:#3f5c4c;font-size:.88rem}
+/* La mise en colonnes dépend de la largeur de la CARTE, pas de l'écran : sur un
+   écran large la carte reste étroite, et des colonnes fixes la feraient déborder.
+   Sans prise en charge des container queries, la disposition empilée s'applique
+   partout — elle reste parfaitement lisible. */
+.plan-card{container-type:inline-size}
+@container (min-width:660px){
+  .plan-head,.block{grid-template-columns:46px 118px minmax(170px,1.5fr) minmax(190px,1fr) 92px;
+    grid-template-areas:"check time effort reps stats"}
+  .plan-head{display:grid;gap:10px;padding:14px 8px 6px;font-size:.72rem;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--muted);font-weight:800}
+  .blocks{margin-top:0}
+  .block+.block{margin-top:0;border-radius:0}
+  .block-time{flex-direction:column;align-items:flex-start;gap:2px}
+  .block-reps{margin-top:0}
+}
+/* --- historique : des lignes lisibles plutôt qu'un tableau serré --- */
+.hist-row{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
+.hist-row:first-child{border-top:0}
+.hist-date{font-weight:750;min-width:66px}
+.hist-blocks{font-weight:700;color:var(--green)}
+.hist-metrics{color:var(--muted);font-size:.85rem}#weight{width:104px;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;background:white}
+.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
 /* --- identité : logo repris de l'icône de l'application --- */
 .brand{display:flex;align-items:center;gap:14px}.logo{width:52px;height:52px;flex:0 0 auto;border-radius:14px}
 /* --- onglets --- */
@@ -37,7 +84,7 @@
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
 .records td{padding:9px 3px;border-top:1px solid var(--line)}.records td:last-child{text-align:right;font-weight:750}
 @media(max-width:900px){.charts{grid-template-columns:1fr}}
-@media(max-width:760px){.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.actions{display:grid;grid-template-columns:1fr 1fr}.hist-metrics{flex-basis:100%}.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body><main class="wrap">
@@ -46,15 +93,15 @@
 <svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Logo"><rect width="1024" height="1024" rx="230" fill="#167a50"/><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#eaf7ef" stroke-width="48" stroke-linecap="round"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#fff"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#fff"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#fff"/></svg>
 <div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Notesport</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div>
 </div>
-<label class="date-box" id="dateBox"><b>Jour suivi</b><br><input id="date" type="date"></label></header>
+<div class="date-box" id="dateBox"><b>Jour suivi</b><div class="date-nav"><button class="secondary" id="prevDay" type="button" aria-label="Jour précédent">‹</button><input id="date" type="date" aria-label="Jour suivi"><button class="secondary" id="nextDay" type="button" aria-label="Jour suivant">›</button></div></div></header>
 <nav class="tabs" role="tablist" aria-label="Sections">
 <button class="tab" id="tab-today" role="tab" aria-selected="true" aria-controls="view-today">Aujourd’hui</button>
 <button class="tab" id="tab-progress" role="tab" aria-selected="false" aria-controls="view-progress">Progression</button>
 </nav>
 <div id="view-today" role="tabpanel" aria-labelledby="tab-today">
-<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="summary"><div class="metric"><b id="doneBlocks">0/7</b><span>blocs terminés</span></div><div class="metric"><b id="jumpTotal">0</b><span>sauts</span></div><div class="metric"><b id="strengthTotal">0</b><span>pompes + squats</span></div><div class="metric"><b id="kcalTotal">0</b><span>kcal approx.</span></div></div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div><div class="actions"><button class="primary" id="save">Enregistrer la journée</button><button class="secondary" id="settings">Modifier le programme</button><button class="secondary" id="export">Exporter mes données</button><button class="secondary" id="import">Importer un fichier</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
-<section class="card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="table-wrap" id="planWrap"><table class="plan"><thead><tr><th>Heure</th><th>Exercices</th><th>Réalisé</th><th>Répétitions réelles</th><th>Durée active</th><th>Dépense approx.</th></tr></thead><tbody id="rows"></tbody><tfoot id="dayResult"></tfoot></table></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
-<section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div class="table-wrap"><table class="history"><thead><tr><th>Date</th><th>Blocs</th><th>Sauts</th><th>kcal</th><th>Poids</th></tr></thead><tbody id="history"></tbody></table></div></section></section>
+<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="summary"><div class="metric"><b id="doneBlocks">0/7</b><span>blocs terminés</span></div><div class="metric"><b id="jumpTotal">0</b><span>sauts</span></div><div class="metric"><b id="strengthTotal">0</b><span>pompes + squats</span></div><div class="metric"><b id="kcalTotal">0</b><span>kcal approx.</span></div></div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
+<section class="card plan-card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="plan-head" aria-hidden="true"><span></span><span>Heure</span><span>Exercices</span><span>Répétitions réelles</span><span style="text-align:right">Durée · dépense</span></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div id="history"></div></section></section>
 </div>
 
 <div id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
@@ -125,6 +172,16 @@ function loadData() {
 
 let data = loadData();
 function saveData() { store.setItem(KEY, JSON.stringify(data)); }
+/**
+ * Enregistrement automatique : sur téléphone, personne ne pense à appuyer sur
+ * un bouton avant de fermer l'onglet. Le bouton reste, comme confirmation.
+ */
+let saveTimer = null;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveData(); renderHistory(); }, 600);
+}
+window.addEventListener('pagehide', () => { clearTimeout(saveTimer); saveData(); });
 
 /* ---------- dates (heure locale, jamais UTC) ---------- */
 const pad = n => String(n).padStart(2, '0');
@@ -180,6 +237,10 @@ function durationLabel(seconds) {
   const min = Math.floor(seconds / 60), sec = Math.round(seconds % 60);
   return '~' + min + ' min ' + pad(sec) + ' s';
 }
+/** Sur une carte de bloc, « ~4 min 46 s » encombre : la minute suffit. */
+function shortDuration(seconds) { return '~' + Math.max(1, Math.round(seconds / 60)) + ' min'; }
+/** 96.60000000000001 vient des additions flottantes : on n'affiche jamais ça. */
+function formatWeight(value) { return (Math.round(Number(value) * 10) / 10).toString().replace('.', ','); }
 /** Cumuls sur une période : « 169 min » ne se lit pas, « 2 h 49 » si. */
 function longDuration(seconds) {
   const minutes = Math.round(seconds / 60);
@@ -247,16 +308,15 @@ function renderRows() {
     const p = x.pushups !== undefined ? x.pushups : r.pushups;
     const s = x.squats !== undefined ? x.squats : r.squats;
     const actual = {jumps: Number(j) || 0, pushups: Number(p) || 0, squats: Number(s) || 0};
-    return `<tr class="${x.done ? 'row-done' : ''}">
-      <td><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} aria-label="Heure du bloc de ${r.time}" value="${blockTime(x, r)}"><div class="small planned">repère ${r.time}</div></td>
-      <td class="exercise">${labels(r)}</td>
-      <td><label><input class="check" data-id="${r.id}" type="checkbox" ${x.done ? 'checked' : ''}>Fait</label></td>
-      <td><label class="small">C <input aria-label="Sauts de corde réels" class="rep actual-jumps" data-id="${r.id}" type="number" min="0" value="${j}"></label>
-          <label class="small">P <input aria-label="Pompes réelles" class="rep actual-pushups" data-id="${r.id}" type="number" min="0" value="${p}"></label>
-          <label class="small">S <input aria-label="Squats réels" class="rep actual-squats" data-id="${r.id}" type="number" min="0" value="${s}"></label></td>
-      <td id="duration-${r.id}">${durationLabel(duration(actual))}</td>
-      <td id="calories-${r.id}">~${calories(actual, w)} kcal</td>
-    </tr>`;
+    const rep = (cls, label, value, aria) =>
+      `<label><span>${label}</span><input class="rep ${cls}" data-id="${r.id}" type="number" min="0" inputmode="numeric" value="${value}" aria-label="${aria}"></label>`;
+    return `<li class="block ${x.done ? 'row-done' : ''}">
+      <label class="block-check"><input class="check" type="checkbox" data-id="${r.id}" ${x.done ? 'checked' : ''} aria-label="Bloc de ${blockTime(x, r)} réalisé"></label>
+      <div class="block-time"><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} aria-label="Heure du bloc prévu à ${r.time}" value="${blockTime(x, r)}"><span class="small planned">repère ${r.time}</span></div>
+      <div class="block-effort">${labels(r)}</div>
+      <div class="block-reps">${rep('actual-jumps', 'Corde', j, 'Sauts de corde réels')}${rep('actual-pushups', 'Pompes', p, 'Pompes réelles')}${rep('actual-squats', 'Squats', s, 'Squats réels')}</div>
+      <div class="block-stats"><b class="block-duration" id="duration-${r.id}">${shortDuration(duration(actual))}</b><span class="block-kcal" id="calories-${r.id}">~${calories(actual, w)} kcal</span></div>
+    </li>`;
   }).join('');
   renderTotals(d);
 }
@@ -267,8 +327,9 @@ function renderTotals(d) {
   $('jumpTotal').textContent = t.jumps;
   $('strengthTotal').textContent = t.pushups + t.squats;
   $('kcalTotal').textContent = t.kcal;
-  $('dayResult').innerHTML = `<tr><td colspan="2">Résultat du jour</td><td>${t.done}/${t.blocks} blocs</td>` +
-    `<td>C ${t.jumps} · P ${t.pushups} · S ${t.squats}</td><td>${durationLabel(t.seconds)}</td><td>~${t.kcal} kcal</td></tr>`;
+  $('dayResult').innerHTML = `<b>${t.done}/${t.blocks} blocs</b>` +
+    `<span>C ${t.jumps} · P ${t.pushups} · S ${t.squats}</span>` +
+    `<span>${durationLabel(t.seconds)}</span><b style="margin-left:auto">~${t.kcal} kcal</b>`;
   const pct = t.blocks ? Math.round(t.done / t.blocks * 100) : 0;
   $('bar').style.width = pct + '%';
   $('completion').textContent = pct + ' % des blocs terminés';
@@ -307,13 +368,14 @@ function readRows(changedId) {
     if (tr) tr.classList.toggle('row-done', box.checked);
     const actual = {jumps: row.jumps, pushups: row.pushups, squats: row.squats};
     const durationCell = $('duration-' + id), caloriesCell = $('calories-' + id);
-    if (durationCell) durationCell.textContent = durationLabel(duration(actual));
+    if (durationCell) durationCell.textContent = shortDuration(duration(actual));
     if (caloriesCell) caloriesCell.textContent = '~' + calories(actual, w) + ' kcal';
   });
   d.weight = w;
   d.notes = $('notes').value;
   data.days[key] = d;
   renderTotals(d);
+  scheduleSave();
 }
 
 /* ---------- historique ---------- */
@@ -321,8 +383,10 @@ function renderHistory() {
   const entries = Object.entries(data.days).sort((a, b) => b[0].localeCompare(a[0]));
   $('history').innerHTML = entries.slice(0, 12).map(([k, d]) => {
     const t = dayTotals(d);
-    return `<tr><td>${formatDate(k)}</td><td>${t.done}/${t.blocks}</td><td>${t.jumps}</td><td>${t.kcal}</td><td>${d.weight || '—'} kg</td></tr>`;
-  }).join('') || '<tr><td colspan="5" class="small">Aucune séance enregistrée.</td></tr>';
+    return `<div class="hist-row"><span class="hist-date">${formatDate(k)}</span>` +
+      `<span class="hist-blocks">${t.done}/${t.blocks} blocs</span>` +
+      `<span class="hist-metrics">${t.jumps} sauts · ${t.kcal} kcal${d.weight ? ' · ' + formatWeight(d.weight) + ' kg' : ''}</span></div>`;
+  }).join('') || '<p class="small">Aucune séance enregistrée.</p>';
 
   const today = fromISODate(dayKey() || todayISO());
   const cells = [];
@@ -342,7 +406,7 @@ function renderHistory() {
 
 function loadDay() {
   const d = current();
-  $('weight').value = d.weight != null ? d.weight : lastKnownWeight(dayKey());
+  $('weight').value = d.weight != null ? Math.round(Number(d.weight) * 10) / 10 : lastKnownWeight(dayKey());
   $('notes').value = d.notes || '';
   renderRows();
   renderHistory();
@@ -352,7 +416,7 @@ function saveDay() {
   readRows();
   saveData();
   renderHistory();
-  flash('save', 'Journée enregistrée ✓', 'Enregistrer la journée');
+  flash('save', 'Enregistré ✓', 'Enregistrer');
 }
 
 function flash(id, message, back) {
@@ -724,6 +788,8 @@ $('rows').addEventListener('input', e => {
   if (e.target.matches('.time')) e.target.dataset.set = '1';
   if (e.target.matches('.rep') || e.target.matches('.time')) readRows(e.target.dataset.id);
 });
+$('prevDay').onclick = () => { $('date').value = shiftDate(dayKey() || todayISO(), -1); loadDay(); };
+$('nextDay').onclick = () => { $('date').value = shiftDate(dayKey() || todayISO(), 1); loadDay(); };
 $('save').onclick = saveDay;
 $('settings').onclick = () => { setSettingsInputs(); $('dialog').showModal(); };
 $('tab-today').onclick = () => showView('today');

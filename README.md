@@ -58,6 +58,17 @@ plutôt que par des attributs `onchange` inline.
   cette page qu'un export de l'application mobile, au choix en fusion ou en
   remplacement.
 - Bouton « Recalculer maintenant » retiré : tout se recalcule à la frappe.
+- **Refonte de l'onglet Aujourd'hui.** Le tableau de 1020 px de large forçait
+  toute la page à déborder sur téléphone (1059 px sur un écran de 390) : il
+  fallait la faire glisser latéralement pour voir la colonne « Fait ». Chaque
+  bloc est désormais une carte pilotée par une grille CSS — empilée sur
+  téléphone, alignée en colonnes sur grand écran. Une seule structure HTML pour
+  les deux : c'est la largeur de la **carte** qui décide, via une *container
+  query*, et non celle de l'écran (sur un écran large la carte reste étroite).
+- **Enregistrement automatique** : sur téléphone personne ne pense à appuyer sur
+  « Enregistrer » avant de fermer l'onglet. Le bouton reste, comme confirmation.
+- Navigation ‹ / › entre les jours, historique en lignes lisibles, et poids
+  arrondi à l'affichage (`96.60000000000001 kg` apparaissait après un import).
 
 - **Seuls les blocs cochés « Fait » comptent.** Le résultat du jour et
   l'historique ignorent désormais les répétitions saisies sans avoir coché la
