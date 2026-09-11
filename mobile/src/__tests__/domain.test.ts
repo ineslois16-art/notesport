@@ -17,19 +17,34 @@ import {
   emptyDay,
   formatClock,
   formatDuration,
+  normalizeDayState,
   normalizeSettings,
   nowClock,
+  RECOVERY_BLOCK_ID,
   type DayRecord,
+  type DayState,
 } from '../domain/program';
-import { allTimeRecords, buildDayPoints, currentStreak, longestStreak, summarize } from '../domain/stats';
+import {
+  allTimeRecords,
+  buildDayPoints,
+  currentStreak,
+  longestStreak,
+  streakInfo,
+  summarize,
+} from '../domain/stats';
 import { addDays, daysBetween, rangeISO, toISO, todayISO } from '../lib/dates';
 import { buildCsv, buildPayload, parseBackup } from '../lib/backupFormat';
 
 const settings = DEFAULT_SETTINGS;
 
-function dayWith(date: string, doneBlockIds: string[], weight: number | null = null): DayRecord {
-  const day = emptyDay(date, weight);
-  for (const block of buildSchedule(settings)) {
+function dayWith(
+  date: string,
+  doneBlockIds: string[],
+  weight: number | null = null,
+  state: DayState = 'fresh',
+): DayRecord {
+  const day = emptyDay(date, weight, state);
+  for (const block of buildSchedule(settings, state)) {
     if (!doneBlockIds.includes(block.id)) continue;
     day.blocks[block.id] = {
       blockId: block.id,
@@ -152,18 +167,125 @@ test('un poids plus élevé augmente la dépense estimée', () => {
   assert.ok(heavy.kcal > light.kcal);
 });
 
-test('la série en cours s’arrête au premier jour manqué', () => {
+test('la série en cours s’arrête au trou que les jokers ne couvrent plus', () => {
   const today = todayISO();
+  // Sept jours vides : deux jokers par mois n'y suffisent pas, même à cheval
+  // sur deux mois.
   const days = [
     dayWith(addDays(today, -1), ['0']),
     dayWith(addDays(today, -2), ['0']),
-    dayWith(addDays(today, -4), ['0']),
+    dayWith(addDays(today, -10), ['0']),
   ];
   assert.equal(currentStreak(days, settings), 2, "la journée d'aujourd'hui encore vide ne casse pas la série");
   assert.equal(longestStreak(days, settings), 2);
 
   const withToday = [...days, dayWith(today, ['0'])];
   assert.equal(currentStreak(withToday, settings), 3);
+});
+
+test('un niveau déclaré allège la charge sans toucher à l’espacement', () => {
+  const spent = buildSchedule(settings, 'spent');
+  assert.equal(spent.length, 7, 'l’espacement entre efforts protège les tendons : on garde les 7 blocs');
+  assert.equal(
+    spent.reduce((total, block) => total + block.jumps, 0),
+    500,
+  );
+  assert.deepEqual(
+    spent.map((block) => block.label),
+    buildSchedule(settings, 'fresh').map((block) => block.label),
+    'les horaires ne bougent pas d’un niveau à l’autre',
+  );
+  assert.equal(spent[0].pushups, 10);
+  assert.equal(spent[0].squats, 10);
+
+  const normal = buildSchedule(settings, 'normal');
+  assert.equal(
+    normal.reduce((total, block) => total + block.jumps, 0),
+    800,
+  );
+});
+
+test('tenir un jour « Cassé » vaut tenir un jour « Frais »', () => {
+  const hard = computeTotals(dayWith('2026-05-12', ['0', '1', '2', '3', '4', '5', '6']), settings);
+  const easy = computeTotals(
+    dayWith('2026-05-12', ['0', '1', '2', '3', '4', '5', '6'], null, 'spent'),
+    settings,
+  );
+
+  assert.equal(hard.targetJumps, 1000);
+  assert.equal(easy.targetJumps, 500, 'l’objectif suit le niveau déclaré');
+  assert.equal(easy.jumps, 500);
+  assert.ok(hard.onPlan && easy.onPlan, 'les deux journées sont tenues');
+  assert.equal(easy.percent, 100);
+
+  // Une journée entamée mais pas tenue reste une journée non tenue.
+  assert.equal(computeTotals(dayWith('2026-05-12', ['0'], null, 'spent'), settings).onPlan, false);
+});
+
+test('un jour de récup se coche, et cocher suffit', () => {
+  const schedule = buildSchedule(settings, 'recovery');
+  assert.equal(schedule.length, 1);
+  assert.equal(schedule[0].id, RECOVERY_BLOCK_ID);
+  assert.equal(schedule[0].jumps, 0);
+
+  const day = dayWith('2026-05-12', [RECOVERY_BLOCK_ID], null, 'recovery');
+  const totals = computeTotals(day, settings);
+  assert.equal(totals.doneBlocks, 1, 'un repos validé est une journée active');
+  assert.equal(totals.jumps, 0);
+  assert.equal(totals.onPlan, true, 'le repos choisi est une journée tenue');
+  assert.equal(totals.targetJumps, 0);
+
+  // Tant qu'il n'est pas coché, le repos ne compte pas : il reste une intention.
+  assert.equal(computeTotals(emptyDay('2026-05-12', null, 'recovery'), settings).onPlan, false);
+
+  // Le bloc de récup a son propre identifiant : les blocs de travail déjà
+  // saisis survivent à un aller-retour Frais → Récup → Frais.
+  const worked = dayWith('2026-05-12', ['0', '1'], 96);
+  const paused = { ...worked, state: 'recovery' as DayState };
+  assert.equal(computeTotals(paused, settings).jumps, 0);
+  assert.equal(computeTotals({ ...paused, state: 'fresh' }, settings).jumps, 300);
+});
+
+test('un jour de récup compte dans la série', () => {
+  const today = todayISO();
+  const days = [
+    dayWith(addDays(today, -1), [RECOVERY_BLOCK_ID], null, 'recovery'),
+    dayWith(addDays(today, -2), ['0']),
+  ];
+  assert.equal(currentStreak(days, settings), 2);
+});
+
+test('un joker protège la série d’une journée vide', () => {
+  const today = todayISO();
+  // Rien avant-hier : le trou est couvert, la série tient sans le compter.
+  const days = [dayWith(addDays(today, -1), ['0']), dayWith(addDays(today, -3), ['0'])];
+  const info = streakInfo(days, settings);
+  assert.equal(info.days, 2, 'un joker protège, il ne s’entraîne pas à ta place');
+  assert.equal(info.jokersUsed, 1);
+  assert.equal(info.jokersLeft, 1);
+});
+
+test('le troisième jour vide du mois casse la série', () => {
+  // Dates fixes en milieu de mois : le décompte des jokers est mensuel.
+  const bridged = [
+    dayWith('2026-05-20', ['0']),
+    dayWith('2026-05-17', ['0']),
+    dayWith('2026-05-16', ['0']),
+  ];
+  assert.equal(longestStreak(bridged, settings), 3, 'deux jours vides tiennent dans les jokers du mois');
+
+  const broken = [
+    dayWith('2026-05-20', ['0']),
+    dayWith('2026-05-16', ['0']),
+    dayWith('2026-05-15', ['0']),
+  ];
+  assert.equal(longestStreak(broken, settings), 2, 'trois jours vides dépassent les deux jokers');
+});
+
+test('sans série vivante, aucun joker n’est décompté', () => {
+  const info = streakInfo([dayWith('2026-05-20', ['0'])], settings);
+  assert.equal(info.days, 0);
+  assert.equal(info.jokersLeft, 2);
 });
 
 test('les jours sans enregistrement apparaissent à zéro dans les courbes', () => {
@@ -262,7 +384,26 @@ test('le CSV échappe les notes contenant des points-virgules', () => {
   day.blocks['0'].time = '07:42';
   const csv = buildCsv([day], settings);
   const lines = csv.split('\n');
-  assert.match(lines[0], /^﻿Date;Heures des blocs faits;/);
+  assert.match(lines[0], /^﻿Date;État;Heures des blocs faits;/);
   assert.match(lines[1], /"Genou sensible; repos demain"$/);
-  assert.match(lines[1], /^2026-09-10;07:42;1;7;150;20;20;/);
+  assert.match(lines[1], /^2026-09-10;Frais;07:42;1;7;150;20;20;/);
+});
+
+test('l’état du jour survit à l’export et aux sauvegardes qui l’ignorent', () => {
+  const days = [
+    dayWith('2026-09-09', ['0', '1'], 96, 'spent'),
+    dayWith('2026-09-10', [RECOVERY_BLOCK_ID], 95.5, 'recovery'),
+  ];
+  const parsed = parseBackup(JSON.stringify(buildPayload(days, settings)));
+  assert.equal(parsed.days[0].state, 'spent');
+  assert.equal(parsed.days[1].state, 'recovery');
+  assert.equal(computeTotals(parsed.days[1], settings).onPlan, true);
+
+  // Sauvegarde antérieure à l'état du jour : elle repart en « Frais », donc
+  // avec exactement les mêmes chiffres qu'avant.
+  const legacy = parseBackup(
+    JSON.stringify({ days: [{ date: '2026-09-09', weight: 96, notes: '', blocks: [] }] }),
+  );
+  assert.equal(legacy.days[0].state, 'fresh');
+  assert.equal(normalizeDayState('n’importe quoi'), 'fresh');
 });

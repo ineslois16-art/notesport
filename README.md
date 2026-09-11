@@ -112,6 +112,39 @@ plutôt que par des attributs `onchange` inline.
   modifiable ensuite. La grille de repère elle-même accepte une minute de
   départ (08:35 aussi bien que 08:00).
 
+### Le repos cesse d'être une défaite
+
+Le modèle était le même 1 000 sauts tous les jours, sans repos prévu — et le
+compteur de série punissait précisément le jour de repos, puisqu'un jour vide
+le remettait à zéro. On demandait donc à l'utilisateur de saborder son propre
+score pour se ménager. Trois changements retirent cette pression, sans rien
+enlever au jeu.
+
+- **Un état déclaré au réveil.** *Frais*, *Normal*, *Cassé* ou *Récup* : le
+  programme du jour vaut 100 %, 80 %, 50 % ou rien. On allège les répétitions
+  **sans toucher au nombre de blocs** — l'espacement entre deux efforts est
+  justement ce qui protège les tendons, c'est la dernière chose à raboter.
+- **Tenir son niveau est une réussite pleine.** L'objectif du jour suit l'état
+  déclaré : une journée « Cassé » tenue à 500 sauts compte exactement comme une
+  journée « Frais » tenue à 1 000. La tuile « objectifs atteints » devient
+  **jours tenus au niveau déclaré** — c'est le calibrage qui est noté, plus le
+  maximum.
+- **Le repos se coche.** Un jour *Récup* n'a qu'un bloc, vide, qui se valide en
+  un tap : il compte comme journée active, donc il maintient la série. Son bloc
+  porte un identifiant à part (`rest`), si bien que les blocs de travail déjà
+  saisis survivent intacts à un aller-retour Frais → Récup → Frais.
+- **Deux jokers par mois.** Une journée vide que la série traverse consomme un
+  joker du mois civil au lieu de tout remettre à zéro. Un joker protège, il ne
+  s'entraîne pas : il ne fait pas monter le compteur. Et il n'est dépensé que
+  s'il a réellement franchi un trou — ceux posés au-delà du début de la série
+  sont rendus. Le but est de supprimer l'incitation à s'entraîner blessé pour
+  ne pas perdre quarante jours : c'est ce réflexe-là qui transforme une gêne en
+  tendinite.
+
+Les sauvegardes antérieures n'ont pas d'état : elles repartent en « Frais », et
+gardent donc exactement les chiffres qu'elles avaient. Même règle, mêmes
+formules et même format d'échange dans l'application.
+
 ### Les autres corrections
 
 - **Dates en heure locale.** `toISOString()` renvoie une date UTC : le suivi
@@ -142,7 +175,7 @@ SVG. Quatre onglets : Aujourd'hui, Progression, Historique, Réglages.
 cd mobile
 npm install
 npm start       # puis scanner le QR code avec Expo Go sur l'iPhone
-npm test        # 18 tests du cœur métier, sans téléphone
+npm test        # 26 tests du cœur métier, sans téléphone
 ```
 
 Détail des fonctionnalités et de l'architecture : [`mobile/README.md`](mobile/README.md).

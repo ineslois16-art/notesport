@@ -4,8 +4,18 @@ import Svg, { Path } from 'react-native-svg';
 
 import { BlockRow } from '../components/BlockRow';
 import { ProgressRing } from '../components/ProgressRing';
-import { Button, Card, Metric, Muted, ProgressBar, Row, SectionTitle } from '../components/ui';
-import { clockToMinutes, describeEffort, displayTime, entryFor, formatDuration, formatNumber } from '../domain/program';
+import { Button, Card, Chip, Metric, Muted, ProgressBar, Row, SectionTitle } from '../components/ui';
+import {
+  clockToMinutes,
+  DAY_STATES,
+  dayStateLabel,
+  describeEffort,
+  displayTime,
+  entryFor,
+  formatDuration,
+  formatNumber,
+  RECOVERY_BLOCK_ID,
+} from '../domain/program';
 import { addDays, formatDayTitle, formatShort, isFuture, isToday, todayISO } from '../lib/dates';
 import { useStore } from '../state/store';
 import { radius, spacing, type as typography, useTheme } from '../theme';
@@ -39,6 +49,7 @@ export function TodayScreen() {
     setBlockTime,
     resetBlock,
     setDayMeta,
+    setDayState,
   } = useStore();
   const [expanded, setExpanded] = useState<string | null>(null);
   // Bloc en attente de validation : rien n'est enregistré tant qu'on n'a pas validé.
@@ -49,9 +60,12 @@ export function TodayScreen() {
     setWeightText(day.weight != null ? String(day.weight) : '');
     setExpanded(null);
     setConfirming(null);
-  }, [day.date, day.weight]);
+  }, [day.date, day.weight, day.state]);
 
   const weight = day.weight ?? settings.defaultWeight;
+  const isRecovery = day.state === 'recovery';
+  const plannedJumps = schedule.reduce((total, block) => total + block.jumps, 0);
+  const restDone = isRecovery && entryFor(day, schedule[0]).done;
   const jumpProgress = totals.targetJumps > 0 ? totals.jumps / totals.targetJumps : 0;
   const remainingJumps = Math.max(0, totals.targetJumps - totals.jumps);
 
@@ -118,76 +132,142 @@ export function TodayScreen() {
         </Pressable>
       </View>
 
+      <SectionTitle>Comment tu te sens</SectionTitle>
       <Card>
-        <Row style={{ gap: spacing.lg, marginBottom: spacing.md }}>
-          <ProgressRing done={totals.doneBlocks} total={totals.blockCount} />
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={[styles.big, { color: theme.ink }]}>{formatNumber(totals.jumps)}</Text>
-            <Muted>/ {formatNumber(totals.targetJumps)} sauts</Muted>
-            <View style={{ height: spacing.md }} />
-            <ProgressBar value={jumpProgress} color={theme.series.jumps} height={8} />
-            <Muted style={{ marginTop: 6 }}>
-              {remainingJumps > 0 ? `${formatNumber(remainingJumps)} sauts restants` : 'objectif atteint 🎉'}
-            </Muted>
-          </View>
+        <Row style={{ flexWrap: 'wrap', gap: spacing.sm }}>
+          {DAY_STATES.map((state) => (
+            <Chip
+              key={state.id}
+              label={state.label}
+              compact
+              selected={day.state === state.id}
+              onPress={() => void setDayState(state.id)}
+            />
+          ))}
         </Row>
-
-        <Row style={{ marginTop: spacing.lg, gap: spacing.sm }}>
-          <Metric value={formatNumber(totals.pushups + totals.squats)} label="pompes + squats" />
-          <Metric value={`${formatNumber(totals.kcal)}`} label="kcal estimées" accent={theme.series.kcal} />
-          <Metric value={formatDuration(totals.seconds)} label="temps actif" />
-        </Row>
-
-        {nextBlock ? (
-          <View style={[styles.nextHint, { backgroundColor: theme.berrySoft }]}>
-            <Text style={[typography.small, { color: theme.berry, fontWeight: '700' }]}>
-              Prochain bloc · {displayTime(entryFor(day, nextBlock), nextBlock)}
-            </Text>
-            <Text style={[typography.small, { color: theme.inkSoft }]}>{describeEffort(nextBlock)}</Text>
-          </View>
-        ) : null}
+        <Muted style={{ marginTop: spacing.md }}>
+          {isRecovery
+            ? 'Repos choisi. Il se coche, il compte dans la série, et il ne casse rien.'
+            : `${formatNumber(plannedJumps)} sauts sur ${totals.blockCount} blocs — tenir ce niveau, c’est la journée réussie.`}
+        </Muted>
       </Card>
 
       <View style={{ height: spacing.lg }} />
 
-      <SectionTitle action={<Muted>Touche une ligne pour ajuster</Muted>}>Blocs de la journée</SectionTitle>
-      <Card padded={false} style={{ paddingVertical: spacing.sm, paddingHorizontal: spacing.sm }}>
-        {schedule.map((block) => {
-          const entry = entryFor(day, block);
-          return (
-            <BlockRow
-              key={block.id}
-              block={block}
-              entry={entry}
-              cadence={settings.cadence}
-              weight={weight}
-              expanded={expanded === block.id}
-              confirming={confirming === block.id}
-              onAskConfirm={() => {
-                setConfirming(block.id);
-                setExpanded(block.id);
-              }}
-              onConfirm={() => {
-                setConfirming(null);
-                setExpanded(null);
-                void setBlockDone(block.id, true);
-              }}
-              onCancelConfirm={() => {
-                setConfirming(null);
-                setExpanded(null);
-              }}
-              onUndo={() => void setBlockDone(block.id, false)}
-              onToggleExpanded={() => {
-                setConfirming(null);
-                setExpanded((value) => (value === block.id ? null : block.id));
-              }}
-              onChange={(patch) => void setBlockEffort(block.id, patch)}
-              onChangeTime={(time) => void setBlockTime(block.id, time)}
-              onReset={() => void resetBlock(block.id)}
+      {isRecovery ? (
+        <Card>
+          <Text style={[typography.title, { color: theme.ink }]}>Jour de récup</Text>
+          <Muted>
+            Rien à faire aujourd’hui : c’est le plan. Les tendons ne progressent qu’entre les séances.
+          </Muted>
+          <View style={{ height: spacing.lg }} />
+          {restDone ? (
+            <>
+              <View style={[styles.nextHint, { backgroundColor: theme.plumSoft, marginTop: 0 }]}>
+                <Text style={[typography.small, { color: theme.plum, fontWeight: '700' }]}>
+                  Récup validée ✓ · la série continue
+                </Text>
+                <Text style={[typography.small, { color: theme.inkSoft }]}>
+                  Un repos pris exprès vaut une journée tenue.
+                </Text>
+              </View>
+              <Button
+                label="Annuler la récup"
+                onPress={() => void setBlockDone(RECOVERY_BLOCK_ID, false)}
+                style={{ marginTop: spacing.md }}
+              />
+            </>
+          ) : (
+            <Button
+              label="J’ai récupéré ✓"
+              variant="primary"
+              onPress={() => void setBlockDone(RECOVERY_BLOCK_ID, true)}
             />
-          );
-        })}
-      </Card>
+          )}
+        </Card>
+      ) : (
+        <>
+        <Card>
+          <Row style={{ gap: spacing.lg, marginBottom: spacing.md }}>
+            <ProgressRing done={totals.doneBlocks} total={totals.blockCount} />
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={[styles.big, { color: theme.ink }]}>{formatNumber(totals.jumps)}</Text>
+              <Muted>/ {formatNumber(totals.targetJumps)} sauts</Muted>
+              <View style={{ height: spacing.md }} />
+              <ProgressBar value={jumpProgress} color={theme.series.jumps} height={8} />
+              <Muted style={{ marginTop: 6 }}>
+                {remainingJumps > 0 ? `${formatNumber(remainingJumps)} sauts restants` : 'objectif atteint 🎉'}
+              </Muted>
+            </View>
+          </Row>
+
+          <Row style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+            <Metric value={formatNumber(totals.pushups + totals.squats)} label="pompes + squats" />
+            <Metric value={`${formatNumber(totals.kcal)}`} label="kcal estimées" accent={theme.series.kcal} />
+            <Metric value={formatDuration(totals.seconds)} label="temps actif" />
+          </Row>
+
+          {totals.onPlan ? (
+            <View style={[styles.nextHint, { backgroundColor: theme.plumSoft }]}>
+              <Text style={[typography.small, { color: theme.plum, fontWeight: '700' }]}>
+                Journée tenue · niveau {dayStateLabel(totals.state).toLowerCase()} ✓
+              </Text>
+              <Text style={[typography.small, { color: theme.inkSoft }]}>
+                Calibrer juste vaut autant qu’un gros jour.
+              </Text>
+            </View>
+          ) : nextBlock ? (
+            <View style={[styles.nextHint, { backgroundColor: theme.berrySoft }]}>
+              <Text style={[typography.small, { color: theme.berry, fontWeight: '700' }]}>
+                Prochain bloc · {displayTime(entryFor(day, nextBlock), nextBlock)}
+              </Text>
+              <Text style={[typography.small, { color: theme.inkSoft }]}>{describeEffort(nextBlock)}</Text>
+            </View>
+          ) : null}
+        </Card>
+
+        <View style={{ height: spacing.lg }} />
+
+        <SectionTitle action={<Muted>Touche une ligne pour ajuster</Muted>}>Blocs de la journée</SectionTitle>
+        <Card padded={false} style={{ paddingVertical: spacing.sm, paddingHorizontal: spacing.sm }}>
+          {schedule.map((block) => {
+            const entry = entryFor(day, block);
+            return (
+              <BlockRow
+                key={block.id}
+                block={block}
+                entry={entry}
+                cadence={settings.cadence}
+                weight={weight}
+                expanded={expanded === block.id}
+                confirming={confirming === block.id}
+                onAskConfirm={() => {
+                  setConfirming(block.id);
+                  setExpanded(block.id);
+                }}
+                onConfirm={() => {
+                  setConfirming(null);
+                  setExpanded(null);
+                  void setBlockDone(block.id, true);
+                }}
+                onCancelConfirm={() => {
+                  setConfirming(null);
+                  setExpanded(null);
+                }}
+                onUndo={() => void setBlockDone(block.id, false)}
+                onToggleExpanded={() => {
+                  setConfirming(null);
+                  setExpanded((value) => (value === block.id ? null : block.id));
+                }}
+                onChange={(patch) => void setBlockEffort(block.id, patch)}
+                onChangeTime={(time) => void setBlockTime(block.id, time)}
+                onReset={() => void resetBlock(block.id)}
+              />
+            );
+          })}
+        </Card>
+        </>
+      )}
 
       <View style={{ height: spacing.lg }} />
 

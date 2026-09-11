@@ -129,7 +129,7 @@
 </nav>
 <div id="view-today" role="tabpanel" aria-labelledby="tab-today">
 <section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="ring-row"><div id="ring"></div><div class="ring-side"><div class="big-num" id="jumpTotal">0</div><div class="small" id="jumpTarget">/ 1 000 sauts</div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div></div></div><div class="summary3" id="dayStats"></div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
-<section class="card plan-card"><h2>Les blocs</h2><div class="small" id="targetInfo"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<section class="card plan-card"><h2>Les blocs</h2><p class="small" style="margin:0 0 8px"><b>Comment tu te sens ?</b></p><div class="ranges" id="stateBar" role="group" aria-label="État du jour"></div><div class="small" id="targetInfo"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
 <section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div id="history"></div></section></section>
 </div>
 
@@ -140,12 +140,12 @@
 <div class="hero-num" id="pTotalJumps">0</div>
 <p class="small" id="pDelta"></p>
 <div class="stats">
-<div class="metric metric-plum"><b id="pStreak">0 j</b><span>série en cours</span></div>
+<div class="metric metric-plum"><b id="pStreak">0 j</b><span id="pStreakLabel">série en cours</span></div>
 <div class="metric"><b id="pConsistency">0 %</b><span>régularité</span></div>
 <div class="metric"><b id="pAverage">0</b><span>sauts / jour</span></div>
 <div class="metric"><b id="pKcal">0</b><span>kcal cumulées</span></div>
 <div class="metric"><b id="pTime">0 min</b><span>temps actif</span></div>
-<div class="metric metric-plum"><b id="pTargets">0</b><span>objectifs atteints</span></div>
+<div class="metric metric-plum"><b id="pTargets">0</b><span>jours tenus au niveau déclaré</span></div>
 </div>
 </section>
 
@@ -167,6 +167,27 @@
 const KEY = 'val-sport-tracker-v1';
 const DEFAULTS = {jumps:150, dailyJumpTarget:1000, pushups:20, squats:20, start:8, startMinute:0, interval:2, blocks:7, cadence:105};
 const DEFAULT_WEIGHT = 97;
+
+/**
+ * État déclaré au réveil : il module la charge du jour. Tenir le niveau déclaré
+ * est une réussite pleine — c'est le calibrage qui est noté, pas le maximum.
+ * « Récup » est le jour de repos : il se coche, donc il compte.
+ */
+const DAY_STATES = [
+  {id:'fresh', label:'Frais', factor:1},
+  {id:'normal', label:'Normal', factor:0.8},
+  {id:'spent', label:'Cassé', factor:0.5},
+  {id:'recovery', label:'Récup', factor:0}
+];
+/** Le bloc de récup a son propre identifiant : les blocs de travail déjà
+ *  saisis restent intacts si l'on bascule en Récup puis qu'on revient. */
+const RECOVERY_BLOCK_ID = 'rest';
+/** Deux jours vides par mois civil ne cassent plus la série. */
+const JOKERS_PER_MONTH = 2;
+
+const normalizeState = v => DAY_STATES.some(s => s.id === v) ? v : 'fresh';
+const stateFactor = v => (DAY_STATES.find(s => s.id === normalizeState(v)) || DAY_STATES[0]).factor;
+const stateLabel = v => (DAY_STATES.find(s => s.id === normalizeState(v)) || DAY_STATES[0]).label;
 
 /* ---------- stockage ---------- */
 const memoryStore = {};
@@ -232,26 +253,52 @@ function lastKnownWeight(beforeKey) {
   }
   return DEFAULT_WEIGHT;
 }
-function freshDay(key) { return {weight: lastKnownWeight(key), notes: '', rows: {}}; }
+function freshDay(key) { return {weight: lastKnownWeight(key), notes: '', state: 'fresh', rows: {}}; }
 function current() {
   const key = dayKey();
   const day = data.days[key];
   if (!day) return freshDay(key);
   if (!day.rows || typeof day.rows !== 'object') day.rows = {};
+  day.state = normalizeState(day.state);
   return day;
 }
+/** État de la journée affichée ; les sauvegardes antérieures repartent en « Frais ». */
+function dayState() { return normalizeState(current().state); }
 
 /* ---------- programme ---------- */
-function schedule() {
+/** Objectif de sauts du modèle, avant modulation par l'état du jour. */
+function baseTarget() {
   const s = data.settings;
-  const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
-  let remaining = target;
+  return Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+}
+/** Objectif ramené au niveau déclaré : c'est lui qu'il s'agit de tenir. */
+function targetFor(state) {
+  return normalizeState(state) === 'recovery' ? 0 : Math.round(baseTarget() * stateFactor(state));
+}
+
+/**
+ * Grille du jour. On allège les répétitions sans toucher au nombre de blocs :
+ * l'espacement entre deux efforts est justement ce qui protège les tendons.
+ * Un jour de récup n'a qu'un bloc, vide : il se coche, et cocher suffit.
+ */
+function schedule(state) {
+  const s = data.settings;
+  state = normalizeState(state === undefined ? dayState() : state);
+  const startTotal = (s.start * 60 + (Number(s.startMinute) || 0)) % 1440;
+  if (state === 'recovery') {
+    return [{id: RECOVERY_BLOCK_ID, time: pad(Math.floor(startTotal / 60)) + ':' + pad(startTotal % 60), jumps: 0, pushups: 0, squats: 0}];
+  }
+  const factor = stateFactor(state);
+  const perBlock = Math.round(s.jumps * factor);
+  const pushups = Math.round(s.pushups * factor);
+  const squats = Math.round(s.squats * factor);
+  let remaining = targetFor(state);
   return Array.from({length: s.blocks}, (_, i) => {
     // Grille de repère : heure de départ (à la minute) + intervalle.
-    const total = ((s.start * 60 + (Number(s.startMinute) || 0)) + i * s.interval * 60) % 1440;
-    const jumps = Math.min(s.jumps, Math.max(0, remaining));
+    const total = (startTotal + i * s.interval * 60) % 1440;
+    const jumps = Math.min(perBlock, Math.max(0, remaining));
     remaining -= jumps;
-    return {id: String(i), time: pad(Math.floor(total / 60)) + ':' + pad(total % 60), jumps, pushups: s.pushups, squats: s.squats};
+    return {id: String(i), time: pad(Math.floor(total / 60)) + ':' + pad(total % 60), jumps, pushups, squats};
   });
 }
 function nowHM() { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
@@ -297,7 +344,8 @@ function recordedActual(x, r) {
 
 /* ---------- totaux : une seule source de vérité ---------- */
 function dayTotals(d) {
-  const rows = schedule();
+  const state = normalizeState(d.state);
+  const rows = schedule(state);
   const weight = Number(d.weight) || DEFAULT_WEIGHT;
   let done = 0, jumps = 0, pushups = 0, squats = 0, kcal = 0, seconds = 0;
   rows.forEach(r => {
@@ -312,19 +360,31 @@ function dayTotals(d) {
     seconds += duration(actual);
     kcal += calories(actual, weight);
   });
-  const s = data.settings;
-  const targetJumps = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
-  return {done, blocks: rows.length, jumps, pushups, squats, kcal: Math.round(kcal), seconds, targetJumps};
+  const targetJumps = targetFor(state);
+  return {
+    state, done, blocks: rows.length, jumps, pushups, squats,
+    kcal: Math.round(kcal), seconds, targetJumps,
+    // Tenir un jour « Cassé » à 500 sauts vaut tenir un jour « Frais » à 1 000.
+    onPlan: done >= rows.length && (targetJumps === 0 || jumps >= targetJumps)
+  };
 }
 
 /* ---------- rendu ---------- */
 function renderTargetInfo(weight) {
-  const s = data.settings, planned = schedule();
+  const state = dayState(), planned = schedule(state);
+  $('stateBar').innerHTML = DAY_STATES.map(s =>
+    `<button class="range" type="button" data-state="${s.id}" aria-pressed="${s.id === state}">${s.label}</button>`
+  ).join('');
+
+  if (state === 'recovery') {
+    $('targetInfo').textContent = 'Jour de repos : rien à faire, et ça compte. ' +
+      'Les tendons ne progressent qu’entre les séances.';
+    return;
+  }
   const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
   const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
-  const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
-  $('targetInfo').textContent = 'Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) +
-    ' et ~' + plannedKcal + ' kcal.';
+  $('targetInfo').textContent = 'Objectif du jour : ' + targetFor(state) + ' sauts. Total estimé : ' +
+    durationLabel(active) + ' et ~' + plannedKcal + ' kcal. Tenir ce niveau, c’est la journée réussie.';
 }
 
 /** Bloc « maintenant » : le dernier créneau échu non fait, sinon le prochain. */
@@ -369,10 +429,41 @@ function effortOf(x, r) {
   return x && (x.done || x.entered) ? actual : {jumps: r.jumps, pushups: r.pushups, squats: r.squats};
 }
 
+/** Bascule l'état du jour : la grille est redessinée, rien n'est perdu. */
+function setDayState(state) {
+  readOpenBlock();
+  readMeta();
+  const key = dayKey();
+  const d = data.days[key] || (data.days[key] = freshDay(key));
+  d.state = normalizeState(state);
+  openBlock = null;
+  confirming = null;
+  saveData();
+  renderRows();
+  renderHistory();
+}
+
 function renderRows() {
   const d = current();
   const weight = Number(d.weight) || DEFAULT_WEIGHT;
   renderTargetInfo(weight);
+
+  if (dayState() === 'recovery') {
+    const done = (d.rows[RECOVERY_BLOCK_ID] || {}).done;
+    $('rows').innerHTML = `<li class="brow ${done ? 'done' : ''}">
+      <button class="tick" data-tick="${RECOVERY_BLOCK_ID}" aria-pressed="${!!done}" aria-label="Marquer la récupération comme faite"><i>
+        <svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 8.6 6.2 12 13 4.6" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </i></button>
+      <span class="brow-main">
+        <span class="brow-time">Jour de récup</span>
+        <span class="brow-sub">${done ? 'Récup validée ✓ · la série continue' : 'Un repos pris exprès vaut une journée tenue.'}</span>
+      </span>
+      ${done ? '' : `<button class="cta" data-tick="${RECOVERY_BLOCK_ID}">J’ai récupéré</button>`}
+    </li>`;
+    renderTotals(d);
+    return;
+  }
+
   const nowId = currentBlockId();
 
   $('rows').innerHTML = schedule().map(r => {
@@ -431,10 +522,14 @@ function renderTotals(d) {
   const remaining = Math.max(0, t.targetJumps - t.jumps);
   const reached = remaining <= 0 && t.targetJumps > 0;
   renderDayStats(t);
-  $('completion').className = reached ? 'small reached' : 'small';
-  $('completion').textContent = reached
-    ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
-    : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
+  $('completion').className = t.onPlan || reached ? 'small reached' : 'small';
+  $('completion').textContent = t.onPlan
+    ? 'journée tenue · niveau ' + stateLabel(t.state).toLowerCase() + ' ✓ · ~' + t.kcal + ' kcal'
+    : t.state === 'recovery'
+      ? 'repos à valider'
+      : reached
+        ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
+        : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
 }
 
 /**
@@ -442,17 +537,19 @@ function renderTotals(d) {
  * que partout ailleurs : framboise pour l'instant présent, prune pour l'acquis.
  */
 function renderDayStats(t) {
-  const nowId = currentBlockId();
+  const isRecovery = t.state === 'recovery';
+  const nowId = isRecovery ? null : currentBlockId();
   const isToday = dayKey() === todayISO();
   const d = current();
   const block = nowId !== null ? schedule().find(r => r.id === nowId) : null;
   const next = block ? blockTime(d.rows[block.id], block) : null;
+  const streak = streakInfo();
 
   const tiles = [
     next
       ? {cls: 'metric-berry', value: next, label: 'prochain bloc'}
       : {cls: 'metric-berry', value: isToday ? '✓' : '—', label: isToday ? 'journée terminée' : 'aucun bloc en attente'},
-    {cls: 'metric-plum', value: currentStreak() + ' j', label: 'série en cours'},
+    {cls: 'metric-plum', value: streak.days + ' j', label: 'série · ' + streak.jokersLeft + ' joker(s) ce mois'},
     {cls: '', value: '~' + t.kcal, label: 'kcal · ' + longDuration(t.seconds)}
   ];
   $('dayStats').innerHTML = tiles
@@ -637,11 +734,12 @@ function dayPoints(from, to) {
 function shiftDate(key, delta) { const d = fromISODate(key); d.setDate(d.getDate() + delta); return toISODate(d); }
 
 function summarize(points) {
-  const sum = {jumps: 0, kcal: 0, seconds: 0, blocks: 0, possible: 0, active: 0, targets: 0};
+  const sum = {jumps: 0, kcal: 0, seconds: 0, blocks: 0, possible: 0, active: 0, targets: 0, onPlan: 0};
   points.forEach(p => {
     sum.jumps += p.totals.jumps; sum.kcal += p.totals.kcal; sum.seconds += p.totals.seconds;
     sum.blocks += p.totals.done; sum.possible += p.totals.blocks;
     if (p.totals.done > 0) sum.active++;
+    if (p.totals.onPlan) sum.onPlan++;
     if (p.totals.targetJumps > 0 && p.totals.jumps >= p.totals.targetJumps) sum.targets++;
   });
   sum.average = points.length ? Math.round(sum.jumps / points.length) : 0;
@@ -649,14 +747,49 @@ function summarize(points) {
   return sum;
 }
 
-/** Jours consécutifs avec au moins un bloc fait ; aujourd'hui encore vide ne casse rien. */
-function currentStreak() {
+/**
+ * Série en cours : jours consécutifs avec au moins un bloc fait (un jour de
+ * récup validé en fait partie) ; aujourd'hui encore vide ne casse rien. Les
+ * journées vides que la série traverse consomment un joker du mois plutôt que
+ * de tout remettre à zéro — pour ne plus avoir à s'entraîner blessé.
+ */
+function streakInfo() {
   const active = new Set(Object.keys(data.days).filter(k => dayTotals(data.days[k]).done > 0));
-  if (!active.size) return 0;
-  let cursor = active.has(todayISO()) ? todayISO() : shiftDate(todayISO(), -1);
+  const month = todayISO().slice(0, 7);
+  const spent = {};
+  const spendJoker = key => {
+    const m = key.slice(0, 7);
+    if ((spent[m] || 0) >= JOKERS_PER_MONTH) return false;
+    spent[m] = (spent[m] || 0) + 1;
+    return true;
+  };
+
+  // Jokers engagés mais pas confirmés : un joker n'est dépensé que s'il a
+  // réellement franchi un trou. Ceux posés au-delà du début de la série ne
+  // protègent rien et sont rendus.
+  let pending = [];
+  const canCover = key => {
+    const m = key.slice(0, 7);
+    const engaged = pending.filter(d => d.slice(0, 7) === m).length;
+    return (spent[m] || 0) + engaged < JOKERS_PER_MONTH;
+  };
+
   let streak = 0;
-  while (active.has(cursor)) { streak++; cursor = shiftDate(cursor, -1); }
-  return streak;
+  let cursor = active.has(todayISO()) ? todayISO() : shiftDate(todayISO(), -1);
+  for (;;) {
+    if (active.has(cursor)) {
+      streak++;
+      pending.forEach(spendJoker);
+      pending = [];
+    } else {
+      if (!canCover(cursor)) break;
+      pending.push(cursor);
+    }
+    cursor = shiftDate(cursor, -1);
+  }
+
+  const used = spent[month] || 0;
+  return {days: streak, jokersUsed: used, jokersLeft: JOKERS_PER_MONTH - used};
 }
 
 /* ================= Progression : graphiques SVG ================= */
@@ -818,13 +951,14 @@ function renderProgress() {
   $('pDelta').textContent = previous.jumps > 0
     ? (delta >= 0 ? '+' : '−') + Math.abs(delta).toLocaleString('fr-FR') + ' par rapport à la période précédente'
     : 'Première période enregistrée';
-  const streak = currentStreak();
-  $('pStreak').textContent = streak + ' j';
+  const streak = streakInfo();
+  $('pStreak').textContent = streak.days + ' j';
+  $('pStreakLabel').textContent = 'série · ' + streak.jokersLeft + ' joker(s) ce mois';
   $('pConsistency').textContent = sum.consistency + ' %';
   $('pAverage').textContent = sum.average.toLocaleString('fr-FR');
   $('pKcal').textContent = sum.kcal.toLocaleString('fr-FR');
   $('pTime').textContent = longDuration(sum.seconds);
-  $('pTargets').textContent = sum.targets;
+  $('pTargets').textContent = sum.onPlan;
 
   const blockCount = data.settings.blocks;
   drawChart('chartJumps', 'readJumps', 'readJumpsDate',
@@ -864,7 +998,7 @@ function renderProgress() {
     ['Plus grosse dépense', bestKcal ? bestKcal.value.toLocaleString('fr-FR') + ' kcal · ' + formatDate(bestKcal.key) : '—'],
     ['Total depuis le début', totalEver.toLocaleString('fr-FR') + ' sauts'],
     ['Journées actives', activeEver + ' jour(s)'],
-    ['Série en cours', streak + ' jour(s)']
+    ['Série en cours', streak.days + ' jour(s)']
   ].map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('');
 }
 
@@ -901,11 +1035,11 @@ function parseBackup(text) {
       const rows = {};
       (item.blocks || []).forEach(b => {
         const id = String(b && b.blockId);
-        if (!/^\d+$/.test(id)) return;
+        if (id !== RECOVERY_BLOCK_ID && !/^\d+$/.test(id)) return;
         rows[id] = {done: !!b.done, entered: !!(b.touched || b.done), time: toClock(b.time),
                     jumps: toCount(b.jumps), pushups: toCount(b.pushups), squats: toCount(b.squats)};
       });
-      days[item.date] = {weight: Number(item.weight) > 0 ? Number(item.weight) : null, notes: typeof item.notes === 'string' ? item.notes : '', rows};
+      days[item.date] = {weight: Number(item.weight) > 0 ? Number(item.weight) : null, notes: typeof item.notes === 'string' ? item.notes : '', state: normalizeState(item.state), rows};
     });
     if (!Object.keys(days).length) throw new Error('Aucune journée trouvée dans ce fichier.');
     return {days, settings: {
@@ -922,12 +1056,13 @@ function parseBackup(text) {
       if (!isDateKey(key)) return;
       const value = raw.days[key] || {}, rows = {};
       Object.keys(value.rows || {}).forEach(id => {
-        if (!/^\d+$/.test(id)) return;              // écarte la ligne « undefined » de l'ancien bug
+        // écarte la ligne « undefined » de l'ancien bug, garde le bloc de récup
+        if (id !== RECOVERY_BLOCK_ID && !/^\d+$/.test(id)) return;
         const row = value.rows[id] || {};
         rows[id] = {done: !!row.done, entered: !!row.entered, time: toClock(row.time),
                     jumps: toCount(row.jumps), pushups: toCount(row.pushups), squats: toCount(row.squats)};
       });
-      days[key] = {weight: Number(value.weight) > 0 ? Number(value.weight) : null, notes: typeof value.notes === 'string' ? value.notes : '', rows};
+      days[key] = {weight: Number(value.weight) > 0 ? Number(value.weight) : null, notes: typeof value.notes === 'string' ? value.notes : '', state: normalizeState(value.state), rows};
     });
     if (!Object.keys(days).length) throw new Error('Aucune journée trouvée dans ce fichier.');
     return {days, settings: raw.settings && typeof raw.settings === 'object' ? Object.assign({}, DEFAULTS, raw.settings) : null, source: 'cette page'};
@@ -980,11 +1115,17 @@ $('rows').addEventListener('click', e => {
   if (tick) {
     const id = tick.dataset.tick;
     if ((current().rows[id] || {}).done) undoDone(id);
+    // Récup : il n'y a aucune répétition à vérifier, le tap est la validation.
+    else if (id === RECOVERY_BLOCK_ID) confirmDone(id);
     else askConfirm(id);
     return;
   }
   const opener = e.target.closest('[data-open]');
   if (opener) toggleOpen(opener.dataset.open);
+});
+$('stateBar').addEventListener('click', e => {
+  const button = e.target.closest('[data-state]');
+  if (button) setDayState(button.dataset.state);
 });
 $('rows').addEventListener('input', e => {
   if (e.target.matches('.time')) e.target.dataset.set = '1';

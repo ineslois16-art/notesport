@@ -11,10 +11,14 @@
 import {
   buildSchedule,
   computeTotals,
+  dayStateLabel,
   displayTime,
   formatDuration,
+  normalizeDayState,
   normalizeSettings,
+  RECOVERY_BLOCK_ID,
   type DayRecord,
+  type DayState,
   type Settings,
 } from '../domain/program';
 import type { ISODate } from './dates';
@@ -37,7 +41,13 @@ export type ExportPayload = {
   version: number;
   exportedAt: string;
   settings: Settings;
-  days: { date: ISODate; weight: number | null; notes: string; blocks: ExportedBlock[] }[];
+  days: {
+    date: ISODate;
+    weight: number | null;
+    notes: string;
+    state: DayState;
+    blocks: ExportedBlock[];
+  }[];
 };
 
 const isISODate = (value: unknown): value is ISODate =>
@@ -62,6 +72,7 @@ export function buildPayload(days: DayRecord[], settings: Settings): ExportPaylo
       date: day.date,
       weight: day.weight,
       notes: day.notes ?? '',
+      state: normalizeDayState(day.state),
       blocks: Object.values(day.blocks).map((entry) => ({
         blockId: entry.blockId,
         done: entry.done,
@@ -106,6 +117,8 @@ function parseAppFormat(raw: any): DayRecord[] {
       date: item.date,
       weight: Number.isFinite(weight) && weight > 0 ? weight : null,
       notes: typeof item.notes === 'string' ? item.notes : '',
+      // Sauvegarde antérieure à l'état du jour : elle repart en « Frais ».
+      state: normalizeDayState(item.state),
       blocks,
     });
   }
@@ -132,7 +145,7 @@ function parseWebFormat(raw: any): { days: DayRecord[]; settings: Settings } {
     const blocks: DayRecord['blocks'] = {};
     for (const [blockId, row] of Object.entries<any>(value?.rows ?? {})) {
       // `undefined` : lignes fantômes produites par le bug de la page web.
-      if (blockId === 'undefined' || !/^\d+$/.test(blockId)) continue;
+      if (blockId !== RECOVERY_BLOCK_ID && !/^\d+$/.test(blockId)) continue;
       const done = Boolean(row?.done);
       // `reps` : tout premier format de la page web, une seule case par bloc.
       const legacyReps = row?.reps !== undefined;
@@ -152,6 +165,7 @@ function parseWebFormat(raw: any): { days: DayRecord[]; settings: Settings } {
       date,
       weight: Number.isFinite(weight) && weight > 0 ? weight : null,
       notes: typeof value?.notes === 'string' ? value.notes : '',
+      state: normalizeDayState(value?.state),
       blocks,
     });
   }
@@ -190,7 +204,7 @@ const csvCell = (value: string | number) => {
 
 /** Heures des blocs cochés, dans l'ordre, pour la colonne du tableur. */
 function doneTimes(day: DayRecord, settings: Settings): string {
-  return buildSchedule(settings)
+  return buildSchedule(settings, day.state)
     .map((block) => {
       const entry = day.blocks[block.id];
       return entry?.done ? displayTime(entry, block) : null;
@@ -202,6 +216,7 @@ function doneTimes(day: DayRecord, settings: Settings): string {
 export function buildCsv(days: DayRecord[], settings: Settings): string {
   const header = [
     'Date',
+    'État',
     'Heures des blocs faits',
     'Blocs faits',
     'Blocs prévus',
@@ -220,6 +235,7 @@ export function buildCsv(days: DayRecord[], settings: Settings): string {
     lines.push(
       [
         day.date,
+        dayStateLabel(day.state),
         doneTimes(day, settings),
         totals.doneBlocks,
         totals.blockCount,

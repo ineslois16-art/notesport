@@ -9,9 +9,9 @@ import { formatDuration, formatNumber, type DayRecord } from '../domain/program'
 import {
   allTimeRecords,
   buildDayPoints,
-  currentStreak,
   firstLastDelta,
   longestStreak,
+  streakInfo,
   summarize,
 } from '../domain/stats';
 import { addDays, formatDayMonth, formatShort, todayISO } from '../lib/dates';
@@ -61,7 +61,10 @@ export function ProgressScreen() {
 
   const summary = useMemo(() => summarize(points), [points]);
   const previousSummary = useMemo(() => summarize(previousPoints), [previousPoints]);
-  const streak = useMemo(() => (days ? currentStreak(days, settings) : 0), [days, settings]);
+  const streak = useMemo(
+    () => (days ? streakInfo(days, settings) : { days: 0, jokersUsed: 0, jokersLeft: 0 }),
+    [days, settings],
+  );
   const best = useMemo(() => (days ? longestStreak(days, settings) : 0), [days, settings]);
   const records = useMemo(
     () => (days ? allTimeRecords(days, settings) : null),
@@ -135,10 +138,10 @@ export function ProgressScreen() {
 
             <Row style={{ marginTop: spacing.lg, gap: spacing.sm }}>
               <Metric
-                value={`${streak} j`}
+                value={`${streak.days} j`}
                 label="série en cours"
-                accent={streak > 0 ? theme.plum : undefined}
-                hint={best > 0 ? `record ${best} j` : undefined}
+                accent={streak.days > 0 ? theme.plum : undefined}
+                hint={`${streak.jokersLeft} joker${streak.jokersLeft > 1 ? 's' : ''} ce mois`}
               />
               <Metric value={`${summary.consistency} %`} label="régularité" hint={`${summary.activeDays} j actifs`} />
               <Metric value={formatNumber(summary.averageJumps)} label="sauts / jour" />
@@ -146,7 +149,12 @@ export function ProgressScreen() {
             <Row style={{ marginTop: spacing.sm, gap: spacing.sm }}>
               <Metric value={formatNumber(summary.totalKcal)} label="kcal cumulées" accent={theme.series.kcal} />
               <Metric value={formatDuration(summary.totalSeconds)} label="temps actif" />
-              <Metric value={`${summary.targetHitDays}`} label="objectifs atteints" accent={theme.plum} />
+              <Metric
+                value={`${summary.onPlanDays}`}
+                label="jours tenus"
+                accent={theme.plum}
+                hint="au niveau déclaré"
+              />
             </Row>
           </Card>
 

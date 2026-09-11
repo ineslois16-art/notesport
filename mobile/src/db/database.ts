@@ -10,16 +10,18 @@ import type { ISODate } from '../lib/dates';
 import {
   DEFAULT_SETTINGS,
   emptyDay,
+  normalizeDayState,
   normalizeSettings,
   type BlockEntry,
   type DayRecord,
+  type DayState,
   type Settings,
 } from '../domain/program';
 
 // Nom de fichier historique : le renommer ferait repartir l'application
 // d'une base vide et perdrait les journées déjà saisies.
 const DATABASE_NAME = 'suivi-sportif.db';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 let handle: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -70,6 +72,15 @@ async function migrate(db: SQLite.SQLiteDatabase) {
     const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(block_entries)');
     if (!columns.some((column) => column.name === 'time_auto')) {
       await db.execAsync('ALTER TABLE block_entries ADD COLUMN time_auto INTEGER NOT NULL DEFAULT 0');
+    }
+  }
+
+  if (version < 4) {
+    // État déclaré du jour. Les journées déjà enregistrées repartent en
+    // « fresh » : leurs chiffres restent identiques au jour près.
+    const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(days)');
+    if (!columns.some((column) => column.name === 'state')) {
+      await db.execAsync("ALTER TABLE days ADD COLUMN state TEXT NOT NULL DEFAULT 'fresh'");
     }
   }
 
@@ -124,7 +135,7 @@ export async function writeSettings(settings: Settings): Promise<void> {
 
 /* -------------------------------------------------------------- journées */
 
-type DayRow = { date: string; weight: number | null; notes: string };
+type DayRow = { date: string; weight: number | null; notes: string; state: string | null };
 type BlockRow = {
   date: string;
   block_id: string;
@@ -153,7 +164,13 @@ function toEntry(row: BlockRow): BlockEntry {
 function assemble(dayRows: DayRow[], blockRows: BlockRow[]): DayRecord[] {
   const byDate = new Map<string, DayRecord>();
   for (const row of dayRows) {
-    byDate.set(row.date, { date: row.date, weight: row.weight, notes: row.notes ?? '', blocks: {} });
+    byDate.set(row.date, {
+      date: row.date,
+      weight: row.weight,
+      notes: row.notes ?? '',
+      state: normalizeDayState(row.state),
+      blocks: {},
+    });
   }
   for (const row of blockRows) {
     const day = byDate.get(row.date);
@@ -164,7 +181,7 @@ function assemble(dayRows: DayRow[], blockRows: BlockRow[]): DayRecord[] {
 
 export async function readDay(date: ISODate): Promise<DayRecord | null> {
   const db = await getDatabase();
-  const day = await db.getFirstAsync<DayRow>('SELECT date, weight, notes FROM days WHERE date = ?', [date]);
+  const day = await db.getFirstAsync<DayRow>('SELECT date, weight, notes, state FROM days WHERE date = ?', [date]);
   if (!day) return null;
   const blocks = await db.getAllAsync<BlockRow>('SELECT * FROM block_entries WHERE date = ?', [date]);
   return assemble([day], blocks)[0];
@@ -173,7 +190,7 @@ export async function readDay(date: ISODate): Promise<DayRecord | null> {
 export async function readRange(from: ISODate, to: ISODate): Promise<DayRecord[]> {
   const db = await getDatabase();
   const days = await db.getAllAsync<DayRow>(
-    'SELECT date, weight, notes FROM days WHERE date BETWEEN ? AND ? ORDER BY date',
+    'SELECT date, weight, notes, state FROM days WHERE date BETWEEN ? AND ? ORDER BY date',
     [from, to],
   );
   if (!days.length) return [];
@@ -186,7 +203,7 @@ export async function readRange(from: ISODate, to: ISODate): Promise<DayRecord[]
 
 export async function readAllDays(): Promise<DayRecord[]> {
   const db = await getDatabase();
-  const days = await db.getAllAsync<DayRow>('SELECT date, weight, notes FROM days ORDER BY date');
+  const days = await db.getAllAsync<DayRow>('SELECT date, weight, notes, state FROM days ORDER BY date');
   if (!days.length) return [];
   const blocks = await db.getAllAsync<BlockRow>('SELECT * FROM block_entries');
   return assemble(days, blocks);
@@ -214,6 +231,16 @@ export async function saveDayMeta(date: ISODate, weight: number | null, notes: s
   await db.runAsync('UPDATE days SET weight = ?, notes = ?, updated_at = ? WHERE date = ?', [
     weight,
     notes,
+    new Date().toISOString(),
+    date,
+  ]);
+}
+
+export async function saveDayState(date: ISODate, state: DayState): Promise<void> {
+  const db = await getDatabase();
+  await ensureDayRow(db, date);
+  await db.runAsync('UPDATE days SET state = ?, updated_at = ? WHERE date = ?', [
+    state,
     new Date().toISOString(),
     date,
   ]);
@@ -247,9 +274,10 @@ export async function saveBlockEntry(date: ISODate, entry: BlockEntry): Promise<
 /** Supprime une journée devenue vide pour ne pas polluer l'historique. */
 export async function pruneDay(date: ISODate): Promise<void> {
   const db = await getDatabase();
+  // Un état déclaré est une décision : il retient la journée même vide.
   await db.runAsync(
     `DELETE FROM days WHERE date = ?
-       AND weight IS NULL AND notes = ''
+       AND weight IS NULL AND notes = '' AND state = 'fresh'
        AND NOT EXISTS (SELECT 1 FROM block_entries WHERE block_entries.date = days.date AND (done = 1 OR touched = 1))`,
     [date],
   );
@@ -268,10 +296,11 @@ export async function replaceAll(days: DayRecord[], settings: Settings): Promise
     await db.runAsync('DELETE FROM days');
     const now = new Date().toISOString();
     for (const day of days) {
-      await db.runAsync('INSERT INTO days (date, weight, notes, updated_at) VALUES (?, ?, ?, ?)', [
+      await db.runAsync('INSERT INTO days (date, weight, notes, state, updated_at) VALUES (?, ?, ?, ?, ?)', [
         day.date,
         day.weight,
         day.notes ?? '',
+        normalizeDayState(day.state),
         now,
       ]);
       for (const entry of Object.values(day.blocks)) {
@@ -304,9 +333,10 @@ export async function mergeDays(days: DayRecord[]): Promise<number> {
     const now = new Date().toISOString();
     for (const day of days) {
       await db.runAsync(
-        `INSERT INTO days (date, weight, notes, updated_at) VALUES (?, ?, ?, ?)
-         ON CONFLICT(date) DO UPDATE SET weight = excluded.weight, notes = excluded.notes, updated_at = excluded.updated_at`,
-        [day.date, day.weight, day.notes ?? '', now],
+        `INSERT INTO days (date, weight, notes, state, updated_at) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(date) DO UPDATE SET weight = excluded.weight, notes = excluded.notes,
+           state = excluded.state, updated_at = excluded.updated_at`,
+        [day.date, day.weight, day.notes ?? '', normalizeDayState(day.state), now],
       );
       await db.runAsync('DELETE FROM block_entries WHERE date = ?', [day.date]);
       for (const entry of Object.values(day.blocks)) {

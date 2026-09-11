@@ -39,6 +39,39 @@ export const DEFAULT_SETTINGS: Settings = {
   remindersEnabled: false,
 };
 
+/**
+ * État déclaré au réveil, qui module la charge du jour. Un jour tenu au niveau
+ * déclaré est une réussite pleine : c'est le calibrage qui est noté, pas le
+ * maximum. `recovery` est le jour de repos — il se coche, donc il compte.
+ */
+export type DayState = 'fresh' | 'normal' | 'spent' | 'recovery';
+
+export const DAY_STATES: { id: DayState; label: string; hint: string; factor: number }[] = [
+  { id: 'fresh', label: 'Frais', hint: 'programme entier', factor: 1 },
+  { id: 'normal', label: 'Normal', hint: 'un cran en dessous', factor: 0.8 },
+  { id: 'spent', label: 'Cassé', hint: 'moitié de charge', factor: 0.5 },
+  { id: 'recovery', label: 'Récup', hint: 'repos, et ça compte', factor: 0 },
+];
+
+/**
+ * Le bloc du jour de récupération porte un identifiant à lui : les blocs de
+ * travail déjà saisis restent en base intacts si l'on bascule en Récup puis
+ * qu'on revient en arrière.
+ */
+export const RECOVERY_BLOCK_ID = 'rest';
+
+export function normalizeDayState(value: unknown): DayState {
+  return DAY_STATES.some((state) => state.id === value) ? (value as DayState) : 'fresh';
+}
+
+export function dayStateFactor(state: DayState): number {
+  return DAY_STATES.find((item) => item.id === state)?.factor ?? 1;
+}
+
+export function dayStateLabel(state: DayState): string {
+  return DAY_STATES.find((item) => item.id === state)?.label ?? 'Frais';
+}
+
 export type PlannedBlock = {
   id: string;
   hour: number;
@@ -72,10 +105,12 @@ export type DayRecord = {
   date: ISODate;
   weight: number | null;
   notes: string;
+  state: DayState;
   blocks: Record<string, BlockEntry>;
 };
 
 export type DayTotals = {
+  state: DayState;
   doneBlocks: number;
   blockCount: number;
   jumps: number;
@@ -85,6 +120,8 @@ export type DayTotals = {
   seconds: number;
   targetJumps: number;
   percent: number;
+  /** Journée tenue au niveau déclaré — la réussite, quel que soit le niveau. */
+  onPlan: boolean;
 };
 
 const clampInt = (value: number, min: number, max: number) =>
@@ -133,17 +170,52 @@ export function clockToMinutes(clock: string | null | undefined): number | null 
 }
 
 /**
+ * Charge ramenée au niveau déclaré. On allège les répétitions sans toucher au
+ * nombre de blocs : l'espacement entre deux efforts est justement ce qui
+ * protège les tendons, c'est la dernière chose à raboter.
+ */
+export function scaleSettings(settings: Settings, state: DayState): Settings {
+  const factor = dayStateFactor(state);
+  if (factor === 1) return settings;
+  const scale = (value: number) => Math.round(value * factor);
+  return {
+    ...settings,
+    jumpsPerBlock: scale(settings.jumpsPerBlock),
+    dailyJumpTarget: scale(settings.dailyJumpTarget),
+    pushupsPerBlock: scale(settings.pushupsPerBlock),
+    squatsPerBlock: scale(settings.squatsPerBlock),
+  };
+}
+
+/**
  * Répartit l'objectif quotidien sur les blocs : chaque bloc prend au plus
  * `jumpsPerBlock`, le dernier absorbe le reste (7 × 150 → 6 × 150 + 100 = 1 000).
+ * Un jour de récupération n'a qu'un bloc, vide : il se coche, et cocher suffit.
  */
-export function buildSchedule(settings: Settings): PlannedBlock[] {
-  let remaining = settings.dailyJumpTarget;
-  return Array.from({ length: settings.blockCount }, (_, index) => {
+export function buildSchedule(settings: Settings, state: DayState = 'fresh'): PlannedBlock[] {
+  if (state === 'recovery') {
+    const { startHour: hour, startMinute: minute } = settings;
+    return [
+      {
+        id: RECOVERY_BLOCK_ID,
+        hour,
+        minute,
+        label: formatClock(hour, minute),
+        jumps: 0,
+        pushups: 0,
+        squats: 0,
+      },
+    ];
+  }
+
+  const scaled = scaleSettings(settings, state);
+  let remaining = scaled.dailyJumpTarget;
+  return Array.from({ length: scaled.blockCount }, (_, index) => {
     const total =
-      (settings.startHour * 60 + settings.startMinute + index * settings.intervalHours * 60) % 1440;
+      (scaled.startHour * 60 + scaled.startMinute + index * scaled.intervalHours * 60) % 1440;
     const hour = Math.floor(total / 60);
     const minute = total % 60;
-    const jumps = Math.min(settings.jumpsPerBlock, Math.max(0, remaining));
+    const jumps = Math.min(scaled.jumpsPerBlock, Math.max(0, remaining));
     remaining -= jumps;
     return {
       id: String(index),
@@ -151,8 +223,8 @@ export function buildSchedule(settings: Settings): PlannedBlock[] {
       minute,
       label: formatClock(hour, minute),
       jumps,
-      pushups: settings.pushupsPerBlock,
-      squats: settings.squatsPerBlock,
+      pushups: scaled.pushupsPerBlock,
+      squats: scaled.squatsPerBlock,
     };
   });
 }
@@ -206,8 +278,8 @@ export function entryFor(day: DayRecord | null, block: PlannedBlock): BlockEntry
   return day?.blocks?.[block.id] ?? makeEntry(block);
 }
 
-export function emptyDay(date: ISODate, weight: number | null = null): DayRecord {
-  return { date, weight, notes: '', blocks: {} };
+export function emptyDay(date: ISODate, weight: number | null = null, state: DayState = 'fresh'): DayRecord {
+  return { date, weight, notes: '', state, blocks: {} };
 }
 
 /**
@@ -216,7 +288,8 @@ export function emptyDay(date: ISODate, weight: number | null = null): DayRecord
  * Source de vérité unique de l'écran du jour, de l'historique et des courbes.
  */
 export function computeTotals(day: DayRecord | null, settings: Settings): DayTotals {
-  const schedule = buildSchedule(settings);
+  const state = day?.state ?? 'fresh';
+  const schedule = buildSchedule(settings, state);
   const weight = day?.weight ?? settings.defaultWeight;
   let doneBlocks = 0;
   let jumps = 0;
@@ -237,7 +310,10 @@ export function computeTotals(day: DayRecord | null, settings: Settings): DayTot
     kcal += blockCalories(entry, weight, settings.cadence);
   }
 
+  const targetJumps = state === 'recovery' ? 0 : scaleSettings(settings, state).dailyJumpTarget;
+
   return {
+    state,
     doneBlocks,
     blockCount: schedule.length,
     jumps,
@@ -245,8 +321,10 @@ export function computeTotals(day: DayRecord | null, settings: Settings): DayTot
     squats,
     kcal: Math.round(kcal),
     seconds: Math.round(seconds),
-    targetJumps: settings.dailyJumpTarget,
+    targetJumps,
     percent: schedule.length ? Math.round((doneBlocks / schedule.length) * 100) : 0,
+    // Tenir un jour « Cassé » à 500 sauts vaut tenir un jour « Frais » à 1 000.
+    onPlan: doneBlocks >= schedule.length && (targetJumps === 0 || jumps >= targetJumps),
   };
 }
 

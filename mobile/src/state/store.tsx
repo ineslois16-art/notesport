@@ -20,6 +20,7 @@ import {
   nowClock,
   type BlockEntry,
   type DayRecord,
+  type DayState,
   type DayTotals,
   type Effort,
   type PlannedBlock,
@@ -47,6 +48,8 @@ type StoreValue = {
   setBlockTime: (blockId: string, time: string | null) => Promise<void>;
   resetBlock: (blockId: string) => Promise<void>;
   setDayMeta: (patch: { weight?: number | null; notes?: string }) => void;
+  /** Niveau déclaré du jour : il redessine la grille et allège la charge. */
+  setDayState: (state: DayState) => Promise<void>;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
   reload: () => Promise<void>;
 };
@@ -134,7 +137,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [bump, date],
   );
 
-  const schedule = useMemo(() => buildSchedule(settings), [settings]);
+  const schedule = useMemo(() => buildSchedule(settings, day.state), [settings, day.state]);
 
   const blockById = useCallback(
     (blockId: string) => schedule.find((block) => block.id === blockId) ?? null,
@@ -231,6 +234,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [flushMeta],
   );
 
+  const setDayState = useCallback(
+    async (state: DayState) => {
+      setDay((previous) => ({ ...previous, state }));
+      await db.saveDayState(date, state);
+      // Revenir à « Frais » sur une journée restée vide ne laisse pas de trace.
+      await db.pruneDay(date);
+      bump();
+    },
+    [bump, date],
+  );
+
   const updateSettings = useCallback(
     async (patch: Partial<Settings>) => {
       const next = normalizeSettings({ ...settings, ...patch });
@@ -270,6 +284,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setBlockTime,
       resetBlock,
       setDayMeta,
+      setDayState,
       updateSettings,
       reload,
     }),
@@ -288,6 +303,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setBlockTime,
       resetBlock,
       setDayMeta,
+      setDayState,
       updateSettings,
       reload,
     ],
