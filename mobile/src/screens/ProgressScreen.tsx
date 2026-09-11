@@ -137,7 +137,7 @@ export function ProgressScreen() {
               <Metric
                 value={`${streak} j`}
                 label="série en cours"
-                accent={streak > 0 ? theme.berry : undefined}
+                accent={streak > 0 ? theme.plum : undefined}
                 hint={best > 0 ? `record ${best} j` : undefined}
               />
               <Metric value={`${summary.consistency} %`} label="régularité" hint={`${summary.activeDays} j actifs`} />

@@ -77,15 +77,19 @@ plutôt que par des attributs `onchange` inline.
   en cours est mis en avant avec un bouton « C'est fait ». Un anneau de
   progression remplace les quatre tuiles du résumé. Au repos, la page ne
   contient plus qu'un seul champ de saisie (le poids).
-- **Identité** : vert `#689d71`, barre d'en-tête pleine, et sous elle un dégradé
-  du même vert, linéaire de 0 % à 60 % sur toute la hauteur du document.
+- **Identité** : bandeau vert or, vert de marque `#689d71`, et sous le bandeau un
+  dégradé du vert de marque, linéaire de 0 % à 60 % sur toute la hauteur du document.
 
   | Rôle | Couleur | Emploi |
   |---|---|---|
-  | Vert de marque | `#689d71` | barre, anneau, barres de progression, pastilles, dégradé |
+  | Vert or | `#9fab54` | le bandeau du haut (encre foncée dessus, 6,22:1) |
+  | Vert de marque | `#689d71` | anneau, barres de progression, pastilles, dégradé |
   | Vert profond | `#4a7251` | toute surface pleine portant du texte blanc (il ne porte le blanc qu'à 3,16:1, d'où cette seconde nuance à 5,50:1) |
-  | Prune | `#8b689c` | les jalons : objectif atteint, records |
-  | Framboise | `#9b6678` | l'instant présent : bloc « maintenant », jour courant |
+  | Prune | `#8b689c` | **l'acquis** : série en cours, objectif atteint, records |
+  | Framboise | `#9b6678` | **l'instant présent** : bloc « maintenant », prochain bloc, jour courant |
+
+  Le résumé du jour porte les deux : une tuile framboise pour le prochain bloc,
+  une tuile prune pour la série en cours.
 
   Prune et framboise sont les **complémentaires partagées** exactes du vert
   (280° et 340° contre 130°, même saturation et même clarté), ajustées pour

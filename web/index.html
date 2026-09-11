@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Notesport</title>
 <meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
-<meta name="theme-color" content="#689d71">
+<meta name="theme-color" content="#9fab54">
 <link rel="manifest" href="manifest.webmanifest">
 <!-- Installation sur l'écran d'accueil iOS : Safari ignore encore le manifeste. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,11 +14,11 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dbe4dc;--green:#689d71;--green-deep:#4a7251;--green2:#e6efe8;--green-ink:#16281c;--ring-track:#d3e2d6;--plum:#8b689c;--plum-soft:#f1eaf4;--berry:#9b6678;--berry-soft:#f7ecf0;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
+:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dbe4dc;--green:#689d71;--green-deep:#4a7251;--green2:#e6efe8;--green-ink:#16281c;--ring-track:#d3e2d6;--plum:#8b689c;--plum-soft:#f1eaf4;--berry:#9b6678;--berry-soft:#f7ecf0;--gold:#9fab54;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
 /* Barre pleine en haut ; sous elle un degrade sauge de 0 % a 60 %, reparti
    lineairement sur toute la hauteur du document — il est donc porte par
    `.page`, dont la hauteur suit le contenu, et non par `body`. */
-.appbar{background:var(--green);color:var(--green-ink)}
+.appbar{background:var(--gold);color:var(--green-ink)}
 .appbar-in{max-width:1600px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
 .appbar .logo{width:34px;height:34px;flex:0 0 auto}
 .appbar-title{flex:1;min-width:0}
@@ -31,6 +31,10 @@
 .hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green-deep);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
 /* --- blocs : une seule structure, empilée sur téléphone, en colonnes au-delà --- */
 /* --- resume : anneau de progression --- */
+.summary3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.summary3 .metric{padding:10px}
+.summary3 .metric b{font-size:1.15rem}
+.summary3 .metric span{display:block;line-height:1.25}
 .ring-row{display:flex;align-items:center;gap:18px}
 .ring{width:104px;height:104px;flex:0 0 auto}
 .ring-side{flex:1;min-width:0}
@@ -119,7 +123,7 @@
 <button class="tab" id="tab-progress" role="tab" aria-selected="false" aria-controls="view-progress">Progression</button>
 </nav>
 <div id="view-today" role="tabpanel" aria-labelledby="tab-today">
-<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="ring-row"><div id="ring"></div><div class="ring-side"><div class="big-num" id="jumpTotal">0</div><div class="small" id="jumpTarget">/ 1 000 sauts</div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div></div></div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
+<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="ring-row"><div id="ring"></div><div class="ring-side"><div class="big-num" id="jumpTotal">0</div><div class="small" id="jumpTarget">/ 1 000 sauts</div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div></div></div><div class="summary3" id="dayStats"></div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
 <section class="card plan-card"><h2>Les blocs</h2><div class="small" id="targetInfo"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
 <section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div id="history"></div></section></section>
 </div>
@@ -131,7 +135,7 @@
 <div class="hero-num" id="pTotalJumps">0</div>
 <p class="small" id="pDelta"></p>
 <div class="stats">
-<div class="metric metric-berry"><b id="pStreak">0 j</b><span>série en cours</span></div>
+<div class="metric metric-plum"><b id="pStreak">0 j</b><span>série en cours</span></div>
 <div class="metric"><b id="pConsistency">0 %</b><span>régularité</span></div>
 <div class="metric"><b id="pAverage">0</b><span>sauts / jour</span></div>
 <div class="metric"><b id="pKcal">0</b><span>kcal cumulées</span></div>
@@ -408,10 +412,34 @@ function renderTotals(d) {
   $('bar').style.width = (pct * 100) + '%';
   const remaining = Math.max(0, t.targetJumps - t.jumps);
   const reached = remaining <= 0 && t.targetJumps > 0;
+  renderDayStats(t);
   $('completion').className = reached ? 'small reached' : 'small';
   $('completion').textContent = reached
     ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
     : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
+}
+
+/**
+ * Trois repères sous l'anneau. Les deux complémentaires y tiennent le même rôle
+ * que partout ailleurs : framboise pour l'instant présent, prune pour l'acquis.
+ */
+function renderDayStats(t) {
+  const nowId = currentBlockId();
+  const isToday = dayKey() === todayISO();
+  const d = current();
+  const block = nowId !== null ? schedule().find(r => r.id === nowId) : null;
+  const next = block ? blockTime(d.rows[block.id], block) : null;
+
+  const tiles = [
+    next
+      ? {cls: 'metric-berry', value: next, label: 'prochain bloc'}
+      : {cls: 'metric-berry', value: isToday ? '✓' : '—', label: isToday ? 'journée terminée' : 'aucun bloc en attente'},
+    {cls: 'metric-plum', value: currentStreak() + ' j', label: 'série en cours'},
+    {cls: '', value: '~' + t.kcal, label: 'kcal · ' + longDuration(t.seconds)}
+  ];
+  $('dayStats').innerHTML = tiles
+    .map(tile => `<div class="metric ${tile.cls}"><b>${tile.value}</b><span>${tile.label}</span></div>`)
+    .join('');
 }
 
 /* ---------- écriture ---------- */
