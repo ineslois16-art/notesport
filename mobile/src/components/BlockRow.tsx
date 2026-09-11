@@ -48,7 +48,12 @@ type Props = {
   cadence: number;
   weight: number;
   expanded: boolean;
-  onToggleDone: () => void;
+  /** Le bloc attend une validation explicite : rien n'est encore enregistré. */
+  confirming: boolean;
+  onAskConfirm: () => void;
+  onConfirm: () => void;
+  onCancelConfirm: () => void;
+  onUndo: () => void;
   onToggleExpanded: () => void;
   onChange: (patch: Partial<Effort>) => void;
   onChangeTime: (time: string | null) => void;
@@ -61,7 +66,11 @@ export function BlockRow({
   cadence,
   weight,
   expanded,
-  onToggleDone,
+  confirming,
+  onAskConfirm,
+  onConfirm,
+  onCancelConfirm,
+  onUndo,
   onToggleExpanded,
   onChange,
   onChangeTime,
@@ -76,13 +85,17 @@ export function BlockRow({
   const time = displayTime(entry, block);
   const movedFromPlan = entry.time !== null && entry.time !== block.label;
 
-  const handleToggle = () => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(
-        entry.done ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Medium,
-      );
-    }
-    onToggleDone();
+  // Cocher demande une validation ; décocher est immédiat — on défait, on ne
+  // crée rien, et un accord pour annuler une erreur serait pénible.
+  const handleTick = () => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (entry.done) onUndo();
+    else onAskConfirm();
+  };
+
+  const handleConfirm = () => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onConfirm();
   };
 
   const handlePicked = (event: DateTimePickerEvent, value?: Date) => {
@@ -99,7 +112,7 @@ export function BlockRow({
           accessibilityRole="checkbox"
           accessibilityState={{ checked: entry.done }}
           accessibilityLabel={`Bloc de ${time}, ${describeEffort(entry)}`}
-          onPress={handleToggle}
+          onPress={handleTick}
           hitSlop={6}
           style={styles.checkTap}>
           <View
@@ -143,6 +156,9 @@ export function BlockRow({
 
       {expanded ? (
         <View style={[styles.detail, { borderTopColor: theme.line }]}>
+          {confirming ? (
+            <Text style={[typography.strong, { color: theme.berry }]}>Vérifie avant de valider</Text>
+          ) : null}
           <View style={styles.detailRow}>
             <View style={{ flex: 1 }}>
               <Text style={[typography.small, { color: theme.inkSoft }]}>Heure réelle</Text>
@@ -192,18 +208,41 @@ export function BlockRow({
             <Stepper value={entry.squats} step={5} max={1000} onChange={(squats) => onChange({ squats })} />
           </View>
 
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              setPicking(false);
-              onReset();
-            }}
-            style={styles.resetTap}
-            hitSlop={6}>
-            <Text style={[typography.small, { color: theme.inkMuted, textDecorationLine: 'underline' }]}>
-              Revenir à l’heure et aux valeurs prévues
-            </Text>
-          </Pressable>
+          {confirming ? (
+            <View style={styles.confirmRow}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={onCancelConfirm}
+                style={({ pressed }) => [
+                  styles.confirmNo,
+                  { backgroundColor: theme.surface, opacity: pressed ? 0.7 : 1 },
+                ]}>
+                <Text style={[typography.strong, { color: theme.ink }]}>Annuler</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                onPress={handleConfirm}
+                style={({ pressed }) => [
+                  styles.confirmYes,
+                  { backgroundColor: theme.brandDeep, opacity: pressed ? 0.8 : 1 },
+                ]}>
+                <Text style={[typography.strong, { color: theme.brandInk }]}>Valider ce bloc ✓</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                setPicking(false);
+                onReset();
+              }}
+              style={styles.resetTap}
+              hitSlop={6}>
+              <Text style={[typography.small, { color: theme.inkMuted, textDecorationLine: 'underline' }]}>
+                Revenir à l’heure et aux valeurs prévues
+              </Text>
+            </Pressable>
+          )}
         </View>
       ) : null}
     </View>
@@ -244,4 +283,7 @@ const styles = StyleSheet.create({
   },
   picker: { gap: spacing.xs },
   resetTap: { alignSelf: 'flex-start', paddingVertical: 6 },
+  confirmRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+  confirmNo: { flex: 1, borderRadius: radius.md, paddingVertical: 13, alignItems: 'center' },
+  confirmYes: { flex: 2, borderRadius: radius.md, paddingVertical: 13, alignItems: 'center' },
 });

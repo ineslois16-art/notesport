@@ -19,7 +19,7 @@ import {
 // Nom de fichier historique : le renommer ferait repartir l'application
 // d'une base vide et perdrait les journées déjà saisies.
 const DATABASE_NAME = 'suivi-sportif.db';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 let handle: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -62,6 +62,14 @@ async function migrate(db: SQLite.SQLiteDatabase) {
     const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(block_entries)');
     if (!columns.some((column) => column.name === 'time')) {
       await db.execAsync('ALTER TABLE block_entries ADD COLUMN time TEXT');
+    }
+  }
+
+  if (version < 3) {
+    // Distingue l'heure posée par la validation d'une heure saisie à la main.
+    const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(block_entries)');
+    if (!columns.some((column) => column.name === 'time_auto')) {
+      await db.execAsync('ALTER TABLE block_entries ADD COLUMN time_auto INTEGER NOT NULL DEFAULT 0');
     }
   }
 
@@ -123,6 +131,7 @@ type BlockRow = {
   done: number;
   touched: number;
   time: string | null;
+  time_auto: number;
   jumps: number;
   pushups: number;
   squats: number;
@@ -134,6 +143,7 @@ function toEntry(row: BlockRow): BlockEntry {
     done: row.done === 1,
     touched: row.touched === 1,
     time: row.time ?? null,
+    timeAuto: row.time_auto === 1,
     jumps: row.jumps,
     pushups: row.pushups,
     squats: row.squats,
@@ -213,10 +223,11 @@ export async function saveBlockEntry(date: ISODate, entry: BlockEntry): Promise<
   const db = await getDatabase();
   await ensureDayRow(db, date);
   await db.runAsync(
-    `INSERT INTO block_entries (date, block_id, done, touched, time, jumps, pushups, squats)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `INSERT INTO block_entries (date, block_id, done, touched, time, time_auto, jumps, pushups, squats)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(date, block_id) DO UPDATE SET
        done = excluded.done, touched = excluded.touched, time = excluded.time,
+       time_auto = excluded.time_auto,
        jumps = excluded.jumps, pushups = excluded.pushups, squats = excluded.squats`,
     [
       date,
@@ -224,6 +235,7 @@ export async function saveBlockEntry(date: ISODate, entry: BlockEntry): Promise<
       entry.done ? 1 : 0,
       entry.touched ? 1 : 0,
       entry.time,
+      entry.timeAuto ? 1 : 0,
       entry.jumps,
       entry.pushups,
       entry.squats,
@@ -264,14 +276,15 @@ export async function replaceAll(days: DayRecord[], settings: Settings): Promise
       ]);
       for (const entry of Object.values(day.blocks)) {
         await db.runAsync(
-          `INSERT INTO block_entries (date, block_id, done, touched, time, jumps, pushups, squats)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO block_entries (date, block_id, done, touched, time, time_auto, jumps, pushups, squats)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             day.date,
             entry.blockId,
             entry.done ? 1 : 0,
             entry.touched ? 1 : 0,
             entry.time,
+            entry.timeAuto ? 1 : 0,
             entry.jumps,
             entry.pushups,
             entry.squats,
@@ -298,14 +311,15 @@ export async function mergeDays(days: DayRecord[]): Promise<number> {
       await db.runAsync('DELETE FROM block_entries WHERE date = ?', [day.date]);
       for (const entry of Object.values(day.blocks)) {
         await db.runAsync(
-          `INSERT INTO block_entries (date, block_id, done, touched, time, jumps, pushups, squats)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO block_entries (date, block_id, done, touched, time, time_auto, jumps, pushups, squats)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             day.date,
             entry.blockId,
             entry.done ? 1 : 0,
             entry.touched ? 1 : 0,
             entry.time,
+            entry.timeAuto ? 1 : 0,
             entry.jumps,
             entry.pushups,
             entry.squats,

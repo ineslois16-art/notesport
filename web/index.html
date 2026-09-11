@@ -66,6 +66,11 @@
 .cta{grid-column:1/-1;background:var(--green-deep);color:#fff;border-radius:12px;padding:12px;
   text-align:center;font-weight:800;margin-top:4px}
 .bdetail{background:#f5f8f2;border:1px solid var(--line);border-radius:14px;padding:12px;margin:2px 0 8px}
+.bdetail.to-confirm{background:var(--berry-soft);border-color:#e2c9d3}
+.confirm-head{margin:0 0 10px;font-weight:800;font-size:.9rem;color:var(--berry)}
+.confirm-actions{display:flex;gap:8px;margin-top:12px}
+.confirm-yes{flex:2;background:var(--green-deep);color:#fff;padding:12px}
+.confirm-no{flex:1;background:#ffffffb8;color:var(--ink);padding:12px}
 .bdetail-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .fields{display:flex;gap:8px}
 .fields label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -351,6 +356,13 @@ function renderRing(done, total) {
 
 /** Bloc actuellement déplié ; un seul à la fois, d'où une simple variable. */
 let openBlock = null;
+/**
+ * Bloc en attente de validation. Cocher n'enregistre rien tout de suite : on
+ * affiche d'abord ce qui va être retenu — heure et répétitions, modifiables —
+ * et rien n'est écrit tant que « Valider » n'a pas été touché. Décocher, en
+ * revanche, est immédiat : annuler une erreur ne doit pas demander un accord.
+ */
+let confirming = null;
 
 function effortOf(x, r) {
   const actual = recordedActual(x, r);
@@ -381,19 +393,25 @@ function renderRows() {
         <span class="brow-sub">${sub}</span>
       </button>
       <span class="chev" aria-hidden="true">${isOpen ? '⌄' : '›'}</span>
-      ${isNow && !x.done ? `<button class="cta" data-tick="${r.id}">C’est fait ✓</button>` : ''}
+      ${isNow && !x.done && !toConfirmId(r.id) ? `<button class="cta" data-tick="${r.id}">C’est fait</button>` : ''}
     </li>`;
 
     if (!isOpen) return row;
     const field = (cls, label, value, aria) =>
       `<label><span>${label}</span><input class="rep ${cls}" data-id="${r.id}" type="number" min="0" inputmode="numeric" value="${value}" aria-label="${aria}"></label>`;
-    return row + `<li class="bdetail">
+    const toConfirm = r.id === confirming;
+    return row + `<li class="bdetail ${toConfirm ? 'to-confirm' : ''}">
+      ${toConfirm ? '<p class="confirm-head">Vérifie avant de valider</p>' : ''}
       <div class="bdetail-top">
         <span><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} value="${blockTime(x, r)}" aria-label="Heure du bloc prévu à ${r.time}">
         <span class="small planned">repère ${r.time}</span></span>
         <span class="small" id="blockStats-${r.id}">${shortDuration(duration(effort))} · ~${calories(effort, weight)} kcal</span>
       </div>
       <div class="fields">${field('actual-jumps', 'Corde', effort.jumps, 'Sauts de corde réels')}${field('actual-pushups', 'Pompes', effort.pushups, 'Pompes réelles')}${field('actual-squats', 'Squats', effort.squats, 'Squats réels')}</div>
+      ${toConfirm ? `<div class="confirm-actions">
+        <button class="confirm-no" data-cancel="${r.id}">Annuler</button>
+        <button class="confirm-yes" data-confirm="${r.id}">Valider ce bloc ✓</button>
+      </div>` : ''}
     </li>`;
   }).join('');
 
@@ -497,18 +515,51 @@ function refreshOpenBlock() {
   scheduleSave();
 }
 
-function toggleDone(id) {
+const toConfirmId = id => confirming === id;
+
+/** Cocher : on ouvre le bloc et on attend une validation explicite. */
+function askConfirm(id) {
   readOpenBlock();
   const row = ensureRow(id);
-  row.done = !row.done;
-  if (row.done) {
-    row.entered = true;
-    // Horodatage automatique, marqué comme tel pour pouvoir être retiré au décochage.
-    if (!row.time && dayKey() === todayISO()) { row.time = nowHM(); row.timeAuto = true; }
-  } else if (row.timeAuto) {
-    row.time = null;
-    delete row.timeAuto;
-  }
+  // L'heure proposée est celle de maintenant : c'est ce qu'on vient de faire.
+  if (!row.time && dayKey() === todayISO()) { row.time = nowHM(); row.timeAuto = true; }
+  confirming = id;
+  openBlock = id;
+  renderRows();
+  const button = document.querySelector('[data-confirm="' + id + '"]');
+  if (button) button.focus({preventScroll: true});
+}
+
+function cancelConfirm(id) {
+  const row = current().rows[id];
+  // L'heure n'avait été posée que pour la proposition : elle repart avec elle.
+  if (row && row.timeAuto && !row.done) { row.time = null; delete row.timeAuto; }
+  confirming = null;
+  openBlock = null;
+  renderRows();
+}
+
+/** Valider : c'est ici, et seulement ici, que le bloc devient « fait ». */
+function confirmDone(id) {
+  readOpenBlock();
+  const row = ensureRow(id);
+  row.done = true;
+  row.entered = true;
+  if (!row.time && dayKey() === todayISO()) { row.time = nowHM(); row.timeAuto = true; }
+  confirming = null;
+  openBlock = null;
+  saveData();
+  renderRows();
+  renderHistory();
+  flash('save', 'Bloc validé ✓', 'Enregistrer');
+}
+
+/** Décocher : immédiat, sans confirmation — on défait, on ne crée rien. */
+function undoDone(id) {
+  readOpenBlock();
+  const row = ensureRow(id);
+  row.done = false;
+  if (row.timeAuto) { row.time = null; delete row.timeAuto; }
   saveData();
   renderRows();
   renderHistory();
@@ -516,6 +567,7 @@ function toggleDone(id) {
 
 function toggleOpen(id) {
   readOpenBlock();
+  if (confirming !== null && confirming !== id) cancelConfirm(confirming);
   openBlock = openBlock === id ? null : id;
   renderRows();
 }
@@ -548,6 +600,7 @@ function renderHistory() {
 
 function loadDay() {
   openBlock = null;
+  confirming = null;
   const d = current();
   $('weight').value = d.weight != null ? Math.round(Number(d.weight) * 10) / 10 : lastKnownWeight(dayKey());
   $('notes').value = d.notes || '';
@@ -919,8 +972,17 @@ $('weight').addEventListener('input', () => { readMeta(); renderTotals(current()
 $('notes').addEventListener('input', () => { readMeta(); scheduleSave(); });
 // Délégation : les lignes sont recréées à chaque rendu, un écouteur global suffit.
 $('rows').addEventListener('click', e => {
+  const yes = e.target.closest('[data-confirm]');
+  if (yes) { confirmDone(yes.dataset.confirm); return; }
+  const no = e.target.closest('[data-cancel]');
+  if (no) { cancelConfirm(no.dataset.cancel); return; }
   const tick = e.target.closest('[data-tick]');
-  if (tick) { toggleDone(tick.dataset.tick); return; }
+  if (tick) {
+    const id = tick.dataset.tick;
+    if ((current().rows[id] || {}).done) undoDone(id);
+    else askConfirm(id);
+    return;
+  }
   const opener = e.target.closest('[data-open]');
   if (opener) toggleOpen(opener.dataset.open);
 });

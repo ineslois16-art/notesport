@@ -63,6 +63,9 @@ export type BlockEntry = Effort & {
   touched: boolean;
   /** Heure réelle « HH:MM », `null` tant que rien n'a été saisi ni horodaté. */
   time: string | null;
+  /** Vrai si l'heure a été posée par la validation, pas saisie à la main :
+   *  elle repart alors avec le décochage. */
+  timeAuto: boolean;
 };
 
 export type DayRecord = {
@@ -192,6 +195,7 @@ export function makeEntry(block: PlannedBlock): BlockEntry {
     done: false,
     touched: false,
     time: null,
+    timeAuto: false,
     jumps: block.jumps,
     pushups: block.pushups,
     squats: block.squats,

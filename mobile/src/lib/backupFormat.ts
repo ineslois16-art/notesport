@@ -26,6 +26,7 @@ type ExportedBlock = {
   done: boolean;
   touched: boolean;
   time: string | null;
+  timeAuto: boolean;
   jumps: number;
   pushups: number;
   squats: number;
@@ -66,6 +67,7 @@ export function buildPayload(days: DayRecord[], settings: Settings): ExportPaylo
         done: entry.done,
         touched: entry.touched,
         time: entry.time,
+        timeAuto: entry.timeAuto,
         jumps: entry.jumps,
         pushups: entry.pushups,
         squats: entry.squats,
@@ -93,6 +95,7 @@ function parseAppFormat(raw: any): DayRecord[] {
         done: Boolean(block.done),
         touched: Boolean(block.touched ?? block.done),
         time: toClock(block.time),
+        timeAuto: Boolean(block.timeAuto),
         jumps: toInt(block.jumps),
         pushups: toInt(block.pushups),
         squats: toInt(block.squats),
@@ -138,6 +141,7 @@ function parseWebFormat(raw: any): { days: DayRecord[]; settings: Settings } {
         done,
         touched: Boolean(row?.entered) || done,
         time: toClock(row?.time),
+        timeAuto: Boolean(row?.timeAuto),
         jumps: toInt(row?.jumps, legacyReps ? settings.jumpsPerBlock : 0),
         pushups: toInt(row?.pushups, legacyReps ? settings.pushupsPerBlock : 0),
         squats: toInt(row?.squats, legacyReps ? settings.squatsPerBlock : 0),

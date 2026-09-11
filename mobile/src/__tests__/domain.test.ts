@@ -36,6 +36,7 @@ function dayWith(date: string, doneBlockIds: string[], weight: number | null = n
       done: true,
       touched: true,
       time: null,
+      timeAuto: false,
       jumps: block.jumps,
       pushups: block.pushups,
       squats: block.squats,
@@ -93,7 +94,7 @@ test('les totaux ne comptent que les blocs cochés', () => {
 
 test('un bloc modifié mais non coché ne compte nulle part', () => {
   const day = emptyDay('2026-09-10');
-  day.blocks['0'] = { blockId: '0', done: false, touched: true, time: null, jumps: 80, pushups: 10, squats: 0 };
+  day.blocks['0'] = { blockId: '0', done: false, touched: true, time: null, timeAuto: false, jumps: 80, pushups: 10, squats: 0 };
   const totals = computeTotals(day, settings);
   assert.equal(totals.doneBlocks, 0);
   assert.equal(totals.jumps, 0, 'des répétitions saisies sans cocher restent une intention');
@@ -129,7 +130,7 @@ test('l’heure saisie remplace le repère, sans l’effacer', () => {
   assert.equal(block.label, '08:00');
   assert.equal(displayTime(null, block), '08:00', 'sans saisie, le repère s’affiche');
 
-  const entry = { blockId: '0', done: true, touched: true, time: '07:42', jumps: 150, pushups: 20, squats: 20 };
+  const entry = { blockId: '0', done: true, touched: true, time: '07:42', timeAuto: false, jumps: 150, pushups: 20, squats: 20 };
   assert.equal(displayTime(entry, block), '07:42');
   assert.equal(block.label, '08:00', 'le repère du programme reste inchangé');
 });

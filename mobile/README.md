@@ -8,7 +8,9 @@ courbes de suivi dessinées en SVG.
 
 **Aujourd'hui** — la journée en cours, bloc par bloc
 - navigation jour par jour (impossible d'aller dans le futur) ;
-- une case à cocher par bloc, avec retour haptique ;
+- une case à cocher par bloc, avec retour haptique ; **cocher demande une
+  validation** (le bloc s'ouvre sur ce qui va être retenu, heure et répétitions
+  modifiables), **décocher est immédiat** ;
 - **heure de chaque bloc modifiable à la minute** (sélecteur natif) : les
   horaires du programme ne sont que des repères, rappelés sous le champ ;
   cocher un bloc du jour l'horodate automatiquement ;

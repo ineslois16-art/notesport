@@ -91,6 +91,13 @@ plutôt que par des attributs `onchange` inline.
   Le résumé du jour porte les deux : une tuile framboise pour le prochain bloc,
   une tuile prune pour la série en cours.
 
+- **Validation avant d'enregistrer.** Cocher un bloc n'écrit plus rien
+  directement : un panneau montre ce qui va être retenu — heure proposée et
+  répétitions, tout deux modifiables — et seul « Valider ce bloc » enregistre.
+  Annuler ne laisse aucune trace, pas même l'heure proposée. Décocher reste
+  immédiat : on défait, on ne crée rien, et demander un accord pour corriger
+  une erreur serait pénible. Même règle dans l'application.
+
   Prune et framboise sont les **complémentaires partagées** exactes du vert
   (280° et 340° contre 130°, même saturation et même clarté), ajustées pour
   porter du blanc à 4,6:1. Elles habillent l'interface et **jamais les

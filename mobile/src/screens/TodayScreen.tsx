@@ -34,18 +34,21 @@ export function TodayScreen() {
     schedule,
     settings,
     totals,
-    toggleBlock,
+    setBlockDone,
     setBlockEffort,
     setBlockTime,
     resetBlock,
     setDayMeta,
   } = useStore();
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Bloc en attente de validation : rien n'est enregistré tant qu'on n'a pas validé.
+  const [confirming, setConfirming] = useState<string | null>(null);
   const [weightText, setWeightText] = useState('');
 
   useEffect(() => {
     setWeightText(day.weight != null ? String(day.weight) : '');
     setExpanded(null);
+    setConfirming(null);
   }, [day.date, day.weight]);
 
   const weight = day.weight ?? settings.defaultWeight;
@@ -159,8 +162,25 @@ export function TodayScreen() {
               cadence={settings.cadence}
               weight={weight}
               expanded={expanded === block.id}
-              onToggleDone={() => void toggleBlock(block.id)}
-              onToggleExpanded={() => setExpanded((value) => (value === block.id ? null : block.id))}
+              confirming={confirming === block.id}
+              onAskConfirm={() => {
+                setConfirming(block.id);
+                setExpanded(block.id);
+              }}
+              onConfirm={() => {
+                setConfirming(null);
+                setExpanded(null);
+                void setBlockDone(block.id, true);
+              }}
+              onCancelConfirm={() => {
+                setConfirming(null);
+                setExpanded(null);
+              }}
+              onUndo={() => void setBlockDone(block.id, false)}
+              onToggleExpanded={() => {
+                setConfirming(null);
+                setExpanded((value) => (value === block.id ? null : block.id));
+              }}
               onChange={(patch) => void setBlockEffort(block.id, patch)}
               onChangeTime={(time) => void setBlockTime(block.id, time)}
               onReset={() => void resetBlock(block.id)}

@@ -41,7 +41,8 @@ type StoreValue = {
   /** Incrémenté à chaque écriture : les écrans d'analyse s'en servent pour se rafraîchir. */
   revision: number;
   setDate: (date: ISODate) => void;
-  toggleBlock: (blockId: string) => Promise<void>;
+  /** Cocher passe par la validation de l'écran ; décocher est immédiat. */
+  setBlockDone: (blockId: string, done: boolean) => Promise<void>;
   setBlockEffort: (blockId: string, patch: Partial<Effort>) => Promise<void>;
   setBlockTime: (blockId: string, time: string | null) => Promise<void>;
   resetBlock: (blockId: string) => Promise<void>;
@@ -140,15 +141,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [schedule],
   );
 
-  const toggleBlock = useCallback(
-    async (blockId: string) => {
+  const setBlockDone = useCallback(
+    async (blockId: string, done: boolean) => {
       const block = blockById(blockId);
       if (!block) return;
       const entry = entryFor(day, block);
-      const done = !entry.done;
-      // Cocher un bloc du jour l'horodate à la minute, sauf heure déjà saisie.
-      const time = done && !entry.time && date === todayISO() ? nowClock() : entry.time;
-      await writeEntry({ ...entry, done, touched: true, time });
+      let time = entry.time;
+      let timeAuto = entry.timeAuto;
+      if (done && !time && date === todayISO()) {
+        // Horodatage automatique, marqué comme tel pour repartir au décochage.
+        time = nowClock();
+        timeAuto = true;
+      } else if (!done && timeAuto) {
+        time = null;
+        timeAuto = false;
+      }
+      await writeEntry({ ...entry, done, touched: true, time, timeAuto });
     },
     [blockById, date, day, writeEntry],
   );
@@ -162,6 +170,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ...entry,
         touched: true,
         time: time && clockToMinutes(time) !== null ? time : null,
+        // Une heure saisie à la main n'est plus automatique.
+        timeAuto: false,
       });
     },
     [blockById, day, writeEntry],
@@ -193,6 +203,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         done: false,
         touched: false,
         time: null,
+        timeAuto: false,
         jumps: block.jumps,
         pushups: block.pushups,
         squats: block.squats,
@@ -254,7 +265,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       totals,
       revision,
       setDate,
-      toggleBlock,
+      setBlockDone,
       setBlockEffort,
       setBlockTime,
       resetBlock,
@@ -272,7 +283,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       totals,
       revision,
       setDate,
-      toggleBlock,
+      setBlockDone,
       setBlockEffort,
       setBlockTime,
       resetBlock,
