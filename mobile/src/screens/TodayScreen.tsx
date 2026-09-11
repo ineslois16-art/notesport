@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import Svg, { Path } from 'react-native-svg';
 
 import { BlockRow } from '../components/BlockRow';
+import { ProgressRing } from '../components/ProgressRing';
 import { Button, Card, Metric, Muted, ProgressBar, Row, SectionTitle } from '../components/ui';
 import { clockToMinutes, describeEffort, displayTime, entryFor, formatDuration, formatNumber } from '../domain/program';
 import { addDays, formatDayTitle, formatShort, isFuture, isToday, todayISO } from '../lib/dates';
@@ -115,33 +116,18 @@ export function TodayScreen() {
       </View>
 
       <Card>
-        <Row style={{ justifyContent: 'space-between', marginBottom: spacing.md }}>
-          <View>
-            <Text style={[styles.big, { color: theme.ink }]}>
-              {totals.doneBlocks}
-              <Text style={{ color: theme.inkMuted, fontSize: 22 }}>/{totals.blockCount}</Text>
-            </Text>
-            <Muted>blocs terminés</Muted>
-          </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={[styles.big, { color: totals.percent >= 100 ? theme.brand : theme.ink }]}>
-              {totals.percent}%
-            </Text>
-            <Muted>du programme</Muted>
+        <Row style={{ gap: spacing.lg, marginBottom: spacing.md }}>
+          <ProgressRing done={totals.doneBlocks} total={totals.blockCount} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={[styles.big, { color: theme.ink }]}>{formatNumber(totals.jumps)}</Text>
+            <Muted>/ {formatNumber(totals.targetJumps)} sauts</Muted>
+            <View style={{ height: spacing.md }} />
+            <ProgressBar value={jumpProgress} color={theme.series.jumps} height={8} />
+            <Muted style={{ marginTop: 6 }}>
+              {remainingJumps > 0 ? `${formatNumber(remainingJumps)} sauts restants` : 'objectif atteint 🎉'}
+            </Muted>
           </View>
         </Row>
-
-        <ProgressBar value={totals.percent / 100} />
-
-        <View style={{ height: spacing.lg }} />
-
-        <Row style={{ justifyContent: 'space-between', marginBottom: 6 }}>
-          <Text style={[typography.small, { color: theme.inkSoft, fontWeight: '700' }]}>
-            {formatNumber(totals.jumps)} / {formatNumber(totals.targetJumps)} sauts
-          </Text>
-          <Muted>{remainingJumps > 0 ? `${formatNumber(remainingJumps)} restants` : 'objectif atteint 🎉'}</Muted>
-        </Row>
-        <ProgressBar value={jumpProgress} color={theme.series.jumps} height={8} />
 
         <Row style={{ marginTop: spacing.lg, gap: spacing.sm }}>
           <Metric value={formatNumber(totals.pushups + totals.squats)} label="pompes + squats" />

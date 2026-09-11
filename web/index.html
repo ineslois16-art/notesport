@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Notesport</title>
 <meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
-<meta name="theme-color" content="#167a50">
+<meta name="theme-color" content="#55684a">
 <link rel="manifest" href="manifest.webmanifest">
 <!-- Installation sur l'écran d'accueil iOS : Safari ignore encore le manifeste. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,47 +14,64 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f6f7f2;--card:#fff;--line:#dce4dc;--green:#167a50;--green2:#e7f4ec;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #23412b12}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:28px 0 60px}.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
+:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dde3d6;--sage-100:#e6edde;--sage-200:#cfdcc1;--sage-400:#9caf88;--green:#55684a;--green2:#e6edde;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
+/* Barre pleine en haut ; sous elle un degrade sauge de 0 % a 60 %, reparti
+   lineairement sur toute la hauteur du document — il est donc porte par
+   `.page`, dont la hauteur suit le contenu, et non par `body`. */
+.appbar{background:var(--green);color:#fff}
+.appbar-in{max-width:1600px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.appbar .logo{width:34px;height:34px;flex:0 0 auto}
+.appbar-title{flex:1;min-width:0}
+.appbar-title b{display:block;font-size:1.15rem;letter-spacing:-.01em;line-height:1.15;white-space:nowrap}
+.appbar-title span{display:block;font-size:.66rem;opacity:.82;text-transform:uppercase;letter-spacing:.09em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page{background:linear-gradient(180deg,rgba(156,175,136,0) 0%,rgba(156,175,136,.6) 100%)}
+.appbar .date-nav{margin:0;flex:0 0 auto}
+.appbar .date-nav button{background:#ffffff33;color:#fff;width:38px;height:38px;padding:0;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.appbar .date-nav input{background:#ffffff24;border-color:#ffffff4d;color:#fff;padding:.5rem .6rem;font-weight:700;color-scheme:dark}
+.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
 /* --- blocs : une seule structure, empilée sur téléphone, en colonnes au-delà --- */
-.plan-head{display:none}
-.blocks{list-style:none;margin:14px 0 0;padding:0}
-.block{display:grid;align-items:center;gap:2px 10px;padding:10px 8px;border-radius:12px;
-  grid-template-columns:46px minmax(0,1fr) auto;
-  grid-template-areas:"check time stats" "check effort effort" "reps reps reps"}
-.block+.block{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 12px 12px}
-.block.row-done{background:#f3fbf6}
-.block-check{grid-area:check;display:flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer}
-.check{width:24px;height:24px;margin:0;accent-color:var(--green)}
-.block-time{grid-area:time;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.time{border:1px solid var(--line);border-radius:8px;padding:5px 6px;font-weight:750;background:white;color:inherit}
-.block.row-done .time{border-color:#a9d5bd}
-.planned{font-size:.72rem}
-.block-effort{grid-area:effort;font-weight:650;font-size:.9rem}
-.block-stats{grid-area:stats;text-align:right;display:flex;flex-direction:column;justify-content:center}
-.block-duration{font-size:.88rem;font-weight:750}
-.block-kcal{color:var(--muted);font-size:.76rem}
-.block-reps{grid-area:reps;display:flex;gap:8px;margin-top:8px}
-.block-reps label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.block-reps span{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
-.rep{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;background:white}
+/* --- resume : anneau de progression --- */
+.ring-row{display:flex;align-items:center;gap:18px}
+.ring{width:104px;height:104px;flex:0 0 auto}
+.ring-side{flex:1;min-width:0}
+.big-num{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+
+/* --- la liste calme : une ligne par bloc, rien d'editable tant qu'on n'ouvre pas --- */
+.blocks{list-style:none;margin:0;padding:0}
+.brow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;
+  padding:9px 2px;border-top:1px solid var(--line)}
+.brow:first-child{border-top:0}
+.tick{width:44px;height:44px;padding:0;border:0;background:none;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center}
+.tick i{width:30px;height:30px;border:2px solid var(--line);border-radius:10px;
+  display:flex;align-items:center;justify-content:center}
+.tick svg{display:none}
+.brow.done .tick i{background:var(--green);border-color:var(--green)}
+.brow.done .tick svg{display:block}
+.brow-main{background:none;border:0;padding:6px 0;text-align:left;font:inherit;color:inherit;min-width:0}
+.brow-time{display:block;font-weight:750}
+.brow.done .brow-time{color:var(--green)}
+.brow-sub{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chev{color:#b4c0b2;font-size:1.1rem;padding:0 2px}
+.brow.now{background:var(--green2);border-radius:14px;border-top-color:transparent;padding:12px 10px;margin:5px 0}
+.brow.now+.brow,.bdetail+.brow{border-top-color:transparent}
+.brow.now .brow-time{font-size:1.05rem}
+.nowbadge{display:inline-block;background:var(--green);color:#fff;font-size:.6rem;font-weight:800;
+  padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;margin-left:7px;
+  vertical-align:2px;font-style:normal}
+.cta{grid-column:1/-1;background:var(--green);color:#fff;border-radius:12px;padding:12px;
+  text-align:center;font-weight:800;margin-top:4px}
+.bdetail{background:#f5f8f2;border:1px solid var(--line);border-radius:14px;padding:12px;margin:2px 0 8px}
+.bdetail-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.fields{display:flex;gap:8px}
+.fields label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.fields span{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:800}
+.rep{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 6px;text-align:center;background:#fff}
+.time{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-weight:750;background:#fff;color:inherit}
+.planned{font-size:.74rem}
 .day-result{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;background:var(--green2);
-  border-radius:12px;padding:12px;margin-top:10px;font-weight:800}
-.day-result span{font-weight:600;color:#3f5c4c;font-size:.88rem}
-/* La mise en colonnes dépend de la largeur de la CARTE, pas de l'écran : sur un
-   écran large la carte reste étroite, et des colonnes fixes la feraient déborder.
-   Sans prise en charge des container queries, la disposition empilée s'applique
-   partout — elle reste parfaitement lisible. */
-.plan-card{container-type:inline-size}
-@container (min-width:660px){
-  .plan-head,.block{grid-template-columns:46px 118px minmax(170px,1.5fr) minmax(190px,1fr) 92px;
-    grid-template-areas:"check time effort reps stats"}
-  .plan-head{display:grid;gap:10px;padding:14px 8px 6px;font-size:.72rem;text-transform:uppercase;
-    letter-spacing:.05em;color:var(--muted);font-weight:800}
-  .blocks{margin-top:0}
-  .block+.block{margin-top:0;border-radius:0}
-  .block-time{flex-direction:column;align-items:flex-start;gap:2px}
-  .block-reps{margin-top:0}
-}
+  border-radius:12px;padding:12px;margin-top:12px;font-weight:800}
+.day-result span{font-weight:600;color:#4a5a46;font-size:.88rem}
 /* --- historique : des lignes lisibles plutôt qu'un tableau serré --- */
 .hist-row{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
 .hist-row:first-child{border-top:0}
@@ -84,23 +101,26 @@
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
 .records td{padding:9px 3px;border-top:1px solid var(--line)}.records td:last-child{text-align:right;font-weight:750}
 @media(max-width:900px){.charts{grid-template-columns:1fr}}
-@media(max-width:760px){.actions{display:grid;grid-template-columns:1fr 1fr}.hist-metrics{flex-basis:100%}.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.appbar .date-nav{flex:1 0 100%;order:3}.appbar .date-nav input{flex:1}.actions{display:grid;grid-template-columns:1fr 1fr}.hist-metrics{flex-basis:100%}.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body><main class="wrap">
-<header class="hero">
-<div class="brand">
-<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Logo"><rect width="1024" height="1024" rx="230" fill="#167a50"/><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#eaf7ef" stroke-width="48" stroke-linecap="round"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#fff"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#fff"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#fff"/></svg>
-<div><div class="eyebrow">Programme corde · pompes · squats</div><h1>Notesport</h1><p class="sub">Des micro-séances simples, enregistrées directement sur cet appareil.</p><p class="small" id="storageNotice" hidden></p></div>
+<body>
+<header class="appbar">
+<div class="appbar-in">
+<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Notesport"><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#ffffff" stroke-width="52" stroke-linecap="round" opacity=".85"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#fff"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#fff"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#fff"/></svg>
+<div class="appbar-title"><b>Notesport</b><span>corde · pompes · squats</span></div>
+<div class="date-nav" id="dateBox"><button id="prevDay" type="button" aria-label="Jour précédent">‹</button><input id="date" type="date" aria-label="Jour suivi"><button id="nextDay" type="button" aria-label="Jour suivant">›</button></div>
 </div>
-<div class="date-box" id="dateBox"><b>Jour suivi</b><div class="date-nav"><button class="secondary" id="prevDay" type="button" aria-label="Jour précédent">‹</button><input id="date" type="date" aria-label="Jour suivi"><button class="secondary" id="nextDay" type="button" aria-label="Jour suivant">›</button></div></div></header>
+</header>
+<div class="page"><main class="wrap">
+<p class="small" id="storageNotice" hidden style="margin:0 18px 12px"></p>
 <nav class="tabs" role="tablist" aria-label="Sections">
 <button class="tab" id="tab-today" role="tab" aria-selected="true" aria-controls="view-today">Aujourd’hui</button>
 <button class="tab" id="tab-progress" role="tab" aria-selected="false" aria-controls="view-progress">Progression</button>
 </nav>
 <div id="view-today" role="tabpanel" aria-labelledby="tab-today">
-<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="summary"><div class="metric"><b id="doneBlocks">0/7</b><span>blocs terminés</span></div><div class="metric"><b id="jumpTotal">0</b><span>sauts</span></div><div class="metric"><b id="strengthTotal">0</b><span>pompes + squats</span></div><div class="metric"><b id="kcalTotal">0</b><span>kcal approx.</span></div></div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
-<section class="card plan-card"><h2>Journée type</h2><div class="small" id="targetInfo"></div><div class="plan-head" aria-hidden="true"><span></span><span>Heure</span><span>Exercices</span><span>Répétitions réelles</span><span style="text-align:right">Durée · dépense</span></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label><input class="rep" id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="ring-row"><div id="ring"></div><div class="ring-side"><div class="big-num" id="jumpTotal">0</div><div class="small" id="jumpTarget">/ 1 000 sauts</div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div></div></div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
+<section class="card plan-card"><h2>Les blocs</h2><div class="small" id="targetInfo"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
 <section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div id="history"></div></section></section>
 </div>
 
@@ -129,7 +149,7 @@
 
 <section class="card" style="margin-top:18px"><h2>Records personnels</h2><table class="records" style="width:100%;border-collapse:collapse"><tbody id="records"></tbody></table></section>
 </div>
-</main>
+</main></div>
 <dialog id="dialog"><form method="dialog" class="modal"><h2>Personnaliser le programme</h2><p class="note">Modèle initial : 7 blocs de 08:00 à 20:00, toutes les 2 heures. Six blocs à 150 sauts et le dernier à 100, pour atteindre 1 000 sauts exactement. Ces horaires ne sont que des repères : l’heure de chaque bloc se modifie à la minute directement dans le tableau.</p><div class="form-grid"><label>Sauts par bloc<input id="cfgJumps" type="number" min="0" max="1000"></label><label>Objectif sauts / jour<input id="cfgTarget" type="number" min="0" max="10000"></label><label>Pompes par bloc prévu<input id="cfgPushups" type="number" min="0" max="500"></label><label>Squats par bloc prévu<input id="cfgSquats" type="number" min="0" max="500"></label><label>Début (heure)<input id="cfgStart" type="number" min="0" max="23"></label><label>Début (minutes)<input id="cfgStartMinute" type="number" min="0" max="59"></label><label>Intervalle (heures)<input id="cfgInterval" type="number" min="1" max="12"></label><label>Nombre de blocs<input id="cfgBlocks" type="number" min="1" max="24"></label><label>Cadence corde (sauts/min)<input id="cfgCadence" type="number" min="30" max="250"></label></div><div class="actions"><button class="primary" value="save" id="saveSettings">Appliquer</button><button class="secondary" value="cancel">Annuler</button><button class="danger" type="button" id="reset">Réinitialiser le modèle</button></div></form></dialog>
 <dialog id="importDialog"><form method="dialog" class="modal"><h2>Importer une sauvegarde</h2><p class="small" id="importSummary"></p><p class="note">« Fusionner » garde tes journées actuelles et n’écrase que celles aux mêmes dates. « Remplacer » efface tout avant d’importer.</p><div class="actions"><button class="primary" value="merge">Fusionner</button><button class="secondary" value="cancel">Annuler</button><button class="danger" value="replace">Remplacer tout</button></div></form></dialog>
 <script>
@@ -298,84 +318,176 @@ function renderTargetInfo(weight) {
     ' et ~' + plannedKcal + ' kcal.';
 }
 
+/** Bloc « maintenant » : le dernier créneau échu non fait, sinon le prochain. */
+function currentBlockId() {
+  if (dayKey() !== todayISO()) return null;
+  const d = current(), minutes = new Date().getHours() * 60 + new Date().getMinutes();
+  const pending = schedule().filter(r => !(d.rows[r.id] || {}).done);
+  if (!pending.length) return null;
+  const past = pending.filter(r => clockMinutes(blockTime(d.rows[r.id], r)) <= minutes);
+  return (past.length ? past[past.length - 1] : pending[0]).id;
+}
+function clockMinutes(clock) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(clock || '');
+  return m ? Number(m[1]) * 60 + Number(m[2]) : 0;
+}
+
+/** Anneau de progression : blocs faits sur blocs prévus. */
+function renderRing(done, total) {
+  const radius = 42, circumference = 2 * Math.PI * radius;
+  const ratio = total ? Math.min(1, done / total) : 0;
+  $('ring').innerHTML = `<svg class="ring" viewBox="0 0 100 100" role="img" aria-label="${done} blocs sur ${total}">
+    <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--sage-200)" stroke-width="11"/>
+    <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--green)" stroke-width="11" stroke-linecap="round"
+      stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${(circumference * (1 - ratio)).toFixed(1)}"
+      transform="rotate(-90 50 50)"/>
+    <text x="50" y="47" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">${done}/${total}</text>
+    <text x="50" y="63" text-anchor="middle" font-size="9" fill="var(--muted)">blocs</text></svg>`;
+}
+
+/** Bloc actuellement déplié ; un seul à la fois, d'où une simple variable. */
+let openBlock = null;
+
+function effortOf(x, r) {
+  const actual = recordedActual(x, r);
+  return x && (x.done || x.entered) ? actual : {jumps: r.jumps, pushups: r.pushups, squats: r.squats};
+}
+
 function renderRows() {
   const d = current();
-  const w = Number(d.weight) || DEFAULT_WEIGHT;
-  renderTargetInfo(w);
+  const weight = Number(d.weight) || DEFAULT_WEIGHT;
+  renderTargetInfo(weight);
+  const nowId = currentBlockId();
+
   $('rows').innerHTML = schedule().map(r => {
     const x = d.rows[r.id] || {};
-    const j = x.jumps !== undefined ? x.jumps : r.jumps;
-    const p = x.pushups !== undefined ? x.pushups : r.pushups;
-    const s = x.squats !== undefined ? x.squats : r.squats;
-    const actual = {jumps: Number(j) || 0, pushups: Number(p) || 0, squats: Number(s) || 0};
-    const rep = (cls, label, value, aria) =>
+    const effort = effortOf(x, r);
+    const isNow = r.id === nowId;
+    const isOpen = r.id === openBlock;
+    const sub = x.done
+      ? `${effort.jumps} · ${effort.pushups} · ${effort.squats} — ${calories(effort, weight)} kcal`
+      : `${r.jumps} sauts · ${r.pushups} pompes · ${r.squats} squats`;
+
+    const row = `<li class="brow ${x.done ? 'done' : ''} ${isNow ? 'now' : ''}">
+      <button class="tick" data-tick="${r.id}" aria-pressed="${!!x.done}" aria-label="Marquer le bloc de ${blockTime(x, r)} comme fait"><i>
+        <svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 8.6 6.2 12 13 4.6" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </i></button>
+      <button class="brow-main" data-open="${r.id}" aria-expanded="${isOpen}">
+        <span class="brow-time">${blockTime(x, r)}${isNow ? '<em class="nowbadge">maintenant</em>' : ''}</span>
+        <span class="brow-sub">${sub}</span>
+      </button>
+      <span class="chev" aria-hidden="true">${isOpen ? '⌄' : '›'}</span>
+      ${isNow && !x.done ? `<button class="cta" data-tick="${r.id}">C’est fait ✓</button>` : ''}
+    </li>`;
+
+    if (!isOpen) return row;
+    const field = (cls, label, value, aria) =>
       `<label><span>${label}</span><input class="rep ${cls}" data-id="${r.id}" type="number" min="0" inputmode="numeric" value="${value}" aria-label="${aria}"></label>`;
-    return `<li class="block ${x.done ? 'row-done' : ''}">
-      <label class="block-check"><input class="check" type="checkbox" data-id="${r.id}" ${x.done ? 'checked' : ''} aria-label="Bloc de ${blockTime(x, r)} réalisé"></label>
-      <div class="block-time"><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} aria-label="Heure du bloc prévu à ${r.time}" value="${blockTime(x, r)}"><span class="small planned">repère ${r.time}</span></div>
-      <div class="block-effort">${labels(r)}</div>
-      <div class="block-reps">${rep('actual-jumps', 'Corde', j, 'Sauts de corde réels')}${rep('actual-pushups', 'Pompes', p, 'Pompes réelles')}${rep('actual-squats', 'Squats', s, 'Squats réels')}</div>
-      <div class="block-stats"><b class="block-duration" id="duration-${r.id}">${shortDuration(duration(actual))}</b><span class="block-kcal" id="calories-${r.id}">~${calories(actual, w)} kcal</span></div>
+    return row + `<li class="bdetail">
+      <div class="bdetail-top">
+        <span><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} value="${blockTime(x, r)}" aria-label="Heure du bloc prévu à ${r.time}">
+        <span class="small planned">repère ${r.time}</span></span>
+        <span class="small" id="blockStats-${r.id}">${shortDuration(duration(effort))} · ~${calories(effort, weight)} kcal</span>
+      </div>
+      <div class="fields">${field('actual-jumps', 'Corde', effort.jumps, 'Sauts de corde réels')}${field('actual-pushups', 'Pompes', effort.pushups, 'Pompes réelles')}${field('actual-squats', 'Squats', effort.squats, 'Squats réels')}</div>
     </li>`;
   }).join('');
+
   renderTotals(d);
 }
 
 function renderTotals(d) {
   const t = dayTotals(d);
-  $('doneBlocks').textContent = t.done + '/' + t.blocks;
-  $('jumpTotal').textContent = t.jumps;
-  $('strengthTotal').textContent = t.pushups + t.squats;
-  $('kcalTotal').textContent = t.kcal;
+  renderRing(t.done, t.blocks);
+  $('jumpTotal').textContent = t.jumps.toLocaleString('fr-FR');
+  $('jumpTarget').textContent = '/ ' + t.targetJumps.toLocaleString('fr-FR') + ' sauts';
   $('dayResult').innerHTML = `<b>${t.done}/${t.blocks} blocs</b>` +
     `<span>C ${t.jumps} · P ${t.pushups} · S ${t.squats}</span>` +
     `<span>${durationLabel(t.seconds)}</span><b style="margin-left:auto">~${t.kcal} kcal</b>`;
-  const pct = t.blocks ? Math.round(t.done / t.blocks * 100) : 0;
-  $('bar').style.width = pct + '%';
-  $('completion').textContent = pct + ' % des blocs terminés';
+  const pct = t.targetJumps ? Math.min(1, t.jumps / t.targetJumps) : 0;
+  $('bar').style.width = (pct * 100) + '%';
+  const remaining = Math.max(0, t.targetJumps - t.jumps);
+  $('completion').textContent = remaining > 0
+    ? remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal'
+    : 'objectif atteint 🎉 · ~' + t.kcal + ' kcal';
 }
 
-/* ---------- lecture du formulaire ---------- */
-function fieldValue(cls, id) {
-  const el = document.querySelector('.' + cls + '[data-id="' + id + '"]');
-  if (!el) return 0;
-  return Math.max(0, Number(el.value) || 0);
+/* ---------- écriture ---------- */
+
+/** Crée la ligne d'un bloc à partir du modèle si elle n'existe pas encore. */
+function ensureRow(id) {
+  const key = dayKey();
+  const d = data.days[key] || (data.days[key] = freshDay(key));
+  if (!d.rows || typeof d.rows !== 'object') d.rows = {};
+  if (!d.rows[id]) {
+    const block = schedule().find(r => r.id === id);
+    d.rows[id] = {done: false, entered: false, time: null,
+                  jumps: block ? block.jumps : 0, pushups: block ? block.pushups : 0, squats: block ? block.squats : 0};
+  }
+  return d.rows[id];
 }
 
-function readRows(changedId) {
+/** Relit les champs du bloc déplié — seul bloc éditable à un instant donné. */
+function readOpenBlock() {
+  if (openBlock === null) return;
+  const row = ensureRow(openBlock);
+  const field = cls => {
+    const el = document.querySelector('.' + cls + '[data-id="' + openBlock + '"]');
+    return el ? Math.max(0, Number(el.value) || 0) : 0;
+  };
+  row.jumps = field('actual-jumps');
+  row.pushups = field('actual-pushups');
+  row.squats = field('actual-squats');
+  const timeField = document.querySelector('.time[data-id="' + openBlock + '"]');
+  row.time = timeField && timeField.dataset.set && timeField.value ? timeField.value : null;
+  if (row.time) delete row.timeAuto;
+  row.entered = true;
+  delete row.reps;
+}
+
+function readMeta() {
   const key = dayKey();
   if (!key) return;
-  const d = data.days[key] || freshDay(key);
-  if (!d.rows || typeof d.rows !== 'object') d.rows = {};
-  const w = Number($('weight').value) || lastKnownWeight(key);
-  // CORRECTIF : on ne cible que les cases à cocher. `.done` attrapait aussi
-  // les <tr class="done">, qui n'ont pas de data-id -> plantage sur null.value.
-  document.querySelectorAll('input.check').forEach(box => {
-    const id = box.dataset.id;
-    if (id === undefined) return;
-    const row = d.rows[id] || (d.rows[id] = {});
-    row.done = box.checked;
-    if (box.checked || id === String(changedId)) row.entered = true;
-    // `data-set` distingue une heure réellement saisie de l'heure repère
-    // affichée par défaut : sans ça, tout bloc paraîtrait déjà horodaté.
-    const timeField = document.querySelector('.time[data-id="' + id + '"]');
-    row.time = timeField && timeField.dataset.set && timeField.value ? timeField.value : null;
-    row.jumps = fieldValue('actual-jumps', id);
-    row.pushups = fieldValue('actual-pushups', id);
-    row.squats = fieldValue('actual-squats', id);
-    delete row.reps;
-    const tr = box.closest('tr');
-    if (tr) tr.classList.toggle('row-done', box.checked);
-    const actual = {jumps: row.jumps, pushups: row.pushups, squats: row.squats};
-    const durationCell = $('duration-' + id), caloriesCell = $('calories-' + id);
-    if (durationCell) durationCell.textContent = shortDuration(duration(actual));
-    if (caloriesCell) caloriesCell.textContent = '~' + calories(actual, w) + ' kcal';
-  });
-  d.weight = w;
+  const d = data.days[key] || (data.days[key] = freshDay(key));
+  d.weight = Number($('weight').value) || lastKnownWeight(key);
   d.notes = $('notes').value;
-  data.days[key] = d;
+}
+
+/** Saisie dans le bloc ouvert : on met à jour sans redessiner (on perdrait le focus). */
+function refreshOpenBlock() {
+  readOpenBlock();
+  const d = current();
+  const block = schedule().find(r => r.id === openBlock);
+  if (block) {
+    const effort = effortOf(d.rows[openBlock], block);
+    const stats = $('blockStats-' + openBlock);
+    if (stats) stats.textContent = shortDuration(duration(effort)) + ' · ~' + calories(effort, Number(d.weight) || DEFAULT_WEIGHT) + ' kcal';
+  }
   renderTotals(d);
   scheduleSave();
+}
+
+function toggleDone(id) {
+  readOpenBlock();
+  const row = ensureRow(id);
+  row.done = !row.done;
+  if (row.done) {
+    row.entered = true;
+    // Horodatage automatique, marqué comme tel pour pouvoir être retiré au décochage.
+    if (!row.time && dayKey() === todayISO()) { row.time = nowHM(); row.timeAuto = true; }
+  } else if (row.timeAuto) {
+    row.time = null;
+    delete row.timeAuto;
+  }
+  saveData();
+  renderRows();
+  renderHistory();
+}
+
+function toggleOpen(id) {
+  readOpenBlock();
+  openBlock = openBlock === id ? null : id;
+  renderRows();
 }
 
 /* ---------- historique ---------- */
@@ -405,6 +517,7 @@ function renderHistory() {
 }
 
 function loadDay() {
+  openBlock = null;
   const d = current();
   $('weight').value = d.weight != null ? Math.round(Number(d.weight) * 10) / 10 : lastKnownWeight(dayKey());
   $('notes').value = d.notes || '';
@@ -413,7 +526,8 @@ function loadDay() {
 }
 
 function saveDay() {
-  readRows();
+  readOpenBlock();
+  readMeta();
   saveData();
   renderHistory();
   flash('save', 'Enregistré ✓', 'Enregistrer');
@@ -771,22 +885,18 @@ if (!persistentStorage) {
   $('storageNotice').textContent = 'Les calculs fonctionnent, mais ce navigateur ne peut pas mémoriser les données pour ce fichier. Utilise Exporter mes données pour les conserver.';
 }
 $('date').addEventListener('change', loadDay);
-$('weight').addEventListener('input', () => { readRows(); renderTargetInfo(Number($('weight').value) || DEFAULT_WEIGHT); });
-$('notes').addEventListener('change', () => readRows());
+$('weight').addEventListener('input', () => { readMeta(); renderTotals(current()); renderTargetInfo(Number($('weight').value) || DEFAULT_WEIGHT); scheduleSave(); });
+$('notes').addEventListener('input', () => { readMeta(); scheduleSave(); });
 // Délégation : les lignes sont recréées à chaque rendu, un écouteur global suffit.
-$('rows').addEventListener('change', e => {
-  if (!e.target.matches('input.check')) return;
-  const id = e.target.dataset.id, timeField = document.querySelector('.time[data-id="' + id + '"]');
-  // Cocher un bloc aujourd'hui l'horodate à la minute, sauf heure déjà saisie.
-  if (e.target.checked && timeField && !timeField.dataset.set && dayKey() === todayISO()) {
-    timeField.value = nowHM();
-    timeField.dataset.set = '1';
-  }
-  readRows(id);
+$('rows').addEventListener('click', e => {
+  const tick = e.target.closest('[data-tick]');
+  if (tick) { toggleDone(tick.dataset.tick); return; }
+  const opener = e.target.closest('[data-open]');
+  if (opener) toggleOpen(opener.dataset.open);
 });
 $('rows').addEventListener('input', e => {
   if (e.target.matches('.time')) e.target.dataset.set = '1';
-  if (e.target.matches('.rep') || e.target.matches('.time')) readRows(e.target.dataset.id);
+  if (e.target.matches('.rep') || e.target.matches('.time')) refreshOpenBlock();
 });
 $('prevDay').onclick = () => { $('date').value = shiftDate(dayKey() || todayISO(), -1); loadDay(); };
 $('nextDay').onclick = () => { $('date').value = shiftDate(dayKey() || todayISO(), 1); loadDay(); };
@@ -857,6 +967,8 @@ $('export').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 };
 loadDay();
+// Le bloc « maintenant » change avec l'heure : rafraîchissement discret.
+setInterval(() => { if (currentView === 'today' && openBlock === null) renderRows(); }, 60000);
 
 // Installée sur l'écran d'accueil, l'application doit fonctionner sans réseau.
 // Ignoré quand la page est ouverte en fichier local (file://), où il n'y a de

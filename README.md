@@ -69,6 +69,17 @@ plutôt que par des attributs `onchange` inline.
   « Enregistrer » avant de fermer l'onglet. Le bouton reste, comme confirmation.
 - Navigation ‹ / › entre les jours, historique en lignes lisibles, et poids
   arrondi à l'affichage (`96.60000000000001 kg` apparaissait après un import).
+- **Deuxième refonte de l'onglet Aujourd'hui.** La première corrigeait le
+  débordement mais montrait 37 champs de saisie d'un coup, sans hiérarchie : la
+  saisie était traitée comme le cas normal alors que le geste quotidien est un
+  simple tap. Les blocs sont désormais une liste calme — une ligne chacun, rien
+  d'éditable tant qu'on n'ouvre pas, **un seul bloc déplié à la fois**. Le bloc
+  en cours est mis en avant avec un bouton « C'est fait ». Un anneau de
+  progression remplace les quatre tuiles du résumé. Au repos, la page ne
+  contient plus qu'un seul champ de saisie (le poids).
+- **Identité sauge** : marque `#55684a`, barre d'en-tête pleine, et sous elle un
+  dégradé sauge linéaire de 0 % à 60 % sur toute la hauteur du document. Les
+  couleurs des courbes restent celles, validées, de la palette de séries.
 
 - **Seuls les blocs cochés « Fait » comptent.** Le résultat du jour et
   l'historique ignorent désormais les répétitions saisies sans avoir coché la

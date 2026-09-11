@@ -1,6 +1,10 @@
 import { useColorScheme } from 'react-native';
 
 /**
+ * Marque : vert sauge (#55684a en clair, éclairci en #9caf88 sur fond sombre
+ * pour rester au-dessus de 3:1). Les couleurs de séries, elles, restent
+ * indépendantes de la marque — voir ci-dessous.
+ *
  * Les quatre couleurs de séries proviennent d'une palette catégorielle validée
  * (bandes de clarté, plancher de chroma, séparation daltonisme, contraste) sur
  * les deux surfaces réellement utilisées ici : #ffffff en clair, #1a1a19 en
@@ -15,17 +19,17 @@ const series = {
 
 const light = {
   mode: 'light' as 'light' | 'dark',
-  bg: '#f4f6f1',
+  bg: '#f4f6ef',
   surface: '#ffffff',
-  surfaceAlt: '#eef1ed',
-  surfaceSunken: '#e8ece8',
-  line: '#dce4dc',
+  surfaceAlt: '#eef1e7',
+  surfaceSunken: '#e4eada',
+  line: '#dde3d6',
   ink: '#18231d',
   inkSoft: '#42504a',
   inkMuted: '#65736a',
-  brand: '#167a50',
+  brand: '#55684a',
   brandInk: '#ffffff',
-  brandSoft: '#e7f4ec',
+  brandSoft: '#e6edde',
   danger: '#b23a36',
   dangerSoft: '#fbe9e8',
   grid: '#e9ede9',
@@ -37,17 +41,17 @@ export type Theme = typeof light;
 
 const dark: Theme = {
   mode: 'dark',
-  bg: '#101210',
+  bg: '#12150f',
   surface: '#1a1a19',
-  surfaceAlt: '#242624',
-  surfaceSunken: '#2b2e2b',
-  line: '#31352f',
+  surfaceAlt: '#242620',
+  surfaceSunken: '#2c302a',
+  line: '#343830',
   ink: '#f1f4ee',
   inkSoft: '#c3c8c1',
   inkMuted: '#98a09a',
-  brand: '#3fae7c',
-  brandInk: '#08130d',
-  brandSoft: '#17332a',
+  brand: '#9caf88',
+  brandInk: '#10160c',
+  brandSoft: '#26301f',
   danger: '#e66767',
   dangerSoft: '#33201f',
   grid: '#2a2e2b',

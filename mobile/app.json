@@ -7,8 +7,8 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "primaryColor": "#167a50",
-    "backgroundColor": "#f4f6f1",
+    "primaryColor": "#55684a",
+    "backgroundColor": "#f4f6ef",
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
@@ -27,7 +27,7 @@
       "package": "com.val.notesport",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#e7f4ec",
+        "backgroundColor": "#e6edde",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
@@ -44,16 +44,16 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 180,
           "resizeMode": "contain",
-          "backgroundColor": "#f4f6f1",
+          "backgroundColor": "#f4f6ef",
           "dark": {
-            "backgroundColor": "#101210"
+            "backgroundColor": "#12150f"
           }
         }
       ],
       [
         "expo-notifications",
         {
-          "color": "#167a50",
+          "color": "#55684a",
           "defaultChannel": "blocs"
         }
       ]
