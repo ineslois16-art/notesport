@@ -123,7 +123,7 @@ export function Chip({
         {
           paddingHorizontal: compact ? spacing.md : spacing.lg,
           paddingVertical: compact ? 6 : spacing.sm,
-          backgroundColor: selected ? theme.brand : theme.surfaceAlt,
+          backgroundColor: selected ? theme.brandDeep : theme.surfaceAlt,
           opacity: pressed ? 0.75 : 1,
         },
       ]}>
@@ -150,7 +150,7 @@ type ButtonProps = {
 export function Button({ label, onPress, variant = 'secondary', disabled, busy, style }: ButtonProps) {
   const theme = useTheme();
   const palette = {
-    primary: { bg: theme.brand, fg: theme.brandInk },
+    primary: { bg: theme.brandDeep, fg: theme.brandInk },
     secondary: { bg: theme.surfaceAlt, fg: theme.ink },
     danger: { bg: theme.dangerSoft, fg: theme.danger },
   }[variant];

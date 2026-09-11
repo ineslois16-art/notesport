@@ -137,7 +137,7 @@ export function ProgressScreen() {
               <Metric
                 value={`${streak} j`}
                 label="série en cours"
-                accent={streak > 0 ? theme.brand : undefined}
+                accent={streak > 0 ? theme.berry : undefined}
                 hint={best > 0 ? `record ${best} j` : undefined}
               />
               <Metric value={`${summary.consistency} %`} label="régularité" hint={`${summary.activeDays} j actifs`} />
@@ -146,7 +146,7 @@ export function ProgressScreen() {
             <Row style={{ marginTop: spacing.sm, gap: spacing.sm }}>
               <Metric value={formatNumber(summary.totalKcal)} label="kcal cumulées" accent={theme.series.kcal} />
               <Metric value={formatDuration(summary.totalSeconds)} label="temps actif" />
-              <Metric value={`${summary.targetHitDays}`} label="objectifs atteints" />
+              <Metric value={`${summary.targetHitDays}`} label="objectifs atteints" accent={theme.plum} />
             </Row>
           </Card>
 

@@ -1,7 +1,7 @@
 import { useColorScheme } from 'react-native';
 
 /**
- * Marque : vert sauge (#55684a en clair, éclairci en #9caf88 sur fond sombre
+ * Marque : vert #689d71 (éclairci en #8ebd96 sur fond sombre
  * pour rester au-dessus de 3:1). Les couleurs de séries, elles, restent
  * indépendantes de la marque — voir ci-dessous.
  *
@@ -17,6 +17,14 @@ const series = {
   dark: { jumps: '#3987e5', kcal: '#d95926', blocks: '#199e70', weight: '#9085e9' },
 };
 
+/**
+ * Complémentaires partagées du vert de marque (280° et 340°, même saturation et
+ * clarté) : la prune marque les jalons, la framboise l'instant présent. Elles
+ * habillent l'interface, jamais les courbes — celles-ci gardent leur palette.
+ */
+const accentLight = { plum: '#8b689c', plumSoft: '#f1eaf4', berry: '#9b6678', berrySoft: '#f7ecf0' };
+const accentDark = { plum: '#bb9ac9', plumSoft: '#2c2433', berry: '#c795a5', berrySoft: '#33242a' };
+
 const light = {
   mode: 'light' as 'light' | 'dark',
   bg: '#f4f6ef',
@@ -27,9 +35,11 @@ const light = {
   ink: '#18231d',
   inkSoft: '#42504a',
   inkMuted: '#65736a',
-  brand: '#55684a',
+  brand: '#689d71',
+  brandDeep: '#4a7251',
   brandInk: '#ffffff',
-  brandSoft: '#e6edde',
+  brandSoft: '#e6efe8',
+  ...accentLight,
   danger: '#b23a36',
   dangerSoft: '#fbe9e8',
   grid: '#e9ede9',
@@ -49,9 +59,11 @@ const dark: Theme = {
   ink: '#f1f4ee',
   inkSoft: '#c3c8c1',
   inkMuted: '#98a09a',
-  brand: '#9caf88',
-  brandInk: '#10160c',
-  brandSoft: '#26301f',
+  brand: '#8ebd96',
+  brandDeep: '#8ebd96',
+  brandInk: '#0c1a10',
+  brandSoft: '#22301f',
+  ...accentDark,
   danger: '#e66767',
   dangerSoft: '#33201f',
   grid: '#2a2e2b',

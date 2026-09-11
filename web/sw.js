@@ -8,7 +8,7 @@
  * localStorage du navigateur et ne sont jamais mises en cache ni transmises.
  */
 
-const VERSION = 'notesport-v5';
+const VERSION = 'notesport-v6';
 const SHELL = [
   './',
   './index.html',

@@ -136,8 +136,8 @@ export function TodayScreen() {
         </Row>
 
         {nextBlock ? (
-          <View style={[styles.nextHint, { backgroundColor: theme.brandSoft }]}>
-            <Text style={[typography.small, { color: theme.brand, fontWeight: '700' }]}>
+          <View style={[styles.nextHint, { backgroundColor: theme.berrySoft }]}>
+            <Text style={[typography.small, { color: theme.berry, fontWeight: '700' }]}>
               Prochain bloc · {displayTime(entryFor(day, nextBlock), nextBlock)}
             </Text>
             <Text style={[typography.small, { color: theme.inkSoft }]}>{describeEffort(nextBlock)}</Text>

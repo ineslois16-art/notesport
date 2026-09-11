@@ -77,9 +77,20 @@ plutôt que par des attributs `onchange` inline.
   en cours est mis en avant avec un bouton « C'est fait ». Un anneau de
   progression remplace les quatre tuiles du résumé. Au repos, la page ne
   contient plus qu'un seul champ de saisie (le poids).
-- **Identité sauge** : marque `#55684a`, barre d'en-tête pleine, et sous elle un
-  dégradé sauge linéaire de 0 % à 60 % sur toute la hauteur du document. Les
-  couleurs des courbes restent celles, validées, de la palette de séries.
+- **Identité** : vert `#689d71`, barre d'en-tête pleine, et sous elle un dégradé
+  du même vert, linéaire de 0 % à 60 % sur toute la hauteur du document.
+
+  | Rôle | Couleur | Emploi |
+  |---|---|---|
+  | Vert de marque | `#689d71` | barre, anneau, barres de progression, pastilles, dégradé |
+  | Vert profond | `#4a7251` | toute surface pleine portant du texte blanc (il ne porte le blanc qu'à 3,16:1, d'où cette seconde nuance à 5,50:1) |
+  | Prune | `#8b689c` | les jalons : objectif atteint, records |
+  | Framboise | `#9b6678` | l'instant présent : bloc « maintenant », jour courant |
+
+  Prune et framboise sont les **complémentaires partagées** exactes du vert
+  (280° et 340° contre 130°, même saturation et même clarté), ajustées pour
+  porter du blanc à 4,6:1. Elles habillent l'interface et **jamais les
+  courbes**, qui gardent leur palette de séries validée séparément.
 
 - **Seuls les blocs cochés « Fait » comptent.** Le résultat du jour et
   l'historique ignorent désormais les répétitions saisies sans avoir coché la

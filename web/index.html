@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Notesport</title>
 <meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
-<meta name="theme-color" content="#55684a">
+<meta name="theme-color" content="#689d71">
 <link rel="manifest" href="manifest.webmanifest">
 <!-- Installation sur l'écran d'accueil iOS : Safari ignore encore le manifeste. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,21 +14,21 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dde3d6;--sage-100:#e6edde;--sage-200:#cfdcc1;--sage-400:#9caf88;--green:#55684a;--green2:#e6edde;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
+:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dbe4dc;--green:#689d71;--green-deep:#4a7251;--green2:#e6efe8;--green-ink:#16281c;--ring-track:#d3e2d6;--plum:#8b689c;--plum-soft:#f1eaf4;--berry:#9b6678;--berry-soft:#f7ecf0;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
 /* Barre pleine en haut ; sous elle un degrade sauge de 0 % a 60 %, reparti
    lineairement sur toute la hauteur du document — il est donc porte par
    `.page`, dont la hauteur suit le contenu, et non par `body`. */
-.appbar{background:var(--green);color:#fff}
+.appbar{background:var(--green);color:var(--green-ink)}
 .appbar-in{max-width:1600px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
 .appbar .logo{width:34px;height:34px;flex:0 0 auto}
 .appbar-title{flex:1;min-width:0}
 .appbar-title b{display:block;font-size:1.15rem;letter-spacing:-.01em;line-height:1.15;white-space:nowrap}
 .appbar-title span{display:block;font-size:.66rem;opacity:.82;text-transform:uppercase;letter-spacing:.09em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.page{background:linear-gradient(180deg,rgba(156,175,136,0) 0%,rgba(156,175,136,.6) 100%)}
+.page{background:linear-gradient(180deg,rgba(104,157,113,0) 0%,rgba(104,157,113,.6) 100%)}
 .appbar .date-nav{margin:0;flex:0 0 auto}
-.appbar .date-nav button{background:#ffffff33;color:#fff;width:38px;height:38px;padding:0;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
-.appbar .date-nav input{background:#ffffff24;border-color:#ffffff4d;color:#fff;padding:.5rem .6rem;font-weight:700;color-scheme:dark}
-.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
+.appbar .date-nav button{background:#16281c1f;color:var(--green-ink);width:38px;height:38px;padding:0;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.appbar .date-nav input{background:#ffffff5c;border:1px solid #16281c26;color:var(--green-ink);padding:.5rem .6rem;font-weight:700}
+.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green-deep);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
 /* --- blocs : une seule structure, empilée sur téléphone, en colonnes au-delà --- */
 /* --- resume : anneau de progression --- */
 .ring-row{display:flex;align-items:center;gap:18px}
@@ -50,16 +50,16 @@
 .brow.done .tick svg{display:block}
 .brow-main{background:none;border:0;padding:6px 0;text-align:left;font:inherit;color:inherit;min-width:0}
 .brow-time{display:block;font-weight:750}
-.brow.done .brow-time{color:var(--green)}
+.brow.done .brow-time{color:var(--green-deep)}
 .brow-sub{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chev{color:#b4c0b2;font-size:1.1rem;padding:0 2px}
-.brow.now{background:var(--green2);border-radius:14px;border-top-color:transparent;padding:12px 10px;margin:5px 0}
+.brow.now{background:var(--berry-soft);border-radius:14px;border-top-color:transparent;padding:12px 10px;margin:5px 0}
 .brow.now+.brow,.bdetail+.brow{border-top-color:transparent}
 .brow.now .brow-time{font-size:1.05rem}
-.nowbadge{display:inline-block;background:var(--green);color:#fff;font-size:.6rem;font-weight:800;
+.nowbadge{display:inline-block;background:var(--berry);color:#fff;font-size:.6rem;font-weight:800;
   padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;margin-left:7px;
   vertical-align:2px;font-style:normal}
-.cta{grid-column:1/-1;background:var(--green);color:#fff;border-radius:12px;padding:12px;
+.cta{grid-column:1/-1;background:var(--green-deep);color:#fff;border-radius:12px;padding:12px;
   text-align:center;font-weight:800;margin-top:4px}
 .bdetail{background:#f5f8f2;border:1px solid var(--line);border-radius:14px;padding:12px;margin:2px 0 8px}
 .bdetail-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
@@ -76,9 +76,9 @@
 .hist-row{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
 .hist-row:first-child{border-top:0}
 .hist-date{font-weight:750;min-width:66px}
-.hist-blocks{font-weight:700;color:var(--green)}
+.hist-blocks{font-weight:700;color:var(--green-deep)}
 .hist-metrics{color:var(--muted);font-size:.85rem}#weight{width:104px;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;background:white}
-.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
+.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green-deep)}.day.today{background:var(--berry-soft);color:var(--berry);font-weight:700}.metric-berry{background:var(--berry-soft)}.metric-berry b{color:var(--berry)}.metric-plum{background:var(--plum-soft)}.metric-plum b{color:var(--plum)}.reached{color:var(--plum);font-weight:700}.records td:last-child{color:var(--plum)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
 /* --- identité : logo repris de l'icône de l'application --- */
 .brand{display:flex;align-items:center;gap:14px}.logo{width:52px;height:52px;flex:0 0 auto;border-radius:14px}
 /* --- onglets --- */
@@ -95,7 +95,7 @@
 .chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;padding:0 20px;text-align:center}
 .ranges{display:flex;gap:6px;flex-wrap:wrap}
 .range{background:#eef1ed;color:var(--muted);padding:.4rem .9rem;border-radius:999px;font-size:.85rem}
-.range[aria-pressed="true"]{background:var(--green);color:white}
+.range[aria-pressed="true"]{background:var(--green-deep);color:white}
 .hero-num{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:2px 0}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
@@ -107,7 +107,7 @@
 <body>
 <header class="appbar">
 <div class="appbar-in">
-<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Notesport"><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#ffffff" stroke-width="52" stroke-linecap="round" opacity=".85"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#fff"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#fff"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#fff"/></svg>
+<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Notesport"><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#16281c" stroke-width="52" stroke-linecap="round" opacity=".6"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#16281c"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#16281c"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#16281c"/></svg>
 <div class="appbar-title"><b>Notesport</b><span>corde · pompes · squats</span></div>
 <div class="date-nav" id="dateBox"><button id="prevDay" type="button" aria-label="Jour précédent">‹</button><input id="date" type="date" aria-label="Jour suivi"><button id="nextDay" type="button" aria-label="Jour suivant">›</button></div>
 </div>
@@ -131,12 +131,12 @@
 <div class="hero-num" id="pTotalJumps">0</div>
 <p class="small" id="pDelta"></p>
 <div class="stats">
-<div class="metric"><b id="pStreak">0 j</b><span>série en cours</span></div>
+<div class="metric metric-berry"><b id="pStreak">0 j</b><span>série en cours</span></div>
 <div class="metric"><b id="pConsistency">0 %</b><span>régularité</span></div>
 <div class="metric"><b id="pAverage">0</b><span>sauts / jour</span></div>
 <div class="metric"><b id="pKcal">0</b><span>kcal cumulées</span></div>
 <div class="metric"><b id="pTime">0 min</b><span>temps actif</span></div>
-<div class="metric"><b id="pTargets">0</b><span>objectifs atteints</span></div>
+<div class="metric metric-plum"><b id="pTargets">0</b><span>objectifs atteints</span></div>
 </div>
 </section>
 
@@ -337,7 +337,7 @@ function renderRing(done, total) {
   const radius = 42, circumference = 2 * Math.PI * radius;
   const ratio = total ? Math.min(1, done / total) : 0;
   $('ring').innerHTML = `<svg class="ring" viewBox="0 0 100 100" role="img" aria-label="${done} blocs sur ${total}">
-    <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--sage-200)" stroke-width="11"/>
+    <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--ring-track)" stroke-width="11"/>
     <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--green)" stroke-width="11" stroke-linecap="round"
       stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${(circumference * (1 - ratio)).toFixed(1)}"
       transform="rotate(-90 50 50)"/>
@@ -407,9 +407,11 @@ function renderTotals(d) {
   const pct = t.targetJumps ? Math.min(1, t.jumps / t.targetJumps) : 0;
   $('bar').style.width = (pct * 100) + '%';
   const remaining = Math.max(0, t.targetJumps - t.jumps);
-  $('completion').textContent = remaining > 0
-    ? remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal'
-    : 'objectif atteint 🎉 · ~' + t.kcal + ' kcal';
+  const reached = remaining <= 0 && t.targetJumps > 0;
+  $('completion').className = reached ? 'small reached' : 'small';
+  $('completion').textContent = reached
+    ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
+    : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
 }
 
 /* ---------- écriture ---------- */
@@ -510,7 +512,7 @@ function renderHistory() {
     const day = data.days[k];
     const t = day ? dayTotals(day) : null;
     if (t) { totalKcal += t.kcal; totalBlocks += t.done; }
-    cells.push(`<div class="day ${t ? 'active' : ''}">${x.toLocaleDateString('fr-FR', {weekday:'short'}).slice(0, 3)}<b>${t ? t.done : '—'}</b></div>`);
+    cells.push(`<div class="day ${t ? 'active' : ''} ${k === todayISO() ? 'today' : ''}">${x.toLocaleDateString('fr-FR', {weekday:'short'}).slice(0, 3)}<b>${t ? t.done : '—'}</b></div>`);
   }
   $('week').innerHTML = cells.join('');
   $('weekSummary').textContent = totalBlocks + ' bloc(s) réalisés sur les 7 derniers jours · ~' + totalKcal + ' kcal.';
