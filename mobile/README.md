@@ -65,7 +65,7 @@ npm install
 npm start          # ouvre Expo ; scanner le QR code avec Expo Go
 npm run ios        # simulateur iOS (macOS requis)
 npm run typecheck  # TypeScript
-npm test           # 26 tests du cœur métier (node:test)
+npm test           # 31 tests du cœur métier (node:test)
 ```
 
 Les tests couvrent le calcul du programme, les totaux, les séries, les dates et

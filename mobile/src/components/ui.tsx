@@ -106,17 +106,20 @@ export function Chip({
   selected,
   onPress,
   compact,
+  disabled,
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
   compact?: boolean;
+  disabled?: boolean;
 }) {
   const theme = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected: Boolean(selected) }}
+      accessibilityState={{ selected: Boolean(selected), disabled: Boolean(disabled) }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.chip,
@@ -124,7 +127,7 @@ export function Chip({
           paddingHorizontal: compact ? spacing.md : spacing.lg,
           paddingVertical: compact ? 6 : spacing.sm,
           backgroundColor: selected ? theme.brandDeep : theme.surfaceAlt,
-          opacity: pressed ? 0.75 : 1,
+          opacity: disabled ? 0.4 : pressed ? 0.75 : 1,
         },
       ]}>
       <Text

@@ -62,7 +62,7 @@ export function ProgressScreen() {
   const summary = useMemo(() => summarize(points), [points]);
   const previousSummary = useMemo(() => summarize(previousPoints), [previousPoints]);
   const streak = useMemo(
-    () => (days ? streakInfo(days, settings) : { days: 0, jokersUsed: 0, jokersLeft: 0 }),
+    () => (days ? streakInfo(days, settings) : { days: 0, jokersUsed: 0, jokersLeft: 0, bridged: [] }),
     [days, settings],
   );
   const best = useMemo(() => (days ? longestStreak(days, settings) : 0), [days, settings]);
@@ -76,6 +76,12 @@ export function ProgressScreen() {
   const labelOf = rangeDays <= 31 ? formatShort : formatDayMonth;
 
   const jumpPoints = points.map((point) => ({ label: labelOf(point.date), value: point.totals.jumps }));
+  // Moyenne des cibles réellement visées : une journée allégée tenue ne doit
+  // plus s'afficher comme un demi-échec sous une ligne fixe à 1 000.
+  const aimedDays = points.filter((point) => point.totals.targetJumps > 0);
+  const averageTarget = aimedDays.length
+    ? Math.round(aimedDays.reduce((total, point) => total + point.totals.targetJumps, 0) / aimedDays.length)
+    : settings.dailyJumpTarget;
   const blockPoints = points.map((point) => ({
     label: labelOf(point.date),
     value: point.totals.doneBlocks,
@@ -158,6 +164,20 @@ export function ProgressScreen() {
             </Row>
           </Card>
 
+          {streak.bridged.length ? (
+            <>
+              <View style={{ height: spacing.md }} />
+              <Card>
+                <Text style={[typography.strong, { color: theme.berry }]}>
+                  {streak.bridged.length} joker(s) en action
+                </Text>
+                <Muted>
+                  Journée(s) vide(s) que la série a franchies : {streak.bridged.map(formatShort).join(', ')}.
+                </Muted>
+              </Card>
+            </>
+          ) : null}
+
           <View style={{ height: spacing.lg }} />
           <SectionTitle>Courbes</SectionTitle>
 
@@ -169,8 +189,8 @@ export function ProgressScreen() {
               unit="sauts"
               formatValue={(value) => formatNumber(value)}
               reference={
-                settings.dailyJumpTarget > 0
-                  ? { value: settings.dailyJumpTarget, label: `objectif ${formatNumber(settings.dailyJumpTarget)}` }
+                averageTarget > 0
+                  ? { value: averageTarget, label: `cible moyenne ${formatNumber(averageTarget)}` }
                   : undefined
               }
             />
@@ -235,6 +255,11 @@ export function ProgressScreen() {
               <View style={{ height: spacing.lg }} />
               <SectionTitle>Records personnels</SectionTitle>
               <Card>
+                <RecordLine
+                  label="Jours tenus au niveau déclaré"
+                  value={`${records.onPlanDaysEver}`}
+                  hint="la courbe lisse, pas le pic"
+                />
                 <RecordLine
                   label="Meilleure journée"
                   value={records.bestJumps ? `${formatNumber(records.bestJumps.value)} sauts` : '—'}

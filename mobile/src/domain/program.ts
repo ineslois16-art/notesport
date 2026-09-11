@@ -40,18 +40,32 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 /**
- * État déclaré au réveil, qui module la charge du jour. Un jour tenu au niveau
- * déclaré est une réussite pleine : c'est le calibrage qui est noté, pas le
- * maximum. `recovery` est le jour de repos — il se coche, donc il compte.
+ * Niveau déclaré du jour, qui module la charge. Un jour tenu au niveau déclaré
+ * est une réussite pleine : c'est le calibrage qui est noté, pas le maximum.
+ * `recovery` est le jour de repos — il se coche, donc il compte.
+ *
+ * Les identifiants ne changent jamais (ils sont en base et dans les
+ * sauvegardes) ; seuls les libellés sont lisibles. « Normal » disait un niveau
+ * réduit tout en se lisant comme la norme : les libellés nomment désormais la
+ * charge, pas l'humeur.
  */
 export type DayState = 'fresh' | 'normal' | 'spent' | 'recovery';
 
 export const DAY_STATES: { id: DayState; label: string; hint: string; factor: number }[] = [
-  { id: 'fresh', label: 'Frais', hint: 'programme entier', factor: 1 },
-  { id: 'normal', label: 'Normal', hint: 'un cran en dessous', factor: 0.8 },
-  { id: 'spent', label: 'Cassé', hint: 'moitié de charge', factor: 0.5 },
+  { id: 'fresh', label: 'Plein', hint: 'programme entier', factor: 1 },
+  { id: 'normal', label: 'Allégé', hint: 'un cran en dessous', factor: 0.8 },
+  { id: 'spent', label: 'Ménagé', hint: 'moitié de charge', factor: 0.5 },
   { id: 'recovery', label: 'Récup', hint: 'repos, et ça compte', factor: 0 },
 ];
+
+/**
+ * Tolérance au-dessus de la cible du jour. Tenir son niveau, c'est rester dans
+ * la fourchette : au-delà, le niveau est dépassé, pas tenu. Sans ce plafond,
+ * rebasculer une grosse journée en « Ménagé » après coup la ferait passer pour
+ * une journée ménagée — et un jour déclaré ménagé où l'on fait le double est
+ * précisément le jour à risque.
+ */
+export const OVERSHOOT_MARGIN = 1.15;
 
 /**
  * Le bloc du jour de récupération porte un identifiant à lui : les blocs de
@@ -122,6 +136,8 @@ export type DayTotals = {
   percent: number;
   /** Journée tenue au niveau déclaré — la réussite, quel que soit le niveau. */
   onPlan: boolean;
+  /** Charge nettement au-dessus du niveau déclaré : signalée, jamais félicitée. */
+  overshot: boolean;
 };
 
 const clampInt = (value: number, min: number, max: number) =>
@@ -311,6 +327,8 @@ export function computeTotals(day: DayRecord | null, settings: Settings): DayTot
   }
 
   const targetJumps = state === 'recovery' ? 0 : scaleSettings(settings, state).dailyJumpTarget;
+  const ceiling = Math.round(targetJumps * OVERSHOOT_MARGIN);
+  const overshot = jumps > ceiling;
 
   return {
     state,
@@ -323,9 +341,26 @@ export function computeTotals(day: DayRecord | null, settings: Settings): DayTot
     seconds: Math.round(seconds),
     targetJumps,
     percent: schedule.length ? Math.round((doneBlocks / schedule.length) * 100) : 0,
-    // Tenir un jour « Cassé » à 500 sauts vaut tenir un jour « Frais » à 1 000.
-    onPlan: doneBlocks >= schedule.length && (targetJumps === 0 || jumps >= targetJumps),
+    // Tenir un jour « Ménagé » à 500 sauts vaut tenir un jour « Plein » à 1 000,
+    // mais tenir suppose de rester dans la fourchette : au-delà du plafond, le
+    // niveau est dépassé.
+    onPlan: doneBlocks >= schedule.length && jumps >= targetJumps && !overshot,
+    overshot,
   };
+}
+
+/**
+ * Vrai si la journée porte du travail validé, hors bloc de récup. Une telle
+ * journée ne peut pas être déclarée « Récup » : la charge subie disparaîtrait
+ * de l'historique, et c'est précisément la donnée qui relie douleur et volume.
+ */
+export function hasLoggedWork(day: DayRecord | null): boolean {
+  return Object.values(day?.blocks ?? {}).some(
+    (entry) =>
+      entry.done &&
+      entry.blockId !== RECOVERY_BLOCK_ID &&
+      (entry.jumps > 0 || entry.pushups > 0 || entry.squats > 0),
+  );
 }
 
 export function formatDuration(seconds: number): string {

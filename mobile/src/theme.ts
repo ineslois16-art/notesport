@@ -1,5 +1,3 @@
-import { useColorScheme } from 'react-native';
-
 /**
  * Marque : vert #689d71 (éclairci en #8ebd96 sur fond sombre
  * pour rester au-dessus de 3:1). Les couleurs de séries, elles, restent
@@ -14,7 +12,7 @@ import { useColorScheme } from 'react-native';
  */
 const series = {
   light: { jumps: '#2a78d6', kcal: '#eb6834', blocks: '#1baf7a', weight: '#4a3aa7' },
-  dark: { jumps: '#3987e5', kcal: '#d95926', blocks: '#199e70', weight: '#9085e9' },
+  dark: { jumps: '#5aa2f0', kcal: '#f0794a', blocks: '#35c79a', weight: '#a79bf0' },
 };
 
 /**
@@ -23,7 +21,7 @@ const series = {
  * habillent l'interface, jamais les courbes — celles-ci gardent leur palette.
  */
 const accentLight = { plum: '#8b689c', plumSoft: '#f1eaf4', berry: '#9b6678', berrySoft: '#f7ecf0' };
-const accentDark = { plum: '#bb9ac9', plumSoft: '#2c2433', berry: '#c795a5', berrySoft: '#33242a' };
+const accentDark = { plum: '#c9a2d8', plumSoft: '#241b28', berry: '#e79fb0', berrySoft: '#2a1c21' };
 
 const light = {
   mode: 'light' as 'light' | 'dark',
@@ -51,18 +49,18 @@ export type Theme = typeof light;
 
 const dark: Theme = {
   mode: 'dark',
-  bg: '#12150f',
-  surface: '#1a1a19',
-  surfaceAlt: '#242620',
-  surfaceSunken: '#2c302a',
-  line: '#343830',
-  ink: '#f1f4ee',
+  bg: '#0b0c0a',
+  surface: '#141713',
+  surfaceAlt: '#1d211b',
+  surfaceSunken: '#262b25',
+  line: '#2b302a',
+  ink: '#f3f6ef',
   inkSoft: '#c3c8c1',
-  inkMuted: '#98a09a',
-  brand: '#8ebd96',
-  brandDeep: '#8ebd96',
-  brandInk: '#0c1a10',
-  brandSoft: '#22301f',
+  inkMuted: '#98a295',
+  brand: '#8fd69a',
+  brandDeep: '#8fd69a',
+  brandInk: '#06120a',
+  brandSoft: '#1b2a1e',
   ...accentDark,
   danger: '#e66767',
   dangerSoft: '#33201f',
@@ -73,20 +71,30 @@ const dark: Theme = {
 
 export const themes = { light, dark };
 
+/**
+ * L'application est sombre en permanence, comme la page web : le fond quasi
+ * noir et l'accent unique sont le langage visuel du produit, pas une préférence
+ * d'affichage. Le thème clair reste défini — il sert de référence de contraste
+ * et pourrait redevenir une option — mais rien ne le sélectionne aujourd'hui.
+ */
 export function useTheme(): Theme {
-  const scheme = useColorScheme();
-  return scheme === 'dark' ? themes.dark : themes.light;
+  return themes.dark;
 }
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 export const radius = { sm: 8, md: 12, lg: 16, xl: 22, pill: 999 };
 
+/**
+ * Échelle typographique athlétique : les chiffres portent l'écran, les
+ * étiquettes passent en petites capitales très espacées, et rien entre les deux
+ * ne vient concurrencer la valeur du jour.
+ */
 export const type = {
-  hero: { fontSize: 34, fontWeight: '800' as const, letterSpacing: -0.6 },
-  title: { fontSize: 20, fontWeight: '800' as const, letterSpacing: -0.3 },
-  section: { fontSize: 13, fontWeight: '800' as const, letterSpacing: 0.8 },
+  hero: { fontSize: 46, fontWeight: '900' as const, letterSpacing: -1.6 },
+  title: { fontSize: 22, fontWeight: '900' as const, letterSpacing: -0.5 },
+  section: { fontSize: 11, fontWeight: '800' as const, letterSpacing: 1.4 },
   body: { fontSize: 15, fontWeight: '500' as const },
-  strong: { fontSize: 15, fontWeight: '700' as const },
+  strong: { fontSize: 15, fontWeight: '800' as const },
   small: { fontSize: 13, fontWeight: '500' as const },
-  tiny: { fontSize: 11, fontWeight: '600' as const },
+  tiny: { fontSize: 11, fontWeight: '700' as const, letterSpacing: 0.6 },
 };

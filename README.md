@@ -120,19 +120,19 @@ le remettait à zéro. On demandait donc à l'utilisateur de saborder son propre
 score pour se ménager. Trois changements retirent cette pression, sans rien
 enlever au jeu.
 
-- **Un état déclaré au réveil.** *Frais*, *Normal*, *Cassé* ou *Récup* : le
+- **Un niveau déclaré au réveil.** *Plein*, *Allégé*, *Ménagé* ou *Récup* : le
   programme du jour vaut 100 %, 80 %, 50 % ou rien. On allège les répétitions
   **sans toucher au nombre de blocs** — l'espacement entre deux efforts est
   justement ce qui protège les tendons, c'est la dernière chose à raboter.
-- **Tenir son niveau est une réussite pleine.** L'objectif du jour suit l'état
-  déclaré : une journée « Cassé » tenue à 500 sauts compte exactement comme une
-  journée « Frais » tenue à 1 000. La tuile « objectifs atteints » devient
-  **jours tenus au niveau déclaré** — c'est le calibrage qui est noté, plus le
-  maximum.
+- **Tenir son niveau est une réussite pleine.** L'objectif du jour suit le
+  niveau déclaré : une journée « Ménagé » tenue à 500 sauts compte exactement
+  comme une journée « Plein » tenue à 1 000. La tuile « objectifs atteints »
+  devient **jours tenus au niveau déclaré** — c'est le calibrage qui est noté,
+  plus le maximum.
 - **Le repos se coche.** Un jour *Récup* n'a qu'un bloc, vide, qui se valide en
   un tap : il compte comme journée active, donc il maintient la série. Son bloc
   porte un identifiant à part (`rest`), si bien que les blocs de travail déjà
-  saisis survivent intacts à un aller-retour Frais → Récup → Frais.
+  saisis survivent intacts à un aller-retour Plein → Récup → Plein.
 - **Deux jokers par mois.** Une journée vide que la série traverse consomme un
   joker du mois civil au lieu de tout remettre à zéro. Un joker protège, il ne
   s'entraîne pas : il ne fait pas monter le compteur. Et il n'est dépensé que
@@ -141,9 +141,69 @@ enlever au jeu.
   ne pas perdre quarante jours : c'est ce réflexe-là qui transforme une gêne en
   tendinite.
 
-Les sauvegardes antérieures n'ont pas d'état : elles repartent en « Frais », et
-gardent donc exactement les chiffres qu'elles avaient. Même règle, mêmes
+Les sauvegardes antérieures n'ont pas de niveau : elles repartent en « Plein »,
+et gardent donc exactement les chiffres qu'elles avaient. Même règle, mêmes
 formules et même format d'échange dans l'application.
+
+### Ce que le premier jet laissait passer
+
+Un audit du dispositif ci-dessus a trouvé un trou et trois incohérences.
+
+- **Le niveau se réécrivait après coup.** Une journée pleine réellement faite,
+  rebasculée en « Ménagé », s'affichait « journée tenue · niveau ménagé » ; et
+  passée en « Récup », ses 1 000 sauts disparaissaient des totaux. L'historique
+  devenait falsifiable d'un seul tap — or c'est la donnée qui relie douleur et
+  charge. Deux garde-fous : **tenir, c'est rester dans la fourchette** (au-delà
+  de 15 % au-dessus de la cible, l'app dit « niveau dépassé », pas « tenue »,
+  et un jour déclaré ménagé où l'on fait le double est précisément le jour à
+  risque) ; et **une journée qui porte du travail validé ne peut plus être
+  déclarée « Récup »**, la raison étant affichée au lieu de masquer la charge.
+- **Les courbes jugeaient encore toute journée à 1 000 sauts.** La ligne de
+  référence suit désormais la cible réellement visée sur la période, et la
+  capacité des barres suit le nombre de blocs du jour (un jour de récup
+  n'affiche plus « 1/7 »).
+- **Les records ne couronnaient que le maximum**, à deux écrans d'un message
+  disant l'inverse. S'y ajoute **les jours tenus au niveau déclaré** : la courbe
+  lisse, pas le pic. Deux métriques devenues mortes ont été retirées.
+- **Les rappels sonnaient sept fois un jour de repos**, avec les répétitions du
+  programme entier. Ils suivent maintenant le niveau déclaré, et se taisent un
+  jour de récup.
+- **« Normal » nommait un niveau réduit tout en se lisant comme la norme.** Les
+  libellés nomment la charge : **Plein · Allégé · Ménagé · Récup**. Les
+  identifiants en base, eux, n'ont pas bougé.
+
+Et deux ajouts qui manquaient au dispositif :
+
+- **Le jour ménagé se gagne.** Six journées tenues d'affilée débloquent une
+  septième allégée, annoncée comme un acquis avec un bouton pour la prendre.
+  C'est un deload, mais présenté comme une récompense — la seule forme de
+  décharge qu'on applique vraiment.
+- **Le joker se montre quand il agit.** « Joker utilisé · 9 sept. : cette
+  journée vide n'a pas cassé la série. » Une protection qu'on ne voit pas
+  fonctionner ne soulage pas l'anxiété qui pousse à s'entraîner blessé.
+
+### Le langage visuel
+
+Fond quasi noir, chiffres énormes, étiquettes en petites capitales très
+espacées, un seul accent, boutons en pilule pleine largeur : la grammaire des
+applications d'entraînement. L'identité reste celle de Notesport — le vert de
+marque `#689d71`, éclairci en `#8fd69a` pour tenir sur fond sombre — et aucune
+marque tierce n'est reprise.
+
+L'application mobile suit : elle est sombre en permanence, comme la page. Le
+thème clair reste défini dans `theme.ts` comme référence de contraste, mais
+rien ne le sélectionne.
+
+| Rôle | Couleur | Sur le fond `#0b0c0a` |
+|---|---|---|
+| Encre | `#f3f6ef` | 17,96:1 |
+| Sourdine | `#98a295` | 7,41:1 |
+| Accent | `#8fd69a` | 11,44:1 |
+| Encre sur accent | `#06120a` | 11,15:1 (sur l'accent) |
+
+Prune et framboise gardent leurs rôles (l'acquis, l'instant présent) à 8,3:1 et
+8,6:1 sur les surfaces ; les quatre couleurs de séries vont de 6,5:1 à 8,4:1.
+Tout est au-dessus de AA, l'essentiel au-dessus de AAA.
 
 ### Les autres corrections
 
@@ -175,7 +235,7 @@ SVG. Quatre onglets : Aujourd'hui, Progression, Historique, Réglages.
 cd mobile
 npm install
 npm start       # puis scanner le QR code avec Expo Go sur l'iPhone
-npm test        # 26 tests du cœur métier, sans téléphone
+npm test        # 31 tests du cœur métier, sans téléphone
 ```
 
 Détail des fonctionnalités et de l'architecture : [`mobile/README.md`](mobile/README.md).

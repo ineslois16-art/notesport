@@ -52,7 +52,6 @@ export type Summary = {
   averageJumps: number;
   consistency: number;
   bestDay: DayPoint | null;
-  targetHitDays: number;
   /** Jours tenus au niveau déclaré, récup comprise — la réussite à noter. */
   onPlanDays: number;
 };
@@ -64,7 +63,6 @@ export function summarize(points: DayPoint[]): Summary {
   let totalBlocks = 0;
   let possibleBlocks = 0;
   let activeDays = 0;
-  let targetHitDays = 0;
   let onPlanDays = 0;
   let bestDay: DayPoint | null = null;
 
@@ -76,7 +74,6 @@ export function summarize(points: DayPoint[]): Summary {
     possibleBlocks += point.totals.blockCount;
     if (isActive(point)) activeDays += 1;
     if (point.totals.onPlan) onPlanDays += 1;
-    if (point.totals.targetJumps > 0 && point.totals.jumps >= point.totals.targetJumps) targetHitDays += 1;
     if (!bestDay || point.totals.jumps > bestDay.totals.jumps) bestDay = point;
   }
 
@@ -91,7 +88,6 @@ export function summarize(points: DayPoint[]): Summary {
     averageJumps: points.length ? Math.round(totalJumps / points.length) : 0,
     consistency: possibleBlocks ? Math.round((totalBlocks / possibleBlocks) * 100) : 0,
     bestDay: bestDay && bestDay.totals.jumps > 0 ? bestDay : null,
-    targetHitDays,
     onPlanDays,
   };
 }
@@ -118,6 +114,12 @@ export type StreakInfo = {
   /** Jokers consommés par la série en cours, dans le mois civil courant. */
   jokersUsed: number;
   jokersLeft: number;
+  /**
+   * Journées vides effectivement franchies, de la plus récente à la plus
+   * ancienne. Une protection qu'on ne voit pas agir ne rassure personne : c'est
+   * ce qui permet de dire « hier était vide, un joker a tenu la série ».
+   */
+  bridged: ISODate[];
 };
 
 /**
@@ -143,10 +145,14 @@ export function streakInfo(days: DayRecord[], settings: Settings): StreakInfo {
 
   let cursor = active.has(today) ? today : addDays(today, -1);
   let streak = 0;
+  const bridged: ISODate[] = [];
   for (;;) {
     if (active.has(cursor)) {
       streak += 1;
-      for (const hole of pending) spendJoker(spent, hole);
+      for (const hole of pending) {
+        spendJoker(spent, hole);
+        bridged.push(hole);
+      }
       pending = [];
     } else {
       if (!canCover(cursor)) break;
@@ -156,11 +162,42 @@ export function streakInfo(days: DayRecord[], settings: Settings): StreakInfo {
   }
 
   const jokersUsed = spent.get(monthKey(today)) ?? 0;
-  return { days: streak, jokersUsed, jokersLeft: JOKERS_PER_MONTH - jokersUsed };
+  return { days: streak, jokersUsed, jokersLeft: JOKERS_PER_MONTH - jokersUsed, bridged };
 }
 
 export function currentStreak(days: DayRecord[], settings: Settings): number {
   return streakInfo(days, settings).days;
+}
+
+/** Jours pleins d'affilée au terme desquels un jour ménagé est offert. */
+export const LIGHT_DAY_AFTER = 6;
+
+export type LightDay = {
+  /** Jours de travail tenus d'affilée, en s'arrêtant hier. */
+  run: number;
+  /** Le jour ménagé est gagné : à annoncer comme un acquis, pas comme un rappel. */
+  earned: boolean;
+};
+
+/**
+ * Un jour ménagé qui se gagne plutôt qu'un deload qui se subit. Après six
+ * journées de travail tenues d'affilée, la septième s'ouvre allégée — c'est la
+ * seule forme de décharge qu'on applique vraiment. Les jours de récup ne
+ * comptent pas dans la série : ils sont déjà de la décharge.
+ */
+export function lightDay(days: DayRecord[], settings: Settings, from: ISODate = todayISO()): LightDay {
+  const held = new Map(
+    days.map((day) => [day.date, computeTotals(day, settings)] as const),
+  );
+  let run = 0;
+  let cursor = addDays(from, -1);
+  for (;;) {
+    const totals = held.get(cursor);
+    if (!totals?.onPlan || totals.state === 'recovery') break;
+    run += 1;
+    cursor = addDays(cursor, -1);
+  }
+  return { run, earned: run >= LIGHT_DAY_AFTER };
 }
 
 export function longestStreak(days: DayRecord[], settings: Settings): number {
@@ -200,6 +237,8 @@ export type Records = {
   bestBlocks: { date: ISODate; value: number } | null;
   totalJumpsEver: number;
   activeDaysEver: number;
+  /** Le record qui récompense la courbe lisse plutôt que le pic. */
+  onPlanDaysEver: number;
 };
 
 export function allTimeRecords(days: DayRecord[], settings: Settings): Records {
@@ -208,11 +247,13 @@ export function allTimeRecords(days: DayRecord[], settings: Settings): Records {
   let bestBlocks: Records['bestBlocks'] = null;
   let totalJumpsEver = 0;
   let activeDaysEver = 0;
+  let onPlanDaysEver = 0;
 
   for (const day of days) {
     const totals = computeTotals(day, settings);
     totalJumpsEver += totals.jumps;
     if (totals.doneBlocks > 0) activeDaysEver += 1;
+    if (totals.onPlan) onPlanDaysEver += 1;
     if (totals.jumps > 0 && (!bestJumps || totals.jumps > bestJumps.value)) {
       bestJumps = { date: day.date, value: totals.jumps };
     }
@@ -224,7 +265,7 @@ export function allTimeRecords(days: DayRecord[], settings: Settings): Records {
     }
   }
 
-  return { bestJumps, bestKcal, bestBlocks, totalJumpsEver, activeDaysEver };
+  return { bestJumps, bestKcal, bestBlocks, totalJumpsEver, activeDaysEver, onPlanDaysEver };
 }
 
 /** Moyenne glissante centrée, utilisée pour la tendance de poids. */

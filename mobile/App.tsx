@@ -140,7 +140,8 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StoreProvider>
-        <StatusBar style="auto" />
+        {/* Le thème est sombre en permanence : la barre système suit, sans deviner. */}
+        <StatusBar style="light" />
         <Shell />
       </StoreProvider>
     </SafeAreaProvider>

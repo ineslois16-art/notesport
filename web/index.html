@@ -4,119 +4,281 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Notesport</title>
 <meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
-<meta name="theme-color" content="#9fab54">
+<meta name="theme-color" content="#0b0c0a">
 <link rel="manifest" href="manifest.webmanifest">
 <!-- Installation sur l'écran d'accueil iOS : Safari ignore encore le manifeste. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Notesport">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192">
 <style>
-:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dbe4dc;--green:#689d71;--green-deep:#4a7251;--green2:#e6efe8;--green-ink:#16281c;--ring-track:#d3e2d6;--plum:#8b689c;--plum-soft:#f1eaf4;--berry:#9b6678;--berry-soft:#f7ecf0;--gold:#9fab54;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
-/* Barre pleine en haut ; sous elle un degrade sauge de 0 % a 60 %, reparti
-   lineairement sur toute la hauteur du document — il est donc porte par
-   `.page`, dont la hauteur suit le contenu, et non par `body`. */
-.appbar{background:var(--gold);color:var(--green-ink)}
-.appbar-in{max-width:1600px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
-.appbar .logo{width:34px;height:34px;flex:0 0 auto}
-.appbar-title{flex:1;min-width:0}
-.appbar-title b{display:block;font-size:1.15rem;letter-spacing:-.01em;line-height:1.15;white-space:nowrap}
-.appbar-title span{display:block;font-size:.66rem;opacity:.82;text-transform:uppercase;letter-spacing:.09em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.page{background:linear-gradient(180deg,rgba(104,157,113,0) 0%,rgba(104,157,113,.6) 100%)}
-.appbar .date-nav{margin:0;flex:0 0 auto}
-.appbar .date-nav button{background:#16281c1f;color:var(--green-ink);width:38px;height:38px;padding:0;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
-.appbar .date-nav input{background:#ffffff5c;border:1px solid #16281c26;color:var(--green-ink);padding:.5rem .6rem;font-weight:700}
-.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green-deep);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
-/* --- blocs : une seule structure, empilée sur téléphone, en colonnes au-delà --- */
-/* --- resume : anneau de progression --- */
-.summary3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
-.summary3 .metric{padding:10px}
-.summary3 .metric b{font-size:1.15rem}
-.summary3 .metric span{display:block;line-height:1.25}
-.ring-row{display:flex;align-items:center;gap:18px}
-.ring{width:104px;height:104px;flex:0 0 auto}
-.ring-side{flex:1;min-width:0}
-.big-num{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+/* =====================================================================
+   Langage visuel : fond quasi noir, chiffres énormes, étiquettes en
+   capitales espacées, un seul accent. C'est la grammaire des applis
+   d'entraînement — l'identité reste celle de Notesport : le vert de marque
+   #689d71, éclairci en #8fd69a pour tenir sur fond sombre.
 
-/* --- la liste calme : une ligne par bloc, rien d'editable tant qu'on n'ouvre pas --- */
-.blocks{list-style:none;margin:0;padding:0}
-.brow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;
-  padding:9px 2px;border-top:1px solid var(--line)}
+   Contrastes vérifiés sur le fond (#0b0c0a) et sur les surfaces (#141713) :
+   encre 17,9:1 · sourdine 7,4:1 · accent 11,4:1 · encre sur accent 11,2:1 ·
+   prune 8,3:1 · framboise 8,6:1 · séries de 6,5:1 à 8,4:1. Tout est au-dessus
+   de AA, l'essentiel au-dessus de AAA.
+   ===================================================================== */
+:root{
+  --bg:#0b0c0a; --card:#141713; --raised:#1d211b; --line:#2b302a;
+  --ink:#f3f6ef; --muted:#98a295;
+  --green:#8fd69a; --green-deep:#8fd69a; --green-ink:#06120a; --green2:#1b2a1e;
+  --ring-track:#262b25;
+  --plum:#c9a2d8; --plum-soft:#241b28; --berry:#e79fb0; --berry-soft:#2a1c21;
+  --gold:#c6d46a; --amber:#e0b45e; --red:#f08a86;
+  --paper:var(--bg); --shadow:none;
+  /* Séries : palette sombre, une seule série par graphique. */
+  --s-jumps:#5aa2f0; --s-blocks:#35c79a; --s-weight:#a79bf0; --s-kcal:#f0794a;
+  --grid:#232823;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans);
+  -webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:999px;padding:.85rem 1.1rem;font-weight:800}
+.wrap{width:100%;max-width:1280px;margin:0 auto;padding:18px 0 72px}
+.page{background:none}
+
+/* Chiffres : toujours tabulaires, jamais de danse des largeurs. */
+.big-num,.hero-num,.metric b,.day b,.brow-time,.chart-read b{font-variant-numeric:tabular-nums}
+
+/* ---------- barre haute ---------- */
+.appbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.appbar-in{max-width:1280px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;
+  gap:10px 12px;flex-wrap:wrap}
+.appbar .logo{width:32px;height:32px;flex:0 0 auto}
+.appbar-title{flex:1;min-width:0}
+.appbar-title b{display:block;font-size:1.02rem;font-weight:900;letter-spacing:.14em;
+  text-transform:uppercase;line-height:1.1;white-space:nowrap}
+.appbar-title span{display:block;font-size:.6rem;color:var(--green);text-transform:uppercase;
+  letter-spacing:.16em;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.date-nav{display:flex;gap:6px;align-items:center}
+.appbar .date-nav{margin:0;flex:0 0 auto}
+.appbar .date-nav button{background:var(--raised);color:var(--ink);width:40px;height:40px;padding:0;
+  font-size:1.15rem;display:flex;align-items:center;justify-content:center}
+.appbar .date-nav input{background:var(--raised);border:0;color:var(--ink);padding:.55rem .7rem;
+  border-radius:999px;font-weight:800}
+
+/* ---------- onglets : soulignés, pas de pastilles ---------- */
+.tabs{display:flex;gap:26px;margin:0 18px 20px;padding:0;background:none;width:auto;
+  border-bottom:1px solid var(--line)}
+.tab{background:none;color:var(--muted);padding:12px 0;border-radius:0;text-transform:uppercase;
+  letter-spacing:.12em;font-size:.74rem;font-weight:800;border-bottom:2px solid transparent;
+  margin-bottom:-1px}
+.tab[aria-selected="true"]{background:none;color:var(--ink);border-bottom-color:var(--green);box-shadow:none}
+
+/* ---------- grilles ---------- */
+.grid{display:grid;grid-template-columns:1.05fr 1.95fr;gap:16px;padding:0 18px}
+.below{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;padding:0 18px}
+.grid>*,.below>*{min-width:0}
+.card{background:var(--card);border:0;border-radius:22px;box-shadow:none;padding:22px}
+h1{font-size:clamp(2rem,5vw,3rem);line-height:1;margin:.2rem 0 .5rem;letter-spacing:-.03em;font-weight:900}
+h2{font-size:.74rem;margin:0 0 16px;text-transform:uppercase;letter-spacing:.14em;
+  font-weight:800;color:var(--muted)}
+.small{font-size:.84rem;color:var(--muted)}
+.sub{color:var(--muted);margin:0}
+.eyebrow{text-transform:uppercase;font-size:.68rem;letter-spacing:.16em;font-weight:800;color:var(--green)}
+.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}
+.date-box{text-align:right}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;flex:0 0 auto;border-radius:14px}
+.footer-note{margin-top:18px;font-size:.74rem;color:var(--muted);line-height:1.5}
+
+/* ---------- résumé du jour : l'anneau et le grand nombre ---------- */
+.ring-row{display:flex;align-items:center;gap:20px}
+.ring{width:108px;height:108px;flex:0 0 auto}
+.ring-side{flex:1;min-width:0}
+.big-num{font-size:clamp(3.2rem,15vw,4.6rem);font-weight:900;letter-spacing:-.045em;line-height:.92}
+.progress{height:6px;border-radius:999px;background:var(--ring-track);margin:18px 0 8px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}
+.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.summary3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}
+.metric{border-radius:16px;background:var(--raised);padding:14px}
+.metric b{display:block;font-size:1.3rem;line-height:1.1;font-weight:900;letter-spacing:-.02em}
+.metric span{color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;
+  font-weight:800;display:block;margin-top:4px;line-height:1.3}
+.summary3 .metric{padding:12px 10px}
+.summary3 .metric b{font-size:1.05rem}
+.metric em{display:block;font-style:normal;font-size:.62rem;color:var(--muted);opacity:.85;
+  margin-top:3px;letter-spacing:.04em;font-weight:700;text-transform:none}
+.metric-berry{background:var(--berry-soft)}.metric-berry b{color:var(--berry)}
+.metric-plum{background:var(--plum-soft)}.metric-plum b{color:var(--plum)}
+.reached{color:var(--green);font-weight:800}
+.overshot{color:var(--berry);font-weight:800}
+
+/* ---------- boutons ---------- */
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.actions button{flex:1;min-width:130px;text-transform:uppercase;letter-spacing:.1em;font-size:.74rem}
+.primary{background:var(--green);color:var(--green-ink)}
+.secondary{background:var(--raised);color:var(--ink)}
+.danger{background:#2a1616;color:var(--red)}
+
+/* ---------- niveau du jour ---------- */
+.ranges{display:flex;gap:6px;flex-wrap:wrap}
+.range{background:var(--raised);color:var(--muted);padding:.5rem .8rem;border-radius:999px;
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+.range[aria-pressed="true"]{background:var(--green);color:var(--green-ink)}
+.range[disabled]{opacity:.35;cursor:not-allowed}
+
+/* ---------- avis du jour : un acquis, jamais un rappel ---------- */
+#dayNotices{display:grid;gap:8px;margin-top:14px}
+.notice{border-radius:16px;padding:14px 16px;display:grid;gap:3px}
+.notice b{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em}
+.notice span{font-size:.84rem;color:var(--muted)}
+.notice-plum{background:var(--plum-soft)}.notice-plum b{color:var(--plum)}
+.notice-berry{background:var(--berry-soft)}.notice-berry b{color:var(--berry)}
+.notice-cta{margin-top:8px;justify-self:start;background:var(--plum);color:#1a1020;
+  padding:.6rem 1.1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em}
+
+/* ---------- la liste des blocs ---------- */
+.blocks{list-style:none;margin:14px 0 0;padding:0}
+.brow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;
+  padding:14px 2px;border-top:1px solid var(--line)}
 .brow:first-child{border-top:0}
 .tick{width:44px;height:44px;padding:0;border:0;background:none;flex:0 0 auto;
   display:flex;align-items:center;justify-content:center}
-.tick i{width:30px;height:30px;border:2px solid var(--line);border-radius:10px;
+.tick i{width:28px;height:28px;border:2px solid #3c423a;border-radius:999px;
   display:flex;align-items:center;justify-content:center}
 .tick svg{display:none}
 .brow.done .tick i{background:var(--green);border-color:var(--green)}
 .brow.done .tick svg{display:block}
-.brow-main{background:none;border:0;padding:6px 0;text-align:left;font:inherit;color:inherit;min-width:0}
-.brow-time{display:block;font-weight:750}
-.brow.done .brow-time{color:var(--green-deep)}
-.brow-sub{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chev{color:#b4c0b2;font-size:1.1rem;padding:0 2px}
-.brow.now{background:var(--berry-soft);border-radius:14px;border-top-color:transparent;padding:12px 10px;margin:5px 0}
+.brow.done .tick svg path{stroke:var(--green-ink)}
+.brow-main{background:none;border:0;padding:4px 0;text-align:left;font:inherit;color:inherit;min-width:0}
+.brow-time{display:block;font-weight:900;font-size:1.25rem;letter-spacing:-.02em}
+.brow.done .brow-time{color:var(--green)}
+.brow-sub{display:block;font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;text-transform:uppercase;font-weight:700;margin-top:3px}
+.chev{color:#4a5148;font-size:1.1rem;padding:0 2px}
+.brow.now{background:var(--berry-soft);border-radius:20px;border-top-color:transparent;
+  padding:16px 14px;margin:6px 0}
 .brow.now+.brow,.bdetail+.brow{border-top-color:transparent}
-.brow.now .brow-time{font-size:1.05rem}
-.nowbadge{display:inline-block;background:var(--berry);color:#fff;font-size:.6rem;font-weight:800;
-  padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;margin-left:7px;
-  vertical-align:2px;font-style:normal}
-.cta{grid-column:1/-1;background:var(--green-deep);color:#fff;border-radius:12px;padding:12px;
-  text-align:center;font-weight:800;margin-top:4px}
-.bdetail{background:#f5f8f2;border:1px solid var(--line);border-radius:14px;padding:12px;margin:2px 0 8px}
-.bdetail.to-confirm{background:var(--berry-soft);border-color:#e2c9d3}
-.confirm-head{margin:0 0 10px;font-weight:800;font-size:.9rem;color:var(--berry)}
-.confirm-actions{display:flex;gap:8px;margin-top:12px}
-.confirm-yes{flex:2;background:var(--green-deep);color:#fff;padding:12px}
-.confirm-no{flex:1;background:#ffffffb8;color:var(--ink);padding:12px}
-.bdetail-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.brow.now .brow-time{font-size:1.5rem}
+.nowbadge{display:inline-block;background:var(--berry);color:#24141a;font-size:.58rem;font-weight:900;
+  padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.1em;margin-left:9px;
+  vertical-align:3px;font-style:normal}
+.cta{grid-column:1/-1;background:var(--green);color:var(--green-ink);border-radius:999px;padding:15px;
+  text-align:center;font-weight:900;margin-top:8px;text-transform:uppercase;letter-spacing:.12em;
+  font-size:.78rem}
+
+/* ---------- détail d'un bloc ---------- */
+.bdetail{background:var(--raised);border:0;border-radius:20px;padding:16px;margin:2px 0 10px}
+.bdetail.to-confirm{background:var(--berry-soft)}
+.confirm-head{margin:0 0 12px;font-weight:800;font-size:.7rem;color:var(--berry);
+  text-transform:uppercase;letter-spacing:.12em}
+.confirm-actions{display:flex;gap:8px;margin-top:14px}
+.confirm-yes{flex:2;background:var(--green);color:var(--green-ink);padding:14px;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.74rem}
+.confirm-no{flex:1;background:#00000033;color:var(--ink);padding:14px;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.74rem}
+.bdetail-top{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:14px;flex-wrap:wrap}
 .fields{display:flex;gap:8px}
-.fields label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.fields span{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:800}
-.rep{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 6px;text-align:center;background:#fff}
-.time{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-weight:750;background:#fff;color:inherit}
-.planned{font-size:.74rem}
-.day-result{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;background:var(--green2);
-  border-radius:12px;padding:12px;margin-top:12px;font-weight:800}
-.day-result span{font-weight:600;color:#4a5a46;font-size:.88rem}
-/* --- historique : des lignes lisibles plutôt qu'un tableau serré --- */
-.hist-row{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
+.fields label{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.fields span{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+.rep{width:100%;border:0;border-radius:12px;padding:12px 6px;text-align:center;background:var(--bg);
+  color:var(--ink);font-weight:800;font-size:1.05rem}
+.time{border:0;border-radius:12px;padding:9px 12px;font-weight:800;background:var(--bg);color:var(--ink)}
+.planned{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
+.day-result{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;background:var(--green2);
+  border-radius:16px;padding:14px 16px;margin-top:14px;font-weight:900;color:var(--green)}
+.day-result span{font-weight:700;color:var(--muted);font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.08em}
+
+/* ---------- semaine, historique ---------- */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{border-radius:14px;background:var(--raised);padding:12px 5px;text-align:center;font-size:.62rem;
+  text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--muted)}
+.day b{display:block;font-size:1.15rem;color:var(--ink);margin-top:4px;font-weight:900}
+.day.active{background:var(--green2)}.day.active b{color:var(--green)}
+.day.today{background:var(--berry-soft);color:var(--berry)}.day.today b{color:var(--berry)}
+.hist-row{display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline;padding:13px 0;
+  border-top:1px solid var(--line)}
 .hist-row:first-child{border-top:0}
-.hist-date{font-weight:750;min-width:66px}
-.hist-blocks{font-weight:700;color:var(--green-deep)}
-.hist-metrics{color:var(--muted);font-size:.85rem}#weight{width:104px;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;background:white}
-.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green-deep)}.day.today{background:var(--berry-soft);color:var(--berry);font-weight:700}.metric-berry{background:var(--berry-soft)}.metric-berry b{color:var(--berry)}.metric-plum{background:var(--plum-soft)}.metric-plum b{color:var(--plum)}.reached{color:var(--plum);font-weight:700}.records td:last-child{color:var(--plum)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
-/* --- identité : logo repris de l'icône de l'application --- */
-.brand{display:flex;align-items:center;gap:14px}.logo{width:52px;height:52px;flex:0 0 auto;border-radius:14px}
-/* --- onglets --- */
-.tabs{display:flex;gap:6px;margin:0 18px 18px;background:#e8ece8;padding:5px;border-radius:14px;width:fit-content}
-.tab{background:transparent;color:var(--muted);padding:.55rem 1.2rem;border-radius:10px}
-.tab[aria-selected="true"]{background:white;color:var(--ink);box-shadow:0 2px 8px #23412b14}
-/* --- graphiques (palette validée clair : bleu, aqua, violet, orange) --- */
-:root{--s-jumps:#2a78d6;--s-blocks:#1baf7a;--s-weight:#4a3aa7;--s-kcal:#eb6834;--grid:#e9ede9}
+.hist-date{font-weight:900;min-width:70px;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem}
+.hist-blocks{font-weight:800;color:var(--green);font-size:.82rem}
+.hist-metrics{color:var(--muted);font-size:.8rem}
+.table-wrap{overflow:auto}
+.history{width:100%;border-collapse:collapse}
+.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}
+.history th{border:0;font-size:.72rem;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- poids et commentaires ---------- */
+#weight{width:110px;border:0;border-radius:12px;padding:11px;text-align:center;background:var(--raised);
+  color:var(--ink);font-weight:800;font-size:1.05rem}
+.comment{margin-top:22px}
+.comment textarea{width:100%;min-height:80px;border:0;border-radius:14px;padding:12px;resize:vertical;
+  background:var(--raised);color:var(--ink)}
+.comment label b{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+
+/* ---------- progression ---------- */
+.hero-num{font-size:clamp(3.4rem,16vw,5.2rem);font-weight:900;letter-spacing:-.045em;line-height:.92;
+  margin:4px 0 6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;padding:0 18px}
 .chart{position:relative;touch-action:pan-y}
 .chart svg{display:block;width:100%;height:auto}
-.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
-.chart-head h2{margin:0}.chart-read{text-align:right;line-height:1.15}
-.chart-read b{font-size:1.35rem;letter-spacing:-.02em;display:block}
-.chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;padding:0 20px;text-align:center}
-.ranges{display:flex;gap:6px;flex-wrap:wrap}
-.range{background:#eef1ed;color:var(--muted);padding:.4rem .9rem;border-radius:999px;font-size:.85rem}
-.range[aria-pressed="true"]{background:var(--green-deep);color:white}
-.hero-num{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:2px 0}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-.records td{padding:9px 3px;border-top:1px solid var(--line)}.records td:last-child{text-align:right;font-weight:750}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.chart-head h2{margin:0}
+.chart-read{text-align:right;line-height:1.1}
+.chart-read b{font-size:1.5rem;letter-spacing:-.03em;display:block;font-weight:900}
+.chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:.85rem;padding:0 20px;text-align:center}
+.records td{padding:13px 3px;border-top:1px solid var(--line);font-size:.88rem}
+.records td:last-child{text-align:right;font-weight:900;color:var(--plum)}
+
+/* ---------- dialogues ---------- */
+dialog{border:0;border-radius:24px;padding:0;max-width:600px;width:calc(100% - 28px);
+  background:var(--card);color:var(--ink);box-shadow:0 24px 80px #000a}
+dialog::backdrop{background:#000000b3}
+.modal{padding:24px}
+.modal h2{font-size:1.4rem;text-transform:none;letter-spacing:-.02em;color:var(--ink);font-weight:900}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.form-grid label{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted)}
+.form-grid input{width:100%;margin-top:6px;border:0;border-radius:12px;padding:11px;
+  background:var(--raised);color:var(--ink);font-weight:800}
+.note{background:var(--raised);color:var(--muted);padding:12px 14px;border-radius:14px;font-size:.82rem;
+  line-height:1.5}
+
+/* ---------- téléphone ---------- */
 @media(max-width:900px){.charts{grid-template-columns:1fr}}
-@media(max-width:760px){.appbar .date-nav{flex:1 0 100%;order:3}.appbar .date-nav input{flex:1}.actions{display:grid;grid-template-columns:1fr 1fr}.hist-metrics{flex-basis:100%}.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+@media(max-width:760px){
+  .appbar .date-nav{flex:1 0 100%;order:3}
+  .appbar .date-nav input{flex:1}
+  .actions{display:grid;grid-template-columns:1fr 1fr}
+  .actions button{min-width:0}
+  .hist-metrics{flex-basis:100%}
+  .hero{align-items:start;flex-direction:column;margin:0 16px 18px}
+  .tabs{margin:0 16px 16px;gap:20px}
+  .tab{flex:1;text-align:center}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .logo{width:44px;height:44px}
+  .date-box{text-align:left}
+  .grid,.below,.charts{grid-template-columns:1fr;padding:0 14px}
+  .below{padding:0 14px}
+  .summary{grid-template-columns:repeat(4,1fr)}
+  .wrap{padding:16px 0 48px}
+  .card{padding:18px}
+}
+@media(max-width:480px){
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+  .summary3{gap:6px}
+  .summary3 .metric span{font-size:.6rem;letter-spacing:.06em}
+}
 </style>
 </head>
 <body>
 <header class="appbar">
 <div class="appbar-in">
-<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Notesport"><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#16281c" stroke-width="52" stroke-linecap="round" opacity=".6"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#16281c"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#16281c"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#16281c"/></svg>
+<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Notesport"><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="var(--green)" stroke-width="52" stroke-linecap="round" opacity=".45"/><rect x="398" y="626" width="60" height="134" rx="26" fill="currentColor"/><rect x="482" y="556" width="60" height="204" rx="26" fill="currentColor"/><rect x="566" y="476" width="60" height="284" rx="26" fill="var(--green)"/></svg>
 <div class="appbar-title"><b>Notesport</b><span>corde · pompes · squats</span></div>
 <div class="date-nav" id="dateBox"><button id="prevDay" type="button" aria-label="Jour précédent">‹</button><input id="date" type="date" aria-label="Jour suivi"><button id="nextDay" type="button" aria-label="Jour suivant">›</button></div>
 </div>
@@ -129,7 +291,7 @@
 </nav>
 <div id="view-today" role="tabpanel" aria-labelledby="tab-today">
 <section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="ring-row"><div id="ring"></div><div class="ring-side"><div class="big-num" id="jumpTotal">0</div><div class="small" id="jumpTarget">/ 1 000 sauts</div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div></div></div><div class="summary3" id="dayStats"></div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
-<section class="card plan-card"><h2>Les blocs</h2><p class="small" style="margin:0 0 8px"><b>Comment tu te sens ?</b></p><div class="ranges" id="stateBar" role="group" aria-label="État du jour"></div><div class="small" id="targetInfo"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<section class="card plan-card"><h2>Les blocs</h2><p class="small" style="margin:0 0 8px"><b>Niveau du jour</b> — au réveil, selon la forme.</p><div class="ranges" id="stateBar" role="group" aria-label="Niveau du jour"></div><div class="small" id="targetInfo"></div><div id="dayNotices"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
 <section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div id="history"></div></section></section>
 </div>
 
@@ -174,11 +336,20 @@ const DEFAULT_WEIGHT = 97;
  * « Récup » est le jour de repos : il se coche, donc il compte.
  */
 const DAY_STATES = [
-  {id:'fresh', label:'Frais', factor:1},
-  {id:'normal', label:'Normal', factor:0.8},
-  {id:'spent', label:'Cassé', factor:0.5},
+  {id:'fresh', label:'Plein', factor:1},
+  {id:'normal', label:'Allégé', factor:0.8},
+  {id:'spent', label:'Ménagé', factor:0.5},
   {id:'recovery', label:'Récup', factor:0}
 ];
+/**
+ * Tolérance au-dessus de la cible. Tenir son niveau, c'est rester dans la
+ * fourchette : au-delà, le niveau est dépassé, pas tenu. Sans ce plafond,
+ * rebasculer une grosse journée en « Ménagé » après coup la ferait passer pour
+ * une journée ménagée.
+ */
+const OVERSHOOT_MARGIN = 1.15;
+/** Jours pleins d'affilée au terme desquels un jour ménagé est offert. */
+const LIGHT_DAY_AFTER = 6;
 /** Le bloc de récup a son propre identifiant : les blocs de travail déjà
  *  saisis restent intacts si l'on bascule en Récup puis qu'on revient. */
 const RECOVERY_BLOCK_ID = 'rest';
@@ -262,8 +433,39 @@ function current() {
   day.state = normalizeState(day.state);
   return day;
 }
-/** État de la journée affichée ; les sauvegardes antérieures repartent en « Frais ». */
+/** Niveau de la journée affichée ; les sauvegardes antérieures repartent en « Plein ». */
 function dayState() { return normalizeState(current().state); }
+
+/**
+ * Vrai si la journée porte du travail validé, hors bloc de récup. Une telle
+ * journée ne peut pas être déclarée « Récup » : la charge subie disparaîtrait
+ * de l'historique, et c'est précisément la donnée qui relie douleur et volume.
+ */
+function hasLoggedWork(d) {
+  return Object.keys(d.rows || {}).some(id => {
+    const row = d.rows[id] || {};
+    return id !== RECOVERY_BLOCK_ID && row.done &&
+      ((Number(row.jumps) || 0) > 0 || (Number(row.pushups) || 0) > 0 || (Number(row.squats) || 0) > 0);
+  });
+}
+
+/**
+ * Un jour ménagé qui se gagne plutôt qu'un deload qui se subit : après six
+ * journées de travail tenues d'affilée, la septième s'ouvre allégée. Les jours
+ * de récup ne comptent pas — ils sont déjà de la décharge.
+ */
+function lightDay(from) {
+  let run = 0;
+  let cursor = shiftDate(from, -1);
+  for (;;) {
+    const day = data.days[cursor];
+    const t = day ? dayTotals(day) : null;
+    if (!t || !t.onPlan || t.state === 'recovery') break;
+    run++;
+    cursor = shiftDate(cursor, -1);
+  }
+  return {run, earned: run >= LIGHT_DAY_AFTER};
+}
 
 /* ---------- programme ---------- */
 /** Objectif de sauts du modèle, avant modulation par l'état du jour. */
@@ -361,30 +563,56 @@ function dayTotals(d) {
     kcal += calories(actual, weight);
   });
   const targetJumps = targetFor(state);
+  const overshot = jumps > Math.round(targetJumps * OVERSHOOT_MARGIN);
   return {
     state, done, blocks: rows.length, jumps, pushups, squats,
-    kcal: Math.round(kcal), seconds, targetJumps,
-    // Tenir un jour « Cassé » à 500 sauts vaut tenir un jour « Frais » à 1 000.
-    onPlan: done >= rows.length && (targetJumps === 0 || jumps >= targetJumps)
+    kcal: Math.round(kcal), seconds, targetJumps, overshot,
+    // Tenir un jour « Ménagé » à 500 sauts vaut tenir un jour « Plein » à 1 000,
+    // mais tenir suppose de rester dans la fourchette.
+    onPlan: done >= rows.length && jumps >= targetJumps && !overshot
   };
 }
 
 /* ---------- rendu ---------- */
 function renderTargetInfo(weight) {
   const state = dayState(), planned = schedule(state);
-  $('stateBar').innerHTML = DAY_STATES.map(s =>
-    `<button class="range" type="button" data-state="${s.id}" aria-pressed="${s.id === state}">${s.label}</button>`
-  ).join('');
+  const worked = hasLoggedWork(current());
+  $('stateBar').innerHTML = DAY_STATES.map(s => {
+    // Repasser en récup une journée déjà travaillée sortirait la charge de
+    // l'historique : on verrouille plutôt que de la masquer en silence.
+    const locked = s.id === 'recovery' && worked;
+    return `<button class="range" type="button" data-state="${s.id}" aria-pressed="${s.id === state}"` +
+      `${locked ? ' disabled title="La journée porte du travail validé"' : ''}>${s.label}</button>`;
+  }).join('');
 
   if (state === 'recovery') {
     $('targetInfo').textContent = 'Jour de repos : rien à faire, et ça compte. ' +
       'Les tendons ne progressent qu’entre les séances.';
-    return;
+  } else {
+    const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
+    const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
+    $('targetInfo').textContent = 'Cible du jour : ' + targetFor(state) + ' sauts, ' +
+      durationLabel(active) + ' et ~' + plannedKcal + ' kcal. Tenir ce niveau, c’est la journée réussie.' +
+      (worked ? ' Récup n’est plus possible : la charge déjà validée doit rester dans l’historique.' : '');
   }
-  const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
-  const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
-  $('targetInfo').textContent = 'Objectif du jour : ' + targetFor(state) + ' sauts. Total estimé : ' +
-    durationLabel(active) + ' et ~' + plannedKcal + ' kcal. Tenir ce niveau, c’est la journée réussie.';
+  renderDayNotices(state, worked);
+}
+
+/** Le jour ménagé gagné et le joker qui vient d'agir — deux acquis, pas deux rappels. */
+function renderDayNotices(state, worked) {
+  const notices = [];
+  const light = lightDay(dayKey() || todayISO());
+  if (light.earned && state !== 'recovery' && state !== 'spent' && !worked) {
+    notices.push(`<div class="notice notice-plum"><b>Jour ménagé gagné</b>` +
+      `<span>${light.run} journées tenues d’affilée.</span>` +
+      `<button class="notice-cta" type="button" data-state="spent">Prendre le jour ménagé</button></div>`);
+  }
+  const saved = streakInfo().bridged[0];
+  if (saved) {
+    notices.push(`<div class="notice notice-berry"><b>Joker utilisé · ${formatDate(saved)}</b>` +
+      `<span>Cette journée vide n’a pas cassé la série.</span></div>`);
+  }
+  $('dayNotices').innerHTML = notices.join('');
 }
 
 /** Bloc « maintenant » : le dernier créneau échu non fait, sinon le prochain. */
@@ -525,11 +753,14 @@ function renderTotals(d) {
   $('completion').className = t.onPlan || reached ? 'small reached' : 'small';
   $('completion').textContent = t.onPlan
     ? 'journée tenue · niveau ' + stateLabel(t.state).toLowerCase() + ' ✓ · ~' + t.kcal + ' kcal'
-    : t.state === 'recovery'
-      ? 'repos à valider'
-      : reached
-        ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
-        : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
+    : t.overshot
+      ? 'niveau dépassé · ' + t.jumps.toLocaleString('fr-FR') + ' sauts pour ' + t.targetJumps.toLocaleString('fr-FR') + ' prévus'
+      : t.state === 'recovery'
+        ? 'repos à valider'
+        : reached
+          ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
+          : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
+  $('completion').className = t.overshot ? 'small overshot' : $('completion').className;
 }
 
 /**
@@ -547,13 +778,14 @@ function renderDayStats(t) {
 
   const tiles = [
     next
-      ? {cls: 'metric-berry', value: next, label: 'prochain bloc'}
-      : {cls: 'metric-berry', value: isToday ? '✓' : '—', label: isToday ? 'journée terminée' : 'aucun bloc en attente'},
-    {cls: 'metric-plum', value: streak.days + ' j', label: 'série · ' + streak.jokersLeft + ' joker(s) ce mois'},
-    {cls: '', value: '~' + t.kcal, label: 'kcal · ' + longDuration(t.seconds)}
+      ? {cls: 'metric-berry', value: next, label: 'prochain', hint: 'bloc'}
+      : {cls: 'metric-berry', value: isToday ? '✓' : '—', label: isToday ? 'terminée' : 'en attente', hint: ''},
+    {cls: 'metric-plum', value: streak.days + ' j', label: 'série', hint: streak.jokersLeft + ' joker(s)'},
+    {cls: '', value: '~' + t.kcal, label: 'kcal', hint: longDuration(t.seconds)}
   ];
   $('dayStats').innerHTML = tiles
-    .map(tile => `<div class="metric ${tile.cls}"><b>${tile.value}</b><span>${tile.label}</span></div>`)
+    .map(tile => `<div class="metric ${tile.cls}"><b>${tile.value}</b><span>${tile.label}</span>` +
+      (tile.hint ? `<em>${tile.hint}</em>` : '') + '</div>')
     .join('');
 }
 
@@ -734,13 +966,12 @@ function dayPoints(from, to) {
 function shiftDate(key, delta) { const d = fromISODate(key); d.setDate(d.getDate() + delta); return toISODate(d); }
 
 function summarize(points) {
-  const sum = {jumps: 0, kcal: 0, seconds: 0, blocks: 0, possible: 0, active: 0, targets: 0, onPlan: 0};
+  const sum = {jumps: 0, kcal: 0, seconds: 0, blocks: 0, possible: 0, active: 0, onPlan: 0};
   points.forEach(p => {
     sum.jumps += p.totals.jumps; sum.kcal += p.totals.kcal; sum.seconds += p.totals.seconds;
     sum.blocks += p.totals.done; sum.possible += p.totals.blocks;
     if (p.totals.done > 0) sum.active++;
     if (p.totals.onPlan) sum.onPlan++;
-    if (p.totals.targetJumps > 0 && p.totals.jumps >= p.totals.targetJumps) sum.targets++;
   });
   sum.average = points.length ? Math.round(sum.jumps / points.length) : 0;
   sum.consistency = sum.possible ? Math.round(sum.blocks / sum.possible * 100) : 0;
@@ -775,11 +1006,12 @@ function streakInfo() {
   };
 
   let streak = 0;
+  const bridged = [];
   let cursor = active.has(todayISO()) ? todayISO() : shiftDate(todayISO(), -1);
   for (;;) {
     if (active.has(cursor)) {
       streak++;
-      pending.forEach(spendJoker);
+      pending.forEach(hole => { spendJoker(hole); bridged.push(hole); });
       pending = [];
     } else {
       if (!canCover(cursor)) break;
@@ -789,7 +1021,7 @@ function streakInfo() {
   }
 
   const used = spent[month] || 0;
-  return {days: streak, jokersUsed: used, jokersLeft: JOKERS_PER_MONTH - used};
+  return {days: streak, jokersUsed: used, jokersLeft: JOKERS_PER_MONTH - used, bridged};
 }
 
 /* ================= Progression : graphiques SVG ================= */
@@ -909,7 +1141,7 @@ function drawChart(id, readId, dateId, points, opts) {
   const cursor = host.querySelector('.cursor');
   const show = index => {
     const p = points[index];
-    $(readId).textContent = p && p.value !== null ? opts.format(p.value) : '—';
+    $(readId).textContent = p && p.value !== null ? opts.format(p.value, p) : '—';
     $(dateId).textContent = p ? p.label : '';
     if (!cursor || !p || p.value === null || !hasData) { if (cursor) cursor.style.display = 'none'; return; }
     const x = opts.type === 'bar' ? PAD.left + index * built.slot + built.slot / 2 : built.scale.x(index);
@@ -960,15 +1192,24 @@ function renderProgress() {
   $('pTime').textContent = longDuration(sum.seconds);
   $('pTargets').textContent = sum.onPlan;
 
-  const blockCount = data.settings.blocks;
+  // Cible moyenne réellement visée sur la période : une journée allégée tenue
+  // ne doit plus s'afficher comme un demi-échec sous une ligne fixe à 1 000.
+  const aimed = points.filter(p => p.totals.targetJumps > 0);
+  const averageTarget = aimed.length
+    ? Math.round(aimed.reduce((n, p) => n + p.totals.targetJumps, 0) / aimed.length)
+    : data.settings.dailyJumpTarget;
+  const blockCount = Math.max(1, ...points.map(p => p.totals.blocks));
+
   drawChart('chartJumps', 'readJumps', 'readJumpsDate',
-    points.map(p => ({label: p.label, value: p.totals.jumps})),
-    {color: 'var(--s-jumps)', fromZero: true, reference: data.settings.dailyJumpTarget,
-     minimumTop: data.settings.dailyJumpTarget, format: v => v.toLocaleString('fr-FR') + ' sauts'});
+    points.map(p => ({label: p.label, value: p.totals.jumps, target: p.totals.targetJumps})),
+    {color: 'var(--s-jumps)', fromZero: true, reference: averageTarget,
+     minimumTop: averageTarget,
+     format: (v, p) => v.toLocaleString('fr-FR') + ' sauts' + (p && p.target ? ' / ' + p.target.toLocaleString('fr-FR') : '')});
 
   drawChart('chartBlocks', 'readBlocks', 'readBlocksDate',
-    points.map(p => ({label: p.label, value: p.totals.done})),
-    {type: 'bar', color: 'var(--s-blocks)', snapMax: blockCount, height: 180, format: v => v + '/' + blockCount + ' blocs'});
+    points.map(p => ({label: p.label, value: p.totals.done, capacity: p.totals.blocks})),
+    {type: 'bar', color: 'var(--s-blocks)', snapMax: blockCount, height: 180,
+     format: (v, p) => v + '/' + (p && p.capacity ? p.capacity : blockCount) + ' blocs'});
 
   drawChart('chartWeight', 'readWeight', 'readWeightDate',
     points.map(p => ({label: p.label, value: p.weight})),
@@ -985,15 +1226,17 @@ function renderProgress() {
     points.map(p => ({label: p.label, value: p.totals.kcal})),
     {color: 'var(--s-kcal)', fromZero: true, format: v => v.toLocaleString('fr-FR') + ' kcal'});
 
-  let bestJumps = null, bestKcal = null, totalEver = 0, activeEver = 0;
+  let bestJumps = null, bestKcal = null, totalEver = 0, activeEver = 0, heldEver = 0;
   Object.keys(data.days).forEach(key => {
     const t = dayTotals(data.days[key]);
     totalEver += t.jumps;
     if (t.done > 0) activeEver++;
+    if (t.onPlan) heldEver++;
     if (t.jumps > 0 && (!bestJumps || t.jumps > bestJumps.value)) bestJumps = {key, value: t.jumps};
     if (t.kcal > 0 && (!bestKcal || t.kcal > bestKcal.value)) bestKcal = {key, value: t.kcal};
   });
   $('records').innerHTML = [
+    ['Jours tenus au niveau déclaré', heldEver + ' jour(s)'],
     ['Meilleure journée', bestJumps ? bestJumps.value.toLocaleString('fr-FR') + ' sauts · ' + formatDate(bestJumps.key) : '—'],
     ['Plus grosse dépense', bestKcal ? bestKcal.value.toLocaleString('fr-FR') + ' kcal · ' + formatDate(bestKcal.key) : '—'],
     ['Total depuis le début', totalEver.toLocaleString('fr-FR') + ' sauts'],
@@ -1123,10 +1366,12 @@ $('rows').addEventListener('click', e => {
   const opener = e.target.closest('[data-open]');
   if (opener) toggleOpen(opener.dataset.open);
 });
-$('stateBar').addEventListener('click', e => {
-  const button = e.target.closest('[data-state]');
-  if (button) setDayState(button.dataset.state);
-});
+for (const host of ['stateBar', 'dayNotices']) {
+  $(host).addEventListener('click', e => {
+    const button = e.target.closest('[data-state]');
+    if (button) setDayState(button.dataset.state);
+  });
+}
 $('rows').addEventListener('input', e => {
   if (e.target.matches('.time')) e.target.dataset.set = '1';
   if (e.target.matches('.rep') || e.target.matches('.time')) refreshOpenBlock();

@@ -16,6 +16,7 @@ import {
   emptyDay,
   clockToMinutes,
   entryFor,
+  hasLoggedWork,
   normalizeSettings,
   nowClock,
   type BlockEntry,
@@ -26,10 +27,11 @@ import {
   type PlannedBlock,
   type Settings,
 } from '../domain/program';
-import { todayISO, type ISODate } from '../lib/dates';
+import { addDays, todayISO, type ISODate } from '../lib/dates';
 import { syncReminders } from '../lib/reminders';
 
 const META_DEBOUNCE_MS = 700;
+const RECENT_WINDOW_DAYS = 30;
 
 type StoreValue = {
   ready: boolean;
@@ -37,6 +39,12 @@ type StoreValue = {
   settings: Settings;
   date: ISODate;
   day: DayRecord;
+  /**
+   * Trente derniers jours, pour les signaux qui regardent en arrière : le jour
+   * ménagé gagné et les jokers qui viennent d'agir. Volontairement une fenêtre
+   * et non tout l'historique — l'écran du jour n'a pas à lire la base entière.
+   */
+  recentDays: DayRecord[];
   schedule: PlannedBlock[];
   totals: DayTotals;
   /** Incrémenté à chaque écriture : les écrans d'analyse s'en servent pour se rafraîchir. */
@@ -62,6 +70,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [date, setDateState] = useState<ISODate>(todayISO());
   const [day, setDay] = useState<DayRecord>(() => emptyDay(todayISO()));
+  const [recentDays, setRecentDays] = useState<DayRecord[]>([]);
   const [revision, setRevision] = useState(0);
 
   const pendingMeta = useRef<{ date: ISODate; weight: number | null; notes: string } | null>(null);
@@ -136,6 +145,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
     [bump, date],
   );
+
+  // Fenêtre glissante relue à chaque écriture : les signaux du jour restent
+  // d'accord avec ce qui vient d'être coché.
+  useEffect(() => {
+    let cancelled = false;
+    db.readRange(addDays(date, -RECENT_WINDOW_DAYS), date)
+      .then((records) => {
+        if (!cancelled) setRecentDays(records);
+      })
+      .catch(() => {
+        if (!cancelled) setRecentDays([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [date, revision]);
 
   const schedule = useMemo(() => buildSchedule(settings, day.state), [settings, day.state]);
 
@@ -236,13 +261,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const setDayState = useCallback(
     async (state: DayState) => {
+      // Déclarer « Récup » une journée qui porte du travail validé sortirait
+      // cette charge de l'historique : on refuse, l'écran explique pourquoi.
+      if (state === 'recovery' && hasLoggedWork(day)) return;
       setDay((previous) => ({ ...previous, state }));
       await db.saveDayState(date, state);
-      // Revenir à « Frais » sur une journée restée vide ne laisse pas de trace.
+      // Revenir au niveau plein sur une journée restée vide ne laisse pas de trace.
       await db.pruneDay(date);
+      if (date === todayISO()) await syncReminders(settings, state);
       bump();
     },
-    [bump, date],
+    [bump, date, day, settings],
   );
 
   const updateSettings = useCallback(
@@ -250,10 +279,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const next = normalizeSettings({ ...settings, ...patch });
       setSettings(next);
       await db.writeSettings(next);
-      await syncReminders(next);
+      await syncReminders(next, day.state);
       bump();
     },
-    [bump, settings],
+    [bump, day.state, settings],
   );
 
   const reload = useCallback(async () => {
@@ -275,6 +304,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       settings,
       date,
       day,
+      recentDays,
       schedule,
       totals,
       revision,
@@ -294,6 +324,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       settings,
       date,
       day,
+      recentDays,
       schedule,
       totals,
       revision,

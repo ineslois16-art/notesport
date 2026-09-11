@@ -8,7 +8,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-import { buildSchedule, type Settings } from '../domain/program';
+import { buildSchedule, type DayState, type Settings } from '../domain/program';
 
 export function configureNotifications() {
   Notifications.setNotificationHandler({
@@ -40,20 +40,26 @@ async function ensureAndroidChannel() {
 }
 
 /**
- * Reprogramme l'intégralité des rappels à partir des réglages courants.
+ * Reprogramme l'intégralité des rappels à partir des réglages courants et du
+ * niveau déclaré du jour. Sans ce niveau, l'application annonçait un jour de
+ * repos puis rappelait sept fois d'aller s'entraîner — et les répétitions
+ * annoncées étaient celles du programme entier, pas celles du jour.
+ *
  * Silencieux en cas d'échec : un rappel manquant ne doit jamais empêcher
  * l'enregistrement d'une séance.
  */
-export async function syncReminders(settings: Settings): Promise<boolean> {
+export async function syncReminders(settings: Settings, state: DayState = 'fresh'): Promise<boolean> {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
     if (!settings.remindersEnabled) return true;
+    // Un jour de récup ne se rappelle pas : les rappels repartent au jour suivant.
+    if (state === 'recovery') return true;
 
     const granted = await ensurePermission();
     if (!granted) return false;
     await ensureAndroidChannel();
 
-    for (const block of buildSchedule(settings)) {
+    for (const block of buildSchedule(settings, state)) {
       const parts = [
         block.jumps > 0 ? `${block.jumps} sauts` : null,
         block.pushups > 0 ? `${block.pushups} pompes` : null,

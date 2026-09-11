@@ -17,6 +17,7 @@ import {
   emptyDay,
   formatClock,
   formatDuration,
+  hasLoggedWork,
   normalizeDayState,
   normalizeSettings,
   nowClock,
@@ -28,6 +29,8 @@ import {
   allTimeRecords,
   buildDayPoints,
   currentStreak,
+  LIGHT_DAY_AFTER,
+  lightDay,
   longestStreak,
   streakInfo,
   summarize,
@@ -205,7 +208,7 @@ test('un niveau déclaré allège la charge sans toucher à l’espacement', () 
   );
 });
 
-test('tenir un jour « Cassé » vaut tenir un jour « Frais »', () => {
+test('tenir un jour ménagé vaut tenir un jour plein', () => {
   const hard = computeTotals(dayWith('2026-05-12', ['0', '1', '2', '3', '4', '5', '6']), settings);
   const easy = computeTotals(
     dayWith('2026-05-12', ['0', '1', '2', '3', '4', '5', '6'], null, 'spent'),
@@ -286,6 +289,84 @@ test('sans série vivante, aucun joker n’est décompté', () => {
   const info = streakInfo([dayWith('2026-05-20', ['0'])], settings);
   assert.equal(info.days, 0);
   assert.equal(info.jokersLeft, 2);
+});
+
+test('dépasser son niveau n’est pas le tenir', () => {
+  // Le scénario du trou : journée pleine réellement faite, puis rebasculée en
+  // « Ménagé » après coup pour la faire passer pour une journée ménagée.
+  const full = dayWith('2026-05-12', ['0', '1', '2', '3', '4', '5', '6']);
+  const relabelled = { ...full, state: 'spent' as DayState };
+  const totals = computeTotals(relabelled, settings);
+
+  assert.equal(totals.jumps, 1000);
+  assert.equal(totals.targetJumps, 500);
+  assert.equal(totals.overshot, true);
+  assert.equal(totals.onPlan, false, 'rebasculer après coup ne rapporte plus rien');
+
+  // La fourchette laisse passer un léger dépassement : 15 % de marge.
+  const barely = dayWith('2026-05-12', ['0', '1', '2', '3', '4', '5', '6'], null, 'spent');
+  barely.blocks['0'].jumps = 130; // 500 → 555, sous le plafond de 575
+  const within = computeTotals(barely, settings);
+  assert.equal(within.overshot, false);
+  assert.equal(within.onPlan, true);
+});
+
+test('une journée qui porte du travail validé ne peut pas être un repos', () => {
+  assert.equal(hasLoggedWork(dayWith('2026-05-12', ['0'])), true);
+  assert.equal(hasLoggedWork(emptyDay('2026-05-12')), false);
+  // Le bloc de récup lui-même ne compte pas comme du travail.
+  assert.equal(
+    hasLoggedWork(dayWith('2026-05-12', [RECOVERY_BLOCK_ID], null, 'recovery')),
+    false,
+  );
+  // Un bloc saisi mais non validé reste une intention.
+  const intent = emptyDay('2026-05-12');
+  intent.blocks['0'] = { blockId: '0', done: false, touched: true, time: null, timeAuto: false, jumps: 150, pushups: 0, squats: 0 };
+  assert.equal(hasLoggedWork(intent), false);
+});
+
+test('six journées tenues d’affilée débloquent un jour ménagé', () => {
+  const from = '2026-05-20';
+  const held = Array.from({ length: LIGHT_DAY_AFTER }, (_, index) =>
+    dayWith(addDays(from, -(index + 1)), ['0', '1', '2', '3', '4', '5', '6']),
+  );
+  const earned = lightDay(held, settings, from);
+  assert.equal(earned.run, LIGHT_DAY_AFTER);
+  assert.equal(earned.earned, true);
+
+  // Une journée non tenue interrompt le décompte.
+  const broken = [...held.slice(0, 3), dayWith(addDays(from, -4), ['0'])];
+  assert.equal(lightDay(broken, settings, from).run, 3);
+  assert.equal(lightDay(broken, settings, from).earned, false);
+
+  // Un jour de récup n'alimente pas le compteur : c'est déjà de la décharge.
+  const rested = [
+    dayWith(addDays(from, -1), [RECOVERY_BLOCK_ID], null, 'recovery'),
+    ...held.slice(1),
+  ];
+  assert.equal(lightDay(rested, settings, from).run, 0);
+});
+
+test('les jokers qui ont agi sont nommés', () => {
+  const today = todayISO();
+  const days = [dayWith(addDays(today, -1), ['0']), dayWith(addDays(today, -3), ['0'])];
+  const info = streakInfo(days, settings);
+  assert.deepEqual(info.bridged, [addDays(today, -2)], 'la journée franchie est citable');
+
+  // Sans trou, aucun joker n'est annoncé.
+  const solid = [dayWith(addDays(today, -1), ['0']), dayWith(addDays(today, -2), ['0'])];
+  assert.deepEqual(streakInfo(solid, settings).bridged, []);
+});
+
+test('les records comptent les jours tenus, pas seulement les pics', () => {
+  const days = [
+    dayWith('2026-05-18', ['0', '1', '2', '3', '4', '5', '6']),
+    dayWith('2026-05-19', ['0', '1', '2', '3', '4', '5', '6'], null, 'spent'),
+    dayWith('2026-05-20', ['0']),
+  ];
+  const records = allTimeRecords(days, settings);
+  assert.equal(records.onPlanDaysEver, 2, 'la journée ménagée tenue compte autant que la pleine');
+  assert.equal(records.activeDaysEver, 3);
 });
 
 test('les jours sans enregistrement apparaissent à zéro dans les courbes', () => {
@@ -386,7 +467,7 @@ test('le CSV échappe les notes contenant des points-virgules', () => {
   const lines = csv.split('\n');
   assert.match(lines[0], /^﻿Date;État;Heures des blocs faits;/);
   assert.match(lines[1], /"Genou sensible; repos demain"$/);
-  assert.match(lines[1], /^2026-09-10;Frais;07:42;1;7;150;20;20;/);
+  assert.match(lines[1], /^2026-09-10;Plein;07:42;1;7;150;20;20;/);
 });
 
 test('l’état du jour survit à l’export et aux sauvegardes qui l’ignorent', () => {

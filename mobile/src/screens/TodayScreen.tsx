@@ -14,8 +14,10 @@ import {
   entryFor,
   formatDuration,
   formatNumber,
+  hasLoggedWork,
   RECOVERY_BLOCK_ID,
 } from '../domain/program';
+import { lightDay, streakInfo } from '../domain/stats';
 import { addDays, formatDayTitle, formatShort, isFuture, isToday, todayISO } from '../lib/dates';
 import { useStore } from '../state/store';
 import { radius, spacing, type as typography, useTheme } from '../theme';
@@ -50,6 +52,7 @@ export function TodayScreen() {
     resetBlock,
     setDayMeta,
     setDayState,
+    recentDays,
   } = useStore();
   const [expanded, setExpanded] = useState<string | null>(null);
   // Bloc en attente de validation : rien n'est enregistré tant qu'on n'a pas validé.
@@ -66,6 +69,14 @@ export function TodayScreen() {
   const isRecovery = day.state === 'recovery';
   const plannedJumps = schedule.reduce((total, block) => total + block.jumps, 0);
   const restDone = isRecovery && entryFor(day, schedule[0]).done;
+  // Une journée qui porte du travail validé ne peut plus être déclarée « Récup » :
+  // la charge subie sortirait de l'historique.
+  const workLogged = hasLoggedWork(day);
+  const light = useMemo(() => lightDay(recentDays, settings, date), [recentDays, settings, date]);
+  const saved = useMemo(
+    () => streakInfo(recentDays, settings).bridged[0] ?? null,
+    [recentDays, settings],
+  );
   const jumpProgress = totals.targetJumps > 0 ? totals.jumps / totals.targetJumps : 0;
   const remainingJumps = Math.max(0, totals.targetJumps - totals.jumps);
 
@@ -132,7 +143,7 @@ export function TodayScreen() {
         </Pressable>
       </View>
 
-      <SectionTitle>Comment tu te sens</SectionTitle>
+      <SectionTitle action={<Muted>au réveil, selon la forme</Muted>}>Niveau du jour</SectionTitle>
       <Card>
         <Row style={{ flexWrap: 'wrap', gap: spacing.sm }}>
           {DAY_STATES.map((state) => (
@@ -140,6 +151,7 @@ export function TodayScreen() {
               key={state.id}
               label={state.label}
               compact
+              disabled={state.id === 'recovery' && workLogged}
               selected={day.state === state.id}
               onPress={() => void setDayState(state.id)}
             />
@@ -148,8 +160,34 @@ export function TodayScreen() {
         <Muted style={{ marginTop: spacing.md }}>
           {isRecovery
             ? 'Repos choisi. Il se coche, il compte dans la série, et il ne casse rien.'
-            : `${formatNumber(plannedJumps)} sauts sur ${totals.blockCount} blocs — tenir ce niveau, c’est la journée réussie.`}
+            : workLogged
+              ? `${formatNumber(plannedJumps)} sauts sur ${totals.blockCount} blocs. Récup n’est plus possible : la journée porte du travail validé, et cette charge doit rester dans l’historique.`
+              : `${formatNumber(plannedJumps)} sauts sur ${totals.blockCount} blocs — tenir ce niveau, c’est la journée réussie.`}
         </Muted>
+
+        {light.earned && !isRecovery && day.state !== 'spent' && !workLogged ? (
+          <View style={[styles.nextHint, { backgroundColor: theme.plumSoft }]}>
+            <Text style={[typography.small, { color: theme.plum, fontWeight: '700' }]}>
+              Jour ménagé gagné · {light.run} jours tenus d’affilée
+            </Text>
+            <Button
+              label="Prendre le jour ménagé"
+              onPress={() => void setDayState('spent')}
+              style={{ marginTop: spacing.sm }}
+            />
+          </View>
+        ) : null}
+
+        {saved ? (
+          <View style={[styles.nextHint, { backgroundColor: theme.berrySoft }]}>
+            <Text style={[typography.small, { color: theme.berry, fontWeight: '700' }]}>
+              Joker utilisé · {formatShort(saved)}
+            </Text>
+            <Text style={[typography.small, { color: theme.inkSoft }]}>
+              Cette journée vide n’a pas cassé la série.
+            </Text>
+          </View>
+        ) : null}
       </Card>
 
       <View style={{ height: spacing.lg }} />
@@ -214,6 +252,15 @@ export function TodayScreen() {
               </Text>
               <Text style={[typography.small, { color: theme.inkSoft }]}>
                 Calibrer juste vaut autant qu’un gros jour.
+              </Text>
+            </View>
+          ) : totals.overshot ? (
+            <View style={[styles.nextHint, { backgroundColor: theme.berrySoft }]}>
+              <Text style={[typography.small, { color: theme.berry, fontWeight: '700' }]}>
+                Niveau dépassé · {formatNumber(totals.jumps)} sauts pour {formatNumber(totals.targetJumps)} prévus
+              </Text>
+              <Text style={[typography.small, { color: theme.inkSoft }]}>
+                Ce n’est pas une journée tenue : c’est le type de journée qui déclenche les tendinites.
               </Text>
             </View>
           ) : nextBlock ? (
