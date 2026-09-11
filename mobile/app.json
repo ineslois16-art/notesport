@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "Notesport",
+    "slug": "notesport",
+    "scheme": "notesport",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "primaryColor": "#689d71",
+    "backgroundColor": "#f4f6ef",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.val.notesport",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleDisplayName": "Notesport",
+        "CFBundleLocalizations": ["fr"],
+        "CFBundleDevelopmentRegion": "fr"
+      }
+    },
+    "android": {
+      "package": "com.val.notesport",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#e6efe8",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#f4f6ef",
+          "dark": {
+            "backgroundColor": "#12150f"
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#689d71",
+          "defaultChannel": "blocs"
+        }
+      ]
+    ]
+  }
+}

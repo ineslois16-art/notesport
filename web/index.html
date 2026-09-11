@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Notesport</title>
+<meta name="description" content="Suivi d'entraînement hors ligne : corde à sauter, pompes, squats.">
+<meta name="theme-color" content="#689d71">
+<link rel="manifest" href="manifest.webmanifest">
+<!-- Installation sur l'écran d'accueil iOS : Safari ignore encore le manifeste. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Notesport">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<style>
+:root{--ink:#18231d;--muted:#65736a;--paper:#f4f6ef;--card:#fff;--line:#dbe4dc;--green:#689d71;--green-deep:#4a7251;--green2:#e6efe8;--green-ink:#16281c;--ring-track:#d3e2d6;--plum:#8b689c;--plum-soft:#f1eaf4;--berry:#9b6678;--berry-soft:#f7ecf0;--amber:#b56c00;--red:#b23a36;--shadow:0 8px 28px #2e3b2612}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:.7rem .9rem;font-weight:700}.wrap{width:100%;max-width:1600px;margin:0 auto;padding:20px 0 60px}
+/* Barre pleine en haut ; sous elle un degrade sauge de 0 % a 60 %, reparti
+   lineairement sur toute la hauteur du document — il est donc porte par
+   `.page`, dont la hauteur suit le contenu, et non par `body`. */
+.appbar{background:var(--green);color:var(--green-ink)}
+.appbar-in{max-width:1600px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.appbar .logo{width:34px;height:34px;flex:0 0 auto}
+.appbar-title{flex:1;min-width:0}
+.appbar-title b{display:block;font-size:1.15rem;letter-spacing:-.01em;line-height:1.15;white-space:nowrap}
+.appbar-title span{display:block;font-size:.66rem;opacity:.82;text-transform:uppercase;letter-spacing:.09em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page{background:linear-gradient(180deg,rgba(104,157,113,0) 0%,rgba(104,157,113,.6) 100%)}
+.appbar .date-nav{margin:0;flex:0 0 auto}
+.appbar .date-nav button{background:#16281c1f;color:var(--green-ink);width:38px;height:38px;padding:0;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.appbar .date-nav input{background:#ffffff5c;border:1px solid #16281c26;color:var(--green-ink);padding:.5rem .6rem;font-weight:700}
+.hero{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:0 18px 22px}.eyebrow{text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:var(--green)}h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.05;margin:.2rem 0 .5rem}.sub{color:var(--muted);margin:0}.date-box{text-align:right}.date-nav{display:flex;gap:6px;align-items:center;margin-top:5px}.date-nav button{padding:.55rem .8rem;font-size:1.1rem;line-height:1}.date-nav input{flex:1;min-width:0;border:1px solid var(--line);background:white;border-radius:10px;padding:.6rem}.grid{display:grid;grid-template-columns:1.1fr 1.9fr;gap:18px}.grid>*,.below>*{min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}h2{font-size:1.05rem;margin:0 0 14px}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border-radius:12px;background:var(--green2);padding:12px}.metric b{display:block;font-size:1.45rem;line-height:1.1}.metric span{color:var(--muted);font-size:.8rem}.progress{height:10px;border-radius:999px;background:#e8ece8;margin:16px 0 7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:999px;width:0;transition:width .25s}.small{font-size:.84rem;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.primary{background:var(--green-deep);color:white}.secondary{background:#eef1ed;color:var(--ink)}.danger{background:#fce9e8;color:var(--red)}.table-wrap{overflow:auto}
+/* --- blocs : une seule structure, empilée sur téléphone, en colonnes au-delà --- */
+/* --- resume : anneau de progression --- */
+.ring-row{display:flex;align-items:center;gap:18px}
+.ring{width:104px;height:104px;flex:0 0 auto}
+.ring-side{flex:1;min-width:0}
+.big-num{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+
+/* --- la liste calme : une ligne par bloc, rien d'editable tant qu'on n'ouvre pas --- */
+.blocks{list-style:none;margin:0;padding:0}
+.brow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;
+  padding:9px 2px;border-top:1px solid var(--line)}
+.brow:first-child{border-top:0}
+.tick{width:44px;height:44px;padding:0;border:0;background:none;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center}
+.tick i{width:30px;height:30px;border:2px solid var(--line);border-radius:10px;
+  display:flex;align-items:center;justify-content:center}
+.tick svg{display:none}
+.brow.done .tick i{background:var(--green);border-color:var(--green)}
+.brow.done .tick svg{display:block}
+.brow-main{background:none;border:0;padding:6px 0;text-align:left;font:inherit;color:inherit;min-width:0}
+.brow-time{display:block;font-weight:750}
+.brow.done .brow-time{color:var(--green-deep)}
+.brow-sub{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chev{color:#b4c0b2;font-size:1.1rem;padding:0 2px}
+.brow.now{background:var(--berry-soft);border-radius:14px;border-top-color:transparent;padding:12px 10px;margin:5px 0}
+.brow.now+.brow,.bdetail+.brow{border-top-color:transparent}
+.brow.now .brow-time{font-size:1.05rem}
+.nowbadge{display:inline-block;background:var(--berry);color:#fff;font-size:.6rem;font-weight:800;
+  padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;margin-left:7px;
+  vertical-align:2px;font-style:normal}
+.cta{grid-column:1/-1;background:var(--green-deep);color:#fff;border-radius:12px;padding:12px;
+  text-align:center;font-weight:800;margin-top:4px}
+.bdetail{background:#f5f8f2;border:1px solid var(--line);border-radius:14px;padding:12px;margin:2px 0 8px}
+.bdetail-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.fields{display:flex;gap:8px}
+.fields label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.fields span{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:800}
+.rep{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 6px;text-align:center;background:#fff}
+.time{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-weight:750;background:#fff;color:inherit}
+.planned{font-size:.74rem}
+.day-result{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;background:var(--green2);
+  border-radius:12px;padding:12px;margin-top:12px;font-weight:800}
+.day-result span{font-weight:600;color:#4a5a46;font-size:.88rem}
+/* --- historique : des lignes lisibles plutôt qu'un tableau serré --- */
+.hist-row{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
+.hist-row:first-child{border-top:0}
+.hist-date{font-weight:750;min-width:66px}
+.hist-blocks{font-weight:700;color:var(--green-deep)}
+.hist-metrics{color:var(--muted);font-size:.85rem}#weight{width:104px;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;background:white}
+.comment{margin-top:18px}.comment textarea{width:100%;min-height:75px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}.below{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.history{width:100%;border-collapse:collapse}.history td,.history th{padding:8px 3px;border-top:1px solid var(--line);text-align:left}.history th{border:0;font-size:.75rem;text-transform:uppercase;color:var(--muted)}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border-radius:10px;background:#eef1ed;padding:8px 5px;text-align:center;font-size:.75rem}.day b{display:block;font-size:1rem}.day.active{background:var(--green2);color:var(--green-deep)}.day.today{background:var(--berry-soft);color:var(--berry);font-weight:700}.metric-berry{background:var(--berry-soft)}.metric-berry b{color:var(--berry)}.metric-plum{background:var(--plum-soft)}.metric-plum b{color:var(--plum)}.reached{color:var(--plum);font-weight:700}.records td:last-child{color:var(--plum)}dialog{border:0;border-radius:16px;padding:0;max-width:600px;width:calc(100% - 28px);box-shadow:0 20px 70px #0004}dialog::backdrop{background:#17251d77}.modal{padding:20px}.modal h2{font-size:1.3rem}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{font-size:.85rem;font-weight:700}.form-grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:8px;padding:8px}.note{background:#fff7e7;color:#6c4d14;padding:10px;border-radius:10px;font-size:.85rem}.footer-note{margin-top:18px;font-size:.78rem;color:var(--muted)}
+/* --- identité : logo repris de l'icône de l'application --- */
+.brand{display:flex;align-items:center;gap:14px}.logo{width:52px;height:52px;flex:0 0 auto;border-radius:14px}
+/* --- onglets --- */
+.tabs{display:flex;gap:6px;margin:0 18px 18px;background:#e8ece8;padding:5px;border-radius:14px;width:fit-content}
+.tab{background:transparent;color:var(--muted);padding:.55rem 1.2rem;border-radius:10px}
+.tab[aria-selected="true"]{background:white;color:var(--ink);box-shadow:0 2px 8px #23412b14}
+/* --- graphiques (palette validée clair : bleu, aqua, violet, orange) --- */
+:root{--s-jumps:#2a78d6;--s-blocks:#1baf7a;--s-weight:#4a3aa7;--s-kcal:#eb6834;--grid:#e9ede9}
+.chart{position:relative;touch-action:pan-y}
+.chart svg{display:block;width:100%;height:auto}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.chart-head h2{margin:0}.chart-read{text-align:right;line-height:1.15}
+.chart-read b{font-size:1.35rem;letter-spacing:-.02em;display:block}
+.chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;padding:0 20px;text-align:center}
+.ranges{display:flex;gap:6px;flex-wrap:wrap}
+.range{background:#eef1ed;color:var(--muted);padding:.4rem .9rem;border-radius:999px;font-size:.85rem}
+.range[aria-pressed="true"]{background:var(--green-deep);color:white}
+.hero-num{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:2px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.records td{padding:9px 3px;border-top:1px solid var(--line)}.records td:last-child{text-align:right;font-weight:750}
+@media(max-width:900px){.charts{grid-template-columns:1fr}}
+@media(max-width:760px){.appbar .date-nav{flex:1 0 100%;order:3}.appbar .date-nav input{flex:1}.actions{display:grid;grid-template-columns:1fr 1fr}.hist-metrics{flex-basis:100%}.hero{align-items:start;flex-direction:column;margin:0 12px 18px}.tabs{margin:0 12px 14px;width:auto}.tab{flex:1;text-align:center;padding:.55rem .5rem}.stats{grid-template-columns:repeat(2,1fr)}.logo{width:44px;height:44px}h1{font-size:1.6rem}.eyebrow{font-size:.66rem}.date-box{text-align:left}.grid,.below{grid-template-columns:1fr}.summary{grid-template-columns:repeat(4,1fr)}.metric{padding:9px}.metric b{font-size:1.15rem}.wrap{padding:18px 0 40px}.card{padding:14px}}@media(max-width:480px){.summary{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="appbar">
+<div class="appbar-in">
+<svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Notesport"><path d="M262 806C214 470 336 250 512 250s298 220 250 556" fill="none" stroke="#16281c" stroke-width="52" stroke-linecap="round" opacity=".6"/><rect x="398" y="626" width="60" height="134" rx="26" fill="#16281c"/><rect x="482" y="556" width="60" height="204" rx="26" fill="#16281c"/><rect x="566" y="476" width="60" height="284" rx="26" fill="#16281c"/></svg>
+<div class="appbar-title"><b>Notesport</b><span>corde · pompes · squats</span></div>
+<div class="date-nav" id="dateBox"><button id="prevDay" type="button" aria-label="Jour précédent">‹</button><input id="date" type="date" aria-label="Jour suivi"><button id="nextDay" type="button" aria-label="Jour suivant">›</button></div>
+</div>
+</header>
+<div class="page"><main class="wrap">
+<p class="small" id="storageNotice" hidden style="margin:0 18px 12px"></p>
+<nav class="tabs" role="tablist" aria-label="Sections">
+<button class="tab" id="tab-today" role="tab" aria-selected="true" aria-controls="view-today">Aujourd’hui</button>
+<button class="tab" id="tab-progress" role="tab" aria-selected="false" aria-controls="view-progress">Progression</button>
+</nav>
+<div id="view-today" role="tabpanel" aria-labelledby="tab-today">
+<section class="grid"><aside class="card"><h2>Résumé du jour</h2><div class="ring-row"><div id="ring"></div><div class="ring-side"><div class="big-num" id="jumpTotal">0</div><div class="small" id="jumpTarget">/ 1 000 sauts</div><div class="progress"><i id="bar"></i></div><div class="small" id="completion">0 % des blocs terminés</div></div></div><div class="actions"><button class="primary" id="save">Enregistrer</button><button class="secondary" id="settings">Programme</button><button class="secondary" id="export">Exporter</button><button class="secondary" id="import">Importer</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p class="footer-note">Estimations caloriques basées sur le poids saisi, l’intensité et le temps actif. Elles ne constituent pas une mesure médicale.</p></aside>
+<section class="card plan-card"><h2>Les blocs</h2><div class="small" id="targetInfo"></div><ul class="blocks" id="rows"></ul><div class="day-result" id="dayResult"></div><div class="comment"><label for="weight"><b>Poids du jour (kg)</b></label> <input id="weight" type="number" min="30" max="300" step="0.1" value="97"><label for="notes" style="display:block;margin-top:12px"><b>Commentaires (facultatif)</b></label><textarea id="notes" placeholder="Énergie, douleur inhabituelle, difficulté, météo…"></textarea></div></section></section>
+<section class="below"><section class="card"><h2>Cette semaine</h2><div class="week" id="week"></div><p class="small" id="weekSummary"></p></section><section class="card"><h2>Historique récent</h2><div id="history"></div></section></section>
+</div>
+
+<div id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
+<section class="card">
+<div class="ranges" id="ranges"></div>
+<p class="small" style="margin:16px 0 0">Sauts sur la période</p>
+<div class="hero-num" id="pTotalJumps">0</div>
+<p class="small" id="pDelta"></p>
+<div class="stats">
+<div class="metric metric-berry"><b id="pStreak">0 j</b><span>série en cours</span></div>
+<div class="metric"><b id="pConsistency">0 %</b><span>régularité</span></div>
+<div class="metric"><b id="pAverage">0</b><span>sauts / jour</span></div>
+<div class="metric"><b id="pKcal">0</b><span>kcal cumulées</span></div>
+<div class="metric"><b id="pTime">0 min</b><span>temps actif</span></div>
+<div class="metric metric-plum"><b id="pTargets">0</b><span>objectifs atteints</span></div>
+</div>
+</section>
+
+<div class="charts">
+<section class="card"><div class="chart-head"><h2>Sauts par jour</h2><div class="chart-read"><b id="readJumps">—</b><span class="small" id="readJumpsDate"></span></div></div><div class="chart" id="chartJumps"></div></section>
+<section class="card"><div class="chart-head"><h2>Blocs terminés</h2><div class="chart-read"><b id="readBlocks">—</b><span class="small" id="readBlocksDate"></span></div></div><div class="chart" id="chartBlocks"></div></section>
+<section class="card"><div class="chart-head"><h2>Poids</h2><div class="chart-read"><b id="readWeight">—</b><span class="small" id="readWeightDate"></span></div></div><div class="chart" id="chartWeight"></div><p class="small" id="weightDelta"></p></section>
+<section class="card"><div class="chart-head"><h2>Dépense estimée</h2><div class="chart-read"><b id="readKcal">—</b><span class="small" id="readKcalDate"></span></div></div><div class="chart" id="chartKcal"></div></section>
+</div>
+
+<section class="card" style="margin-top:18px"><h2>Records personnels</h2><table class="records" style="width:100%;border-collapse:collapse"><tbody id="records"></tbody></table></section>
+</div>
+</main></div>
+<dialog id="dialog"><form method="dialog" class="modal"><h2>Personnaliser le programme</h2><p class="note">Modèle initial : 7 blocs de 08:00 à 20:00, toutes les 2 heures. Six blocs à 150 sauts et le dernier à 100, pour atteindre 1 000 sauts exactement. Ces horaires ne sont que des repères : l’heure de chaque bloc se modifie à la minute directement dans le tableau.</p><div class="form-grid"><label>Sauts par bloc<input id="cfgJumps" type="number" min="0" max="1000"></label><label>Objectif sauts / jour<input id="cfgTarget" type="number" min="0" max="10000"></label><label>Pompes par bloc prévu<input id="cfgPushups" type="number" min="0" max="500"></label><label>Squats par bloc prévu<input id="cfgSquats" type="number" min="0" max="500"></label><label>Début (heure)<input id="cfgStart" type="number" min="0" max="23"></label><label>Début (minutes)<input id="cfgStartMinute" type="number" min="0" max="59"></label><label>Intervalle (heures)<input id="cfgInterval" type="number" min="1" max="12"></label><label>Nombre de blocs<input id="cfgBlocks" type="number" min="1" max="24"></label><label>Cadence corde (sauts/min)<input id="cfgCadence" type="number" min="30" max="250"></label></div><div class="actions"><button class="primary" value="save" id="saveSettings">Appliquer</button><button class="secondary" value="cancel">Annuler</button><button class="danger" type="button" id="reset">Réinitialiser le modèle</button></div></form></dialog>
+<dialog id="importDialog"><form method="dialog" class="modal"><h2>Importer une sauvegarde</h2><p class="small" id="importSummary"></p><p class="note">« Fusionner » garde tes journées actuelles et n’écrase que celles aux mêmes dates. « Remplacer » efface tout avant d’importer.</p><div class="actions"><button class="primary" value="merge">Fusionner</button><button class="secondary" value="cancel">Annuler</button><button class="danger" value="replace">Remplacer tout</button></div></form></dialog>
+<script>
+'use strict';
+
+const KEY = 'val-sport-tracker-v1';
+const DEFAULTS = {jumps:150, dailyJumpTarget:1000, pushups:20, squats:20, start:8, startMinute:0, interval:2, blocks:7, cadence:105};
+const DEFAULT_WEIGHT = 97;
+
+/* ---------- stockage ---------- */
+const memoryStore = {};
+let persistentStorage = true;
+const store = (() => {
+  try {
+    const probe = '__val_sport_probe__';
+    localStorage.setItem(probe, '1');
+    localStorage.removeItem(probe);
+    return localStorage;
+  } catch (e) {
+    persistentStorage = false;
+    return {
+      getItem: k => (k in memoryStore ? memoryStore[k] : null),
+      setItem: (k, v) => { memoryStore[k] = String(v); },
+      removeItem: k => { delete memoryStore[k]; }
+    };
+  }
+})();
+
+function loadData() {
+  let raw;
+  try { raw = JSON.parse(store.getItem(KEY) || '{}'); } catch (e) { raw = null; }
+  if (!raw || typeof raw !== 'object') raw = {};
+  if (!raw.days || typeof raw.days !== 'object') raw.days = {};
+  const s = raw.settings;
+  // On ne repart des valeurs par défaut que si la configuration est inutilisable.
+  // (Auparavant un objectif de 0 saut suffisait à effacer tout le programme.)
+  raw.settings = (s && Number(s.interval) > 0 && Number(s.blocks) > 0) ? {...DEFAULTS, ...s} : {...DEFAULTS};
+  return raw;
+}
+
+let data = loadData();
+function saveData() { store.setItem(KEY, JSON.stringify(data)); }
+/**
+ * Enregistrement automatique : sur téléphone, personne ne pense à appuyer sur
+ * un bouton avant de fermer l'onglet. Le bouton reste, comme confirmation.
+ */
+let saveTimer = null;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveData(); renderHistory(); }, 600);
+}
+window.addEventListener('pagehide', () => { clearTimeout(saveTimer); saveData(); });
+
+/* ---------- dates (heure locale, jamais UTC) ---------- */
+const pad = n => String(n).padStart(2, '0');
+function toISODate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function todayISO() { return toISODate(new Date()); }
+function fromISODate(v) { const [y, m, d] = String(v).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); }
+function formatDate(v) { return fromISODate(v).toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}); }
+
+const $ = id => document.getElementById(id);
+const dayKey = () => $('date').value;
+
+/* ---------- journée courante ---------- */
+function lastKnownWeight(beforeKey) {
+  const keys = Object.keys(data.days).sort();
+  for (let i = keys.length - 1; i >= 0; i--) {
+    if (beforeKey && keys[i] > beforeKey) continue;
+    const w = Number(data.days[keys[i]].weight);
+    if (w > 0) return w;
+  }
+  return DEFAULT_WEIGHT;
+}
+function freshDay(key) { return {weight: lastKnownWeight(key), notes: '', rows: {}}; }
+function current() {
+  const key = dayKey();
+  const day = data.days[key];
+  if (!day) return freshDay(key);
+  if (!day.rows || typeof day.rows !== 'object') day.rows = {};
+  return day;
+}
+
+/* ---------- programme ---------- */
+function schedule() {
+  const s = data.settings;
+  const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+  let remaining = target;
+  return Array.from({length: s.blocks}, (_, i) => {
+    // Grille de repère : heure de départ (à la minute) + intervalle.
+    const total = ((s.start * 60 + (Number(s.startMinute) || 0)) + i * s.interval * 60) % 1440;
+    const jumps = Math.min(s.jumps, Math.max(0, remaining));
+    remaining -= jumps;
+    return {id: String(i), time: pad(Math.floor(total / 60)) + ':' + pad(total % 60), jumps, pushups: s.pushups, squats: s.squats};
+  });
+}
+function nowHM() { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+/** Heure réellement enregistrée pour un bloc, sinon l'heure prévue. */
+function blockTime(x, r) { return (x && x.time) || r.time; }
+function movementSeconds(r) { return r.jumps / (data.settings.cadence || 105) * 60 + r.pushups * 2 + r.squats * 2; }
+function duration(r) {
+  const exerciseCount = [r.jumps, r.pushups, r.squats].filter(n => n > 0).length;
+  return movementSeconds(r) + Math.max(0, exerciseCount - 1) * 60;
+}
+function durationLabel(seconds) {
+  const min = Math.floor(seconds / 60), sec = Math.round(seconds % 60);
+  return '~' + min + ' min ' + pad(sec) + ' s';
+}
+/** Sur une carte de bloc, « ~4 min 46 s » encombre : la minute suffit. */
+function shortDuration(seconds) { return '~' + Math.max(1, Math.round(seconds / 60)) + ' min'; }
+/** 96.60000000000001 vient des additions flottantes : on n'affiche jamais ça. */
+function formatWeight(value) { return (Math.round(Number(value) * 10) / 10).toString().replace('.', ','); }
+/** Cumuls sur une période : « 169 min » ne se lit pas, « 2 h 49 » si. */
+function longDuration(seconds) {
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return minutes + ' min';
+  const hours = Math.floor(minutes / 60), rest = minutes % 60;
+  return rest ? hours + ' h ' + pad(rest) : hours + ' h';
+}
+function calories(r, weight) {
+  const jumpH = r.jumps / (data.settings.cadence || 105) / 60;
+  const restH = Math.max(0, duration(r) - movementSeconds(r)) / 3600;
+  return Math.round((11.8 * weight * jumpH) + (3.8 * weight * (r.pushups * 2 / 3600)) + (5 * weight * (r.squats * 2 / 3600)) + (1.5 * weight * restH));
+}
+function labels(r) {
+  return [r.jumps && r.jumps + ' sauts', r.pushups && r.pushups + ' pompes', r.squats && r.squats + ' squats'].filter(Boolean).join(' · ');
+}
+function recordedActual(x, r) {
+  // `reps` : ancien format (une seule case) conservé pour ne pas perdre l'historique.
+  const legacy = x.reps !== undefined;
+  return {
+    jumps: Number(x.jumps !== undefined ? x.jumps : (legacy ? r.jumps : 0)) || 0,
+    pushups: Number(x.pushups !== undefined ? x.pushups : (legacy ? r.pushups : 0)) || 0,
+    squats: Number(x.squats !== undefined ? x.squats : (legacy ? r.squats : 0)) || 0
+  };
+}
+
+/* ---------- totaux : une seule source de vérité ---------- */
+function dayTotals(d) {
+  const rows = schedule();
+  const weight = Number(d.weight) || DEFAULT_WEIGHT;
+  let done = 0, jumps = 0, pushups = 0, squats = 0, kcal = 0, seconds = 0;
+  rows.forEach(r => {
+    const x = (d.rows || {})[r.id] || {};
+    // Seuls les blocs cochés « Fait » comptent : une case remplie mais non
+    // cochée reste une intention, pas une séance réalisée.
+    if (!x.done) return;
+    done++;
+    const actual = recordedActual(x, r);
+    if (!actual.jumps && !actual.pushups && !actual.squats) return;
+    jumps += actual.jumps; pushups += actual.pushups; squats += actual.squats;
+    seconds += duration(actual);
+    kcal += calories(actual, weight);
+  });
+  const s = data.settings;
+  const targetJumps = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+  return {done, blocks: rows.length, jumps, pushups, squats, kcal: Math.round(kcal), seconds, targetJumps};
+}
+
+/* ---------- rendu ---------- */
+function renderTargetInfo(weight) {
+  const s = data.settings, planned = schedule();
+  const active = Math.round(planned.reduce((n, r) => n + duration(r), 0));
+  const plannedKcal = planned.reduce((n, r) => n + calories(r, weight), 0);
+  const target = Number.isFinite(Number(s.dailyJumpTarget)) ? Number(s.dailyJumpTarget) : s.jumps * s.blocks;
+  $('targetInfo').textContent = 'Objectif : ' + target + ' sauts. Total estimé : ' + durationLabel(active) +
+    ' et ~' + plannedKcal + ' kcal.';
+}
+
+/** Bloc « maintenant » : le dernier créneau échu non fait, sinon le prochain. */
+function currentBlockId() {
+  if (dayKey() !== todayISO()) return null;
+  const d = current(), minutes = new Date().getHours() * 60 + new Date().getMinutes();
+  const pending = schedule().filter(r => !(d.rows[r.id] || {}).done);
+  if (!pending.length) return null;
+  const past = pending.filter(r => clockMinutes(blockTime(d.rows[r.id], r)) <= minutes);
+  return (past.length ? past[past.length - 1] : pending[0]).id;
+}
+function clockMinutes(clock) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(clock || '');
+  return m ? Number(m[1]) * 60 + Number(m[2]) : 0;
+}
+
+/** Anneau de progression : blocs faits sur blocs prévus. */
+function renderRing(done, total) {
+  const radius = 42, circumference = 2 * Math.PI * radius;
+  const ratio = total ? Math.min(1, done / total) : 0;
+  $('ring').innerHTML = `<svg class="ring" viewBox="0 0 100 100" role="img" aria-label="${done} blocs sur ${total}">
+    <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--ring-track)" stroke-width="11"/>
+    <circle cx="50" cy="50" r="${radius}" fill="none" stroke="var(--green)" stroke-width="11" stroke-linecap="round"
+      stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${(circumference * (1 - ratio)).toFixed(1)}"
+      transform="rotate(-90 50 50)"/>
+    <text x="50" y="47" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">${done}/${total}</text>
+    <text x="50" y="63" text-anchor="middle" font-size="9" fill="var(--muted)">blocs</text></svg>`;
+}
+
+/** Bloc actuellement déplié ; un seul à la fois, d'où une simple variable. */
+let openBlock = null;
+
+function effortOf(x, r) {
+  const actual = recordedActual(x, r);
+  return x && (x.done || x.entered) ? actual : {jumps: r.jumps, pushups: r.pushups, squats: r.squats};
+}
+
+function renderRows() {
+  const d = current();
+  const weight = Number(d.weight) || DEFAULT_WEIGHT;
+  renderTargetInfo(weight);
+  const nowId = currentBlockId();
+
+  $('rows').innerHTML = schedule().map(r => {
+    const x = d.rows[r.id] || {};
+    const effort = effortOf(x, r);
+    const isNow = r.id === nowId;
+    const isOpen = r.id === openBlock;
+    const sub = x.done
+      ? `${effort.jumps} · ${effort.pushups} · ${effort.squats} — ${calories(effort, weight)} kcal`
+      : `${r.jumps} sauts · ${r.pushups} pompes · ${r.squats} squats`;
+
+    const row = `<li class="brow ${x.done ? 'done' : ''} ${isNow ? 'now' : ''}">
+      <button class="tick" data-tick="${r.id}" aria-pressed="${!!x.done}" aria-label="Marquer le bloc de ${blockTime(x, r)} comme fait"><i>
+        <svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 8.6 6.2 12 13 4.6" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </i></button>
+      <button class="brow-main" data-open="${r.id}" aria-expanded="${isOpen}">
+        <span class="brow-time">${blockTime(x, r)}${isNow ? '<em class="nowbadge">maintenant</em>' : ''}</span>
+        <span class="brow-sub">${sub}</span>
+      </button>
+      <span class="chev" aria-hidden="true">${isOpen ? '⌄' : '›'}</span>
+      ${isNow && !x.done ? `<button class="cta" data-tick="${r.id}">C’est fait ✓</button>` : ''}
+    </li>`;
+
+    if (!isOpen) return row;
+    const field = (cls, label, value, aria) =>
+      `<label><span>${label}</span><input class="rep ${cls}" data-id="${r.id}" type="number" min="0" inputmode="numeric" value="${value}" aria-label="${aria}"></label>`;
+    return row + `<li class="bdetail">
+      <div class="bdetail-top">
+        <span><input class="time" type="time" data-id="${r.id}"${x.time ? ' data-set="1"' : ''} value="${blockTime(x, r)}" aria-label="Heure du bloc prévu à ${r.time}">
+        <span class="small planned">repère ${r.time}</span></span>
+        <span class="small" id="blockStats-${r.id}">${shortDuration(duration(effort))} · ~${calories(effort, weight)} kcal</span>
+      </div>
+      <div class="fields">${field('actual-jumps', 'Corde', effort.jumps, 'Sauts de corde réels')}${field('actual-pushups', 'Pompes', effort.pushups, 'Pompes réelles')}${field('actual-squats', 'Squats', effort.squats, 'Squats réels')}</div>
+    </li>`;
+  }).join('');
+
+  renderTotals(d);
+}
+
+function renderTotals(d) {
+  const t = dayTotals(d);
+  renderRing(t.done, t.blocks);
+  $('jumpTotal').textContent = t.jumps.toLocaleString('fr-FR');
+  $('jumpTarget').textContent = '/ ' + t.targetJumps.toLocaleString('fr-FR') + ' sauts';
+  $('dayResult').innerHTML = `<b>${t.done}/${t.blocks} blocs</b>` +
+    `<span>C ${t.jumps} · P ${t.pushups} · S ${t.squats}</span>` +
+    `<span>${durationLabel(t.seconds)}</span><b style="margin-left:auto">~${t.kcal} kcal</b>`;
+  const pct = t.targetJumps ? Math.min(1, t.jumps / t.targetJumps) : 0;
+  $('bar').style.width = (pct * 100) + '%';
+  const remaining = Math.max(0, t.targetJumps - t.jumps);
+  const reached = remaining <= 0 && t.targetJumps > 0;
+  $('completion').className = reached ? 'small reached' : 'small';
+  $('completion').textContent = reached
+    ? 'objectif atteint 🎉 · ~' + t.kcal + ' kcal'
+    : remaining.toLocaleString('fr-FR') + ' sauts restants · ~' + t.kcal + ' kcal';
+}
+
+/* ---------- écriture ---------- */
+
+/** Crée la ligne d'un bloc à partir du modèle si elle n'existe pas encore. */
+function ensureRow(id) {
+  const key = dayKey();
+  const d = data.days[key] || (data.days[key] = freshDay(key));
+  if (!d.rows || typeof d.rows !== 'object') d.rows = {};
+  if (!d.rows[id]) {
+    const block = schedule().find(r => r.id === id);
+    d.rows[id] = {done: false, entered: false, time: null,
+                  jumps: block ? block.jumps : 0, pushups: block ? block.pushups : 0, squats: block ? block.squats : 0};
+  }
+  return d.rows[id];
+}
+
+/** Relit les champs du bloc déplié — seul bloc éditable à un instant donné. */
+function readOpenBlock() {
+  if (openBlock === null) return;
+  const row = ensureRow(openBlock);
+  const field = cls => {
+    const el = document.querySelector('.' + cls + '[data-id="' + openBlock + '"]');
+    return el ? Math.max(0, Number(el.value) || 0) : 0;
+  };
+  row.jumps = field('actual-jumps');
+  row.pushups = field('actual-pushups');
+  row.squats = field('actual-squats');
+  const timeField = document.querySelector('.time[data-id="' + openBlock + '"]');
+  row.time = timeField && timeField.dataset.set && timeField.value ? timeField.value : null;
+  if (row.time) delete row.timeAuto;
+  row.entered = true;
+  delete row.reps;
+}
+
+function readMeta() {
+  const key = dayKey();
+  if (!key) return;
+  const d = data.days[key] || (data.days[key] = freshDay(key));
+  d.weight = Number($('weight').value) || lastKnownWeight(key);
+  d.notes = $('notes').value;
+}
+
+/** Saisie dans le bloc ouvert : on met à jour sans redessiner (on perdrait le focus). */
+function refreshOpenBlock() {
+  readOpenBlock();
+  const d = current();
+  const block = schedule().find(r => r.id === openBlock);
+  if (block) {
+    const effort = effortOf(d.rows[openBlock], block);
+    const stats = $('blockStats-' + openBlock);
+    if (stats) stats.textContent = shortDuration(duration(effort)) + ' · ~' + calories(effort, Number(d.weight) || DEFAULT_WEIGHT) + ' kcal';
+  }
+  renderTotals(d);
+  scheduleSave();
+}
+
+function toggleDone(id) {
+  readOpenBlock();
+  const row = ensureRow(id);
+  row.done = !row.done;
+  if (row.done) {
+    row.entered = true;
+    // Horodatage automatique, marqué comme tel pour pouvoir être retiré au décochage.
+    if (!row.time && dayKey() === todayISO()) { row.time = nowHM(); row.timeAuto = true; }
+  } else if (row.timeAuto) {
+    row.time = null;
+    delete row.timeAuto;
+  }
+  saveData();
+  renderRows();
+  renderHistory();
+}
+
+function toggleOpen(id) {
+  readOpenBlock();
+  openBlock = openBlock === id ? null : id;
+  renderRows();
+}
+
+/* ---------- historique ---------- */
+function renderHistory() {
+  const entries = Object.entries(data.days).sort((a, b) => b[0].localeCompare(a[0]));
+  $('history').innerHTML = entries.slice(0, 12).map(([k, d]) => {
+    const t = dayTotals(d);
+    return `<div class="hist-row"><span class="hist-date">${formatDate(k)}</span>` +
+      `<span class="hist-blocks">${t.done}/${t.blocks} blocs</span>` +
+      `<span class="hist-metrics">${t.jumps} sauts · ${t.kcal} kcal${d.weight ? ' · ' + formatWeight(d.weight) + ' kg' : ''}</span></div>`;
+  }).join('') || '<p class="small">Aucune séance enregistrée.</p>';
+
+  const today = fromISODate(dayKey() || todayISO());
+  const cells = [];
+  let totalKcal = 0, totalBlocks = 0;
+  for (let i = 6; i >= 0; i--) {
+    const x = new Date(today);
+    x.setDate(today.getDate() - i);
+    const k = toISODate(x);
+    const day = data.days[k];
+    const t = day ? dayTotals(day) : null;
+    if (t) { totalKcal += t.kcal; totalBlocks += t.done; }
+    cells.push(`<div class="day ${t ? 'active' : ''} ${k === todayISO() ? 'today' : ''}">${x.toLocaleDateString('fr-FR', {weekday:'short'}).slice(0, 3)}<b>${t ? t.done : '—'}</b></div>`);
+  }
+  $('week').innerHTML = cells.join('');
+  $('weekSummary').textContent = totalBlocks + ' bloc(s) réalisés sur les 7 derniers jours · ~' + totalKcal + ' kcal.';
+}
+
+function loadDay() {
+  openBlock = null;
+  const d = current();
+  $('weight').value = d.weight != null ? Math.round(Number(d.weight) * 10) / 10 : lastKnownWeight(dayKey());
+  $('notes').value = d.notes || '';
+  renderRows();
+  renderHistory();
+}
+
+function saveDay() {
+  readOpenBlock();
+  readMeta();
+  saveData();
+  renderHistory();
+  flash('save', 'Enregistré ✓', 'Enregistrer');
+}
+
+function flash(id, message, back) {
+  const btn = $(id);
+  btn.textContent = message;
+  clearTimeout(btn._t);
+  btn._t = setTimeout(() => { btn.textContent = back; }, 1500);
+}
+
+/* ================= Progression : agrégats ================= */
+
+/** Totaux jour par jour sur une période continue ; un jour sans séance vaut zéro. */
+function dayPoints(from, to) {
+  const out = [];
+  for (let key = from; key <= to; key = shiftDate(key, 1)) {
+    const day = data.days[key];
+    out.push({date: key, label: formatDate(key), totals: dayTotals(day || {rows: {}}), weight: day && Number(day.weight) > 0 ? Number(day.weight) : null});
+  }
+  return out;
+}
+function shiftDate(key, delta) { const d = fromISODate(key); d.setDate(d.getDate() + delta); return toISODate(d); }
+
+function summarize(points) {
+  const sum = {jumps: 0, kcal: 0, seconds: 0, blocks: 0, possible: 0, active: 0, targets: 0};
+  points.forEach(p => {
+    sum.jumps += p.totals.jumps; sum.kcal += p.totals.kcal; sum.seconds += p.totals.seconds;
+    sum.blocks += p.totals.done; sum.possible += p.totals.blocks;
+    if (p.totals.done > 0) sum.active++;
+    if (p.totals.targetJumps > 0 && p.totals.jumps >= p.totals.targetJumps) sum.targets++;
+  });
+  sum.average = points.length ? Math.round(sum.jumps / points.length) : 0;
+  sum.consistency = sum.possible ? Math.round(sum.blocks / sum.possible * 100) : 0;
+  return sum;
+}
+
+/** Jours consécutifs avec au moins un bloc fait ; aujourd'hui encore vide ne casse rien. */
+function currentStreak() {
+  const active = new Set(Object.keys(data.days).filter(k => dayTotals(data.days[k]).done > 0));
+  if (!active.size) return 0;
+  let cursor = active.has(todayISO()) ? todayISO() : shiftDate(todayISO(), -1);
+  let streak = 0;
+  while (active.has(cursor)) { streak++; cursor = shiftDate(cursor, -1); }
+  return streak;
+}
+
+/* ================= Progression : graphiques SVG ================= */
+
+const PAD = {left: 44, right: 14, top: 16, bottom: 24};
+
+function niceBounds(min, max, count) {
+  if (min === max) { const p = Math.abs(min) > 1 ? Math.abs(min) * 0.1 : 1; min -= p; max += p; }
+  const raw = (max - min) / Math.max(1, count);
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const n = raw / magnitude;
+  const step = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * magnitude;
+  const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.round(v * 1e6) / 1e6);
+  return {min: lo, max: hi, ticks};
+}
+
+function buildScale(values, width, height, opts) {
+  const filled = values.filter(v => v !== null && isFinite(v));
+  let lo = filled.length ? Math.min(...filled) : 0, hi = filled.length ? Math.max(...filled) : 1;
+  if (opts.fromZero) lo = Math.min(0, lo);
+  if (opts.minimumTop !== undefined) hi = Math.max(hi, opts.minimumTop);
+  // Sur une courbe de poids, partir de zéro écraserait toute la variation.
+  if (!opts.fromZero && filled.length) { const m = (hi - lo) * 0.15 || 1; lo -= m; hi += m; }
+  const b = opts.snapMax !== undefined
+    ? {min: 0, max: Math.max(opts.snapMax, hi), ticks: [0, opts.snapMax]}
+    : niceBounds(lo, hi, opts.ticks || 3);
+  const w = Math.max(1, width - PAD.left - PAD.right), h = Math.max(1, height - PAD.top - PAD.bottom);
+  const span = b.max - b.min || 1, n = values.length;
+  return {w, h, ticks: b.ticks, min: b.min, max: b.max,
+    x: i => (n <= 1 ? PAD.left + w / 2 : PAD.left + (i / (n - 1)) * w),
+    y: v => PAD.top + h - ((v - b.min) / span) * h};
+}
+
+function compact(v) {
+  const abs = Math.abs(v);
+  if (abs >= 10000) return Math.round(v / 1000) + 'k';
+  if (abs >= 1000) return (v / 1000).toFixed(1).replace('.0', '').replace('.', ',') + 'k';
+  return String(Math.round(v * 10) / 10).replace('.', ',');
+}
+
+/** Début, milieu(x) et fin — jamais une étiquette par jour. */
+function labelIndices(count, max) {
+  if (count <= 1) return count ? [0] : [];
+  if (count <= max) return Array.from({length: count}, (_, i) => i);
+  const step = (count - 1) / (max - 1), set = new Set();
+  for (let i = 0; i < max; i++) set.add(Math.round(i * step));
+  return [...set].sort((a, b) => a - b);
+}
+
+function axisSVG(scale, points, height) {
+  const grid = scale.ticks.map(t =>
+    `<line x1="${PAD.left}" y1="${scale.y(t)}" x2="${PAD.left + scale.w}" y2="${scale.y(t)}" stroke="var(--grid)"/>` +
+    `<text x="${PAD.left - 8}" y="${scale.y(t) + 4}" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="end">${compact(t)}</text>`).join('');
+  const last = points.length - 1;
+  const labels = labelIndices(points.length, 4).map(i => {
+    const anchor = i === 0 ? 'start' : i === last ? 'end' : 'middle';
+    const x = i === 0 ? PAD.left : i === last ? PAD.left + scale.w : scale.x(i);
+    return `<text x="${x}" y="${height - 6}" fill="var(--muted)" font-size="10" font-weight="600" text-anchor="${anchor}">${points[i].label}</text>`;
+  }).join('');
+  return grid + labels;
+}
+
+function lineSVG(points, width, height, opts) {
+  const values = points.map(p => p.value);
+  const scale = buildScale(values, width, height, opts);
+  const filled = [];
+  values.forEach((v, i) => { if (v !== null && isFinite(v)) filled.push({i, v}); });
+  const path = filled.map((p, k) => `${k ? 'L' : 'M'}${scale.x(p.i).toFixed(1)},${scale.y(p.v).toFixed(1)}`).join(' ');
+  const base = PAD.top + scale.h;
+  // L'aire n'a de sens que si la base est le zéro ; sous une courbe de poids
+  // tronquée, elle suggérerait un volume qui n'existe pas.
+  const area = opts.fromZero && filled.length > 1
+    ? `<path d="${path} L${scale.x(filled[filled.length - 1].i).toFixed(1)},${base} L${scale.x(filled[0].i).toFixed(1)},${base} Z" fill="${opts.color}" opacity=".14"/>` : '';
+  const dots = (opts.dots && filled.length <= 45 ? filled : filled.slice(-1))
+    .map(p => `<circle cx="${scale.x(p.i)}" cy="${scale.y(p.v)}" r="3.5" fill="${opts.color}" stroke="white" stroke-width="1.5"/>`).join('');
+  const ref = opts.reference > 0 ? `<line x1="${PAD.left}" y1="${scale.y(opts.reference)}" x2="${PAD.left + scale.w}" y2="${scale.y(opts.reference)}" stroke="var(--muted)" stroke-dasharray="4 4" opacity=".7"/>` +
+    `<text x="${PAD.left + scale.w}" y="${scale.y(opts.reference) - 5}" fill="var(--muted)" font-size="10" font-weight="700" text-anchor="end">objectif ${compact(opts.reference)}</text>` : '';
+  return {scale, svg: `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${axisSVG(scale, points, height)}${ref}${area}` +
+    `<path d="${path}" fill="none" stroke="${opts.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}` +
+    `<g class="cursor" style="display:none"><line y1="${PAD.top}" y2="${base}" stroke="var(--muted)"/><circle r="5" fill="${opts.color}" stroke="white" stroke-width="2"/></g></svg>`};
+}
+
+function barSVG(points, width, height, opts) {
+  const values = points.map(p => p.value);
+  const scale = buildScale(values, width, height, Object.assign({fromZero: true}, opts));
+  const slot = scale.w / Math.max(1, points.length);
+  const barWidth = Math.max(2, Math.min(22, slot - 2)); // 2 px de fond entre deux barres
+  const base = PAD.top + scale.h;
+  const bar = (x, top, w) => {
+    const r = Math.max(0, Math.min(4, w / 2, base - top));
+    return `M${x},${base} L${x},${top + r} Q${x},${top} ${x + r},${top} L${x + w - r},${top} Q${x + w},${top} ${x + w},${top + r} L${x + w},${base} Z`;
+  };
+  const bars = points.map((p, i) => {
+    const x = PAD.left + i * slot + (slot - barWidth) / 2;
+    const track = `<path d="${bar(x, scale.y(opts.snapMax), barWidth)}" fill="#e8ece8" opacity=".7"/>`;
+    return track + (p.value > 0 ? `<path d="${bar(x, scale.y(p.value), barWidth)}" fill="${opts.color}"/>` : '');
+  }).join('');
+  return {scale, slot, svg: `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${axisSVG(scale, points, height)}${bars}` +
+    `<line x1="${PAD.left}" y1="${base}" x2="${PAD.left + scale.w}" y2="${base}" stroke="var(--line)"/>` +
+    `<g class="cursor" style="display:none"><line y1="${PAD.top}" y2="${base}" stroke="var(--muted)"/><circle r="5" fill="${opts.color}" stroke="white" stroke-width="2"/></g></svg>`};
+}
+
+/**
+ * Dessine un graphique et branche le survol : sur une page web, une courbe sans
+ * lecture au pointeur oblige à deviner les valeurs.
+ */
+function drawChart(id, readId, dateId, points, opts) {
+  const host = $(id);
+  const width = Math.max(260, host.clientWidth || 320), height = opts.height || 200;
+  const built = opts.type === 'bar' ? barSVG(points, width, height, opts) : lineSVG(points, width, height, opts);
+  const hasData = points.some(p => p.value !== null && p.value > 0);
+  host.innerHTML = built.svg + (hasData ? '' : `<div class="chart-empty">${opts.empty || 'Pas encore de données sur cette période.'}</div>`);
+
+  const lastFilled = points.reduce((acc, p, i) => (p.value !== null ? i : acc), -1);
+  const cursor = host.querySelector('.cursor');
+  const show = index => {
+    const p = points[index];
+    $(readId).textContent = p && p.value !== null ? opts.format(p.value) : '—';
+    $(dateId).textContent = p ? p.label : '';
+    if (!cursor || !p || p.value === null || !hasData) { if (cursor) cursor.style.display = 'none'; return; }
+    const x = opts.type === 'bar' ? PAD.left + index * built.slot + built.slot / 2 : built.scale.x(index);
+    cursor.style.display = '';
+    cursor.querySelector('line').setAttribute('x1', x);
+    cursor.querySelector('line').setAttribute('x2', x);
+    cursor.querySelector('circle').setAttribute('cx', x);
+    cursor.querySelector('circle').setAttribute('cy', built.scale.y(p.value));
+  };
+  const reset = () => { show(lastFilled >= 0 ? lastFilled : points.length - 1); if (cursor) cursor.style.display = 'none'; };
+
+  host.onpointermove = event => {
+    const rect = host.getBoundingClientRect();
+    const ratio = (event.clientX - rect.left) / rect.width * width;
+    const index = opts.type === 'bar'
+      ? Math.floor((ratio - PAD.left) / built.slot)
+      : Math.round((ratio - PAD.left) / built.scale.w * (points.length - 1));
+    show(Math.max(0, Math.min(points.length - 1, index)));
+  };
+  host.onpointerleave = reset;
+  reset();
+}
+
+/* ================= Progression : rendu ================= */
+
+let progressRange = 30;
+
+function renderProgress() {
+  const to = todayISO(), from = shiftDate(to, -(progressRange - 1));
+  const points = dayPoints(from, to);
+  const previous = summarize(dayPoints(shiftDate(from, -progressRange), shiftDate(from, -1)));
+  const sum = summarize(points);
+
+  $('ranges').innerHTML = [[7, '7 j'], [30, '30 j'], [90, '90 j'], [365, '1 an']]
+    .map(([days, label]) => `<button class="range" data-days="${days}" aria-pressed="${days === progressRange}">${label}</button>`).join('');
+
+  $('pTotalJumps').textContent = sum.jumps.toLocaleString('fr-FR');
+  const delta = sum.jumps - previous.jumps;
+  $('pDelta').textContent = previous.jumps > 0
+    ? (delta >= 0 ? '+' : '−') + Math.abs(delta).toLocaleString('fr-FR') + ' par rapport à la période précédente'
+    : 'Première période enregistrée';
+  const streak = currentStreak();
+  $('pStreak').textContent = streak + ' j';
+  $('pConsistency').textContent = sum.consistency + ' %';
+  $('pAverage').textContent = sum.average.toLocaleString('fr-FR');
+  $('pKcal').textContent = sum.kcal.toLocaleString('fr-FR');
+  $('pTime').textContent = longDuration(sum.seconds);
+  $('pTargets').textContent = sum.targets;
+
+  const blockCount = data.settings.blocks;
+  drawChart('chartJumps', 'readJumps', 'readJumpsDate',
+    points.map(p => ({label: p.label, value: p.totals.jumps})),
+    {color: 'var(--s-jumps)', fromZero: true, reference: data.settings.dailyJumpTarget,
+     minimumTop: data.settings.dailyJumpTarget, format: v => v.toLocaleString('fr-FR') + ' sauts'});
+
+  drawChart('chartBlocks', 'readBlocks', 'readBlocksDate',
+    points.map(p => ({label: p.label, value: p.totals.done})),
+    {type: 'bar', color: 'var(--s-blocks)', snapMax: blockCount, height: 180, format: v => v + '/' + blockCount + ' blocs'});
+
+  drawChart('chartWeight', 'readWeight', 'readWeightDate',
+    points.map(p => ({label: p.label, value: p.weight})),
+    {color: 'var(--s-weight)', fromZero: false, dots: true, format: v => v.toFixed(1).replace('.', ',') + ' kg',
+     empty: 'Renseigne ton poids dans l’onglet Aujourd’hui pour voir la courbe.'});
+
+  const weights = points.map(p => p.weight).filter(v => v !== null);
+  $('weightDelta').textContent = weights.length >= 2
+    ? `${weights[0].toFixed(1).replace('.', ',')} kg → ${weights[weights.length - 1].toFixed(1).replace('.', ',')} kg ` +
+      `(${weights[weights.length - 1] - weights[0] > 0 ? '+' : '−'}${Math.abs(weights[weights.length - 1] - weights[0]).toFixed(1).replace('.', ',')} kg)`
+    : '';
+
+  drawChart('chartKcal', 'readKcal', 'readKcalDate',
+    points.map(p => ({label: p.label, value: p.totals.kcal})),
+    {color: 'var(--s-kcal)', fromZero: true, format: v => v.toLocaleString('fr-FR') + ' kcal'});
+
+  let bestJumps = null, bestKcal = null, totalEver = 0, activeEver = 0;
+  Object.keys(data.days).forEach(key => {
+    const t = dayTotals(data.days[key]);
+    totalEver += t.jumps;
+    if (t.done > 0) activeEver++;
+    if (t.jumps > 0 && (!bestJumps || t.jumps > bestJumps.value)) bestJumps = {key, value: t.jumps};
+    if (t.kcal > 0 && (!bestKcal || t.kcal > bestKcal.value)) bestKcal = {key, value: t.kcal};
+  });
+  $('records').innerHTML = [
+    ['Meilleure journée', bestJumps ? bestJumps.value.toLocaleString('fr-FR') + ' sauts · ' + formatDate(bestJumps.key) : '—'],
+    ['Plus grosse dépense', bestKcal ? bestKcal.value.toLocaleString('fr-FR') + ' kcal · ' + formatDate(bestKcal.key) : '—'],
+    ['Total depuis le début', totalEver.toLocaleString('fr-FR') + ' sauts'],
+    ['Journées actives', activeEver + ' jour(s)'],
+    ['Série en cours', streak + ' jour(s)']
+  ].map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('');
+}
+
+/* ================= Onglets ================= */
+
+let currentView = 'today';
+function showView(view) {
+  currentView = view;
+  ['today', 'progress'].forEach(name => {
+    $('view-' + name).hidden = name !== view;
+    $('tab-' + name).setAttribute('aria-selected', String(name === view));
+  });
+  $('dateBox').style.display = view === 'today' ? '' : 'none';
+  if (view === 'progress') renderProgress();
+}
+
+/* ================= Import ================= */
+
+const isDateKey = k => /^\d{4}-\d{2}-\d{2}$/.test(k);
+const toCount = v => { const n = Math.round(Number(v)); return isFinite(n) && n >= 0 ? n : 0; };
+const toClock = v => (typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null);
+
+/** Accepte le format de cette page comme celui de l'application mobile. */
+function parseBackup(text) {
+  let raw;
+  try { raw = JSON.parse(text); } catch (e) { throw new Error('Ce fichier n’est pas un JSON valide.'); }
+  if (!raw || typeof raw !== 'object') throw new Error('Fichier de sauvegarde vide ou illisible.');
+
+  if (Array.isArray(raw.days)) {          // export de l'application mobile
+    const s = raw.settings || {};
+    const days = {};
+    raw.days.forEach(item => {
+      if (!isDateKey(item && item.date)) return;
+      const rows = {};
+      (item.blocks || []).forEach(b => {
+        const id = String(b && b.blockId);
+        if (!/^\d+$/.test(id)) return;
+        rows[id] = {done: !!b.done, entered: !!(b.touched || b.done), time: toClock(b.time),
+                    jumps: toCount(b.jumps), pushups: toCount(b.pushups), squats: toCount(b.squats)};
+      });
+      days[item.date] = {weight: Number(item.weight) > 0 ? Number(item.weight) : null, notes: typeof item.notes === 'string' ? item.notes : '', rows};
+    });
+    if (!Object.keys(days).length) throw new Error('Aucune journée trouvée dans ce fichier.');
+    return {days, settings: {
+      jumps: toCount(s.jumpsPerBlock) || DEFAULTS.jumps, dailyJumpTarget: toCount(s.dailyJumpTarget),
+      pushups: toCount(s.pushupsPerBlock), squats: toCount(s.squatsPerBlock),
+      start: toCount(s.startHour), startMinute: toCount(s.startMinute),
+      interval: toCount(s.intervalHours) || DEFAULTS.interval, blocks: toCount(s.blockCount) || DEFAULTS.blocks,
+      cadence: toCount(s.cadence) || DEFAULTS.cadence}, source: 'l’application mobile'};
+  }
+
+  if (raw.days && typeof raw.days === 'object') {   // export de cette page
+    const days = {};
+    Object.keys(raw.days).forEach(key => {
+      if (!isDateKey(key)) return;
+      const value = raw.days[key] || {}, rows = {};
+      Object.keys(value.rows || {}).forEach(id => {
+        if (!/^\d+$/.test(id)) return;              // écarte la ligne « undefined » de l'ancien bug
+        const row = value.rows[id] || {};
+        rows[id] = {done: !!row.done, entered: !!row.entered, time: toClock(row.time),
+                    jumps: toCount(row.jumps), pushups: toCount(row.pushups), squats: toCount(row.squats)};
+      });
+      days[key] = {weight: Number(value.weight) > 0 ? Number(value.weight) : null, notes: typeof value.notes === 'string' ? value.notes : '', rows};
+    });
+    if (!Object.keys(days).length) throw new Error('Aucune journée trouvée dans ce fichier.');
+    return {days, settings: raw.settings && typeof raw.settings === 'object' ? Object.assign({}, DEFAULTS, raw.settings) : null, source: 'cette page'};
+  }
+
+  throw new Error('Format non reconnu : ce fichier ne vient pas de Notesport.');
+}
+
+let pendingImport = null;
+
+function applyImport(mode) {
+  if (!pendingImport) return;
+  const count = Object.keys(pendingImport.days).length;
+  if (mode === 'replace') {
+    data.days = pendingImport.days;
+    if (pendingImport.settings) data.settings = pendingImport.settings;
+  } else {
+    Object.assign(data.days, pendingImport.days);
+  }
+  pendingImport = null;
+  saveData();
+  loadDay();
+  if (currentView === 'progress') renderProgress();
+  alert(count + ' journée(s) importée(s).');
+}
+
+function setSettingsInputs() {
+  const s = data.settings;
+  [['cfgJumps','jumps'],['cfgTarget','dailyJumpTarget'],['cfgPushups','pushups'],['cfgSquats','squats'],
+   ['cfgStart','start'],['cfgStartMinute','startMinute'],['cfgInterval','interval'],['cfgBlocks','blocks'],['cfgCadence','cadence']]
+    .forEach(([id, k]) => { $(id).value = s[k]; });
+}
+
+/* ---------- branchements ---------- */
+$('date').value = todayISO();
+if (!persistentStorage) {
+  $('storageNotice').hidden = false;
+  $('storageNotice').textContent = 'Les calculs fonctionnent, mais ce navigateur ne peut pas mémoriser les données pour ce fichier. Utilise Exporter mes données pour les conserver.';
+}
+$('date').addEventListener('change', loadDay);
+$('weight').addEventListener('input', () => { readMeta(); renderTotals(current()); renderTargetInfo(Number($('weight').value) || DEFAULT_WEIGHT); scheduleSave(); });
+$('notes').addEventListener('input', () => { readMeta(); scheduleSave(); });
+// Délégation : les lignes sont recréées à chaque rendu, un écouteur global suffit.
+$('rows').addEventListener('click', e => {
+  const tick = e.target.closest('[data-tick]');
+  if (tick) { toggleDone(tick.dataset.tick); return; }
+  const opener = e.target.closest('[data-open]');
+  if (opener) toggleOpen(opener.dataset.open);
+});
+$('rows').addEventListener('input', e => {
+  if (e.target.matches('.time')) e.target.dataset.set = '1';
+  if (e.target.matches('.rep') || e.target.matches('.time')) refreshOpenBlock();
+});
+$('prevDay').onclick = () => { $('date').value = shiftDate(dayKey() || todayISO(), -1); loadDay(); };
+$('nextDay').onclick = () => { $('date').value = shiftDate(dayKey() || todayISO(), 1); loadDay(); };
+$('save').onclick = saveDay;
+$('settings').onclick = () => { setSettingsInputs(); $('dialog').showModal(); };
+$('tab-today').onclick = () => showView('today');
+$('tab-progress').onclick = () => showView('progress');
+$('ranges').addEventListener('click', e => {
+  const button = e.target.closest('.range');
+  if (!button) return;
+  progressRange = Number(button.dataset.days);
+  renderProgress();
+});
+// Les graphiques sont dessinés à la largeur réelle de leur carte : il faut les
+// redessiner quand la fenêtre change (rotation du téléphone comprise).
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  if (currentView !== 'progress') return;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderProgress, 150);
+});
+$('import').onclick = () => $('importFile').click();
+$('importFile').onchange = e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';               // permet de réimporter le même fichier
+  if (!file) return;
+  file.text().then(text => {
+    pendingImport = parseBackup(text);
+    const count = Object.keys(pendingImport.days).length;
+    $('importSummary').textContent = count + ' journée(s) trouvée(s) dans ce fichier (format : ' + pendingImport.source + ').';
+    $('importDialog').showModal();
+  }).catch(error => alert(error.message || 'Import impossible.'));
+};
+$('importDialog').addEventListener('close', () => {
+  const choice = $('importDialog').returnValue;
+  if (choice === 'merge' || choice === 'replace') applyImport(choice);
+  else pendingImport = null;
+});
+$('saveSettings').onclick = e => {
+  e.preventDefault();
+  const num = (id, fallback, min) => { const v = Number($(id).value); return Number.isFinite(v) && v >= min ? v : fallback; };
+  data.settings = {
+    jumps: num('cfgJumps', DEFAULTS.jumps, 0),
+    dailyJumpTarget: num('cfgTarget', DEFAULTS.dailyJumpTarget, 0),
+    pushups: num('cfgPushups', DEFAULTS.pushups, 0),
+    squats: num('cfgSquats', DEFAULTS.squats, 0),
+    start: num('cfgStart', DEFAULTS.start, 0),
+    startMinute: num('cfgStartMinute', DEFAULTS.startMinute, 0),
+    interval: num('cfgInterval', DEFAULTS.interval, 1),
+    blocks: num('cfgBlocks', DEFAULTS.blocks, 1),
+    cadence: num('cfgCadence', DEFAULTS.cadence, 30)
+  };
+  saveData();
+  $('dialog').close();
+  loadDay();
+};
+$('reset').onclick = () => { data.settings = {...DEFAULTS}; setSettingsInputs(); saveData(); loadDay(); };
+$('export').onclick = () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'notesport-' + todayISO() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Révoquer immédiatement annulait le téléchargement sur certains navigateurs.
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+};
+loadDay();
+// Le bloc « maintenant » change avec l'heure : rafraîchissement discret.
+setInterval(() => { if (currentView === 'today' && openBlock === null) renderRows(); }, 60000);
+
+// Installée sur l'écran d'accueil, l'application doit fonctionner sans réseau.
+// Ignoré quand la page est ouverte en fichier local (file://), où il n'y a de
+// toute façon rien à mettre en cache.
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      /* pas de mode hors ligne : l'application reste pleinement utilisable */
+    });
+  });
+}
+</script></body></html>
